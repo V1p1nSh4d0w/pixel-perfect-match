@@ -133,8 +133,8 @@ function ActionPlanPage() {
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 {section.name}
               </h2>
-              <Card>
-                <CardBody className="divide-y divide-border p-0">
+              <Card className="p-0">
+                <div className="divide-y divide-border">
                   {sectionItems.map((item) => (
                     <div key={item.id} className="flex items-center gap-3 px-5 py-4">
                       <input
