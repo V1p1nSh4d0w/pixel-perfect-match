@@ -1,18 +1,26 @@
 import type { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 
 export function AuthLayout({
   title,
   subtitle,
   children,
   footer,
+  backHome,
 }: {
   title: string;
-  subtitle?: string;
+  subtitle?: string | undefined;
   children: ReactNode;
   footer?: ReactNode;
+  backHome?: boolean | undefined;
 }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+      {backHome ? (
+        <Link to="/" className="absolute left-6 top-6 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          ← Back to home
+        </Link>
+      ) : null}
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           <span className="text-lg font-semibold tracking-tight text-foreground">SecureCheck</span>

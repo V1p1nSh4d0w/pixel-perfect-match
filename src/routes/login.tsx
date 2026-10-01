@@ -50,6 +50,7 @@ function LoginPage() {
 
   return (
     <AuthLayout
+      backHome
       title="Log in"
       subtitle="Welcome back."
       footer={
