@@ -1,0 +1,2 @@
+ALTER TABLE public.audits ADD COLUMN name text NOT NULL DEFAULT '', ADD COLUMN business_name text NOT NULL DEFAULT '', ADD COLUMN phone text NOT NULL DEFAULT '';
+UPDATE public.audits SET status = 'paid' WHERE status = 'audit_paid';
