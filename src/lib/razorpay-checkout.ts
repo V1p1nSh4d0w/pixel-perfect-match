@@ -28,17 +28,46 @@ export async function openRazorpayCheckout(opts: {
   email: string;
   businessName: string;
 }): Promise<RazorpayResponse | null> {
+  return open<RazorpayResponse>({
+    key: opts.keyId,
+    subscription_id: opts.subscriptionId,
+    description: "SecureCheck Pro — ₹999/month",
+    prefill: { email: opts.email, name: opts.businessName },
+  });
+}
+
+export type RazorpayOrderResponse = {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+};
+
+/** Opens Razorpay checkout for a one-time order (the Audit). */
+export async function openRazorpayOrderCheckout(opts: {
+  keyId: string;
+  orderId: string;
+  amount: number;
+  email: string;
+}): Promise<RazorpayOrderResponse | null> {
+  return open<RazorpayOrderResponse>({
+    key: opts.keyId,
+    order_id: opts.orderId,
+    amount: opts.amount,
+    currency: "INR",
+    description: "SecureCheck Full Audit — ₹15,000",
+    prefill: { email: opts.email },
+  });
+}
+
+async function open<T>(options: Record<string, unknown>): Promise<T | null> {
   await loadScript();
   const Razorpay = (window as unknown as { Razorpay: RazorpayCtor }).Razorpay;
   return new Promise((resolve) => {
     const rzp = new Razorpay({
-      key: opts.keyId,
-      subscription_id: opts.subscriptionId,
+      ...options,
       name: "SecureCheck",
-      description: "SecureCheck Pro — ₹999/month",
-      prefill: { email: opts.email, name: opts.businessName },
       theme: { color: "#3D8BFF" },
-      handler: (res: RazorpayResponse) => resolve(res),
+      handler: (res: T) => resolve(res),
       modal: { ondismiss: () => resolve(null) },
     });
     rzp.open();

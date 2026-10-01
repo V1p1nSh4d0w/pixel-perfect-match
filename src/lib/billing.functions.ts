@@ -176,3 +176,59 @@ export const getPaymentHistory = createServerFn({ method: "GET" })
       return [];
     }
   });
+
+// ---------------- Audit (one-time ₹15,000) ----------------
+/*
+ * One-time payment uses a Razorpay Order (POST /v1/orders), created server-side below.
+ * If you prefer a Razorpay Payment Link instead, create it in the Dashboard and swap the CTA href.
+ */
+const AUDIT_AMOUNT_PAISE = 1500000; // ₹15,000
+
+async function optionalUserId(): Promise<string | null> {
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  const auth = getRequestHeader("authorization");
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.auth.getUser(token);
+  return data.user?.id ?? null;
+}
+
+export const createAuditOrder = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ email: z.string().trim().email().max(255) }).parse(d))
+  .handler(async ({ data }) => {
+    const { keyId } = razorpayCreds();
+    const userId = await optionalUserId();
+    const order = await rzp<{ id: string }>("/orders", {
+      method: "POST",
+      body: { amount: AUDIT_AMOUNT_PAISE, currency: "INR", receipt: `audit_${Date.now()}`, notes: { product: "audit", email: data.email } },
+    });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("audits").insert({
+      user_id: userId, email: data.email, amount_paise: AUDIT_AMOUNT_PAISE, razorpay_order_id: order.id,
+    });
+    if (error) throw new Error(error.message);
+    return { orderId: order.id, keyId, amount: AUDIT_AMOUNT_PAISE };
+  });
+
+export const verifyAuditPayment = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    z.object({
+      razorpay_payment_id: z.string().min(1).max(100),
+      razorpay_order_id: z.string().min(1).max(100),
+      razorpay_signature: z.string().min(1).max(200),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { keySecret } = razorpayCreds();
+    const expected = await hmacHex(keySecret, `${data.razorpay_order_id}|${data.razorpay_payment_id}`);
+    if (!safeEqual(expected, data.razorpay_signature)) throw new Error("Payment could not be verified.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("audits")
+      .update({ status: "audit_paid", razorpay_payment_id: data.razorpay_payment_id, paid_at: new Date().toISOString() })
+      .eq("razorpay_order_id", data.razorpay_order_id);
+    if (error) throw new Error(error.message);
+    // TODO: send audit confirmation email (with booking link) once an email domain is set up.
+    return { ok: true };
+  });

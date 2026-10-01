@@ -197,3 +197,49 @@ export async function fetchScoreHistory(): Promise<{ id: string; created_at: str
   if (error) throw error;
   return data ?? [];
 }
+
+// ---- Audits, quarterly calls, admin ----
+export async function fetchMyAudits(): Promise<{ id: string; paid_at: string }[]> {
+  const { data, error } = await supabase.from("audits").select("id, paid_at").eq("status", "audit_paid").order("paid_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as { id: string; paid_at: string }[];
+}
+
+export async function fetchCallsSince(since: Date, userId?: string): Promise<{ id: string; user_id: string; held_at: string }[]> {
+  let q = supabase.from("quarterly_calls").select("id, user_id, held_at").gte("held_at", since.toISOString());
+  if (userId) q = q.eq("user_id", userId);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function isAdmin(userId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+  if (error) return false;
+  return Boolean(data);
+}
+
+export async function adminFetchProUsers() {
+  const { data: subs, error } = await supabase.from("subscriptions").select("user_id, plan, status, current_period_end").eq("plan", "pro");
+  if (error) throw error;
+  const ids = (subs ?? []).map((s) => s.user_id);
+  if (ids.length === 0) return [];
+  const { data: profiles } = await supabase.from("profiles").select("id, email, business_name").in("id", ids);
+  return (subs ?? []).map((s) => ({ ...s, profile: profiles?.find((p) => p.id === s.user_id) ?? null }));
+}
+
+export async function adminFetchAudits() {
+  const { data, error } = await supabase.from("audits").select("id, email, paid_at, status").eq("status", "audit_paid").order("paid_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function adminMarkCall(userId: string) {
+  const { error } = await supabase.from("quarterly_calls").insert({ user_id: userId });
+  if (error) throw error;
+}
+
+export async function adminRemoveCall(id: string) {
+  const { error } = await supabase.from("quarterly_calls").delete().eq("id", id);
+  if (error) throw error;
+}
