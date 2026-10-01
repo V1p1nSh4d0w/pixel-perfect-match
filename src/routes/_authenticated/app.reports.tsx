@@ -6,6 +6,7 @@ import { Card } from "@/components/Card";
 import { RiskLabel, ScoreRing, SeverityBadge, SEVERITIES } from "@/components/Results";
 import { useLatestResult } from "@/lib/use-latest-result";
 import { useProfile } from "@/hooks/useProfile";
+import { useSubscription } from "@/hooks/useSubscription";
 import { fetchActionItems, fetchLatestAssessmentMeta } from "@/lib/supabase";
 import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 import { cn } from "@/lib/utils";
@@ -63,6 +64,7 @@ function SectionHeading({ title, intro }: { title: string; intro?: string | unde
 function ReportPage() {
   const { result, isLoading } = useLatestResult();
   const { data: profileData } = useProfile();
+  const { isPro } = useSubscription();
   const metaQ = useQuery({ queryKey: ["latest-assessment-meta"], queryFn: fetchLatestAssessmentMeta });
   const actionsQ = useQuery({ queryKey: ["action-items"], queryFn: fetchActionItems });
 
@@ -120,8 +122,14 @@ function ReportPage() {
             {businessName} • {date}
           </p>
         </div>
-        <div className="flex gap-2 print:hidden">
-          <Button onClick={() => window.print()}>Download PDF</Button>
+        <div className="flex flex-wrap gap-2 print:hidden">
+          {isPro ? (
+            <Button onClick={() => window.print()}>Download PDF</Button>
+          ) : (
+            <Link to="/pricing">
+              <Button title="Unlock PDF download">Upgrade to Pro — ₹999/month</Button>
+            </Link>
+          )}
           <Button variant="secondary" onClick={share}>Share report</Button>
         </div>
       </header>

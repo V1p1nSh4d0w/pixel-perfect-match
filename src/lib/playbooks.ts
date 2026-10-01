@@ -1,0 +1,117 @@
+/** Extended step-by-step remediation playbooks (Pro), keyed by finding title. */
+export const PLAYBOOKS: Record<string, string[]> = {
+  "No written security policy": [
+    "Write a one-page policy covering passwords, MFA, device locks, backups and who to tell about a problem.",
+    "Name one person who owns security decisions and reviews the policy every 6 months.",
+    "Share it with every staff member and contractor and ask them to confirm they've read it.",
+    "Store it somewhere everyone can find it, such as your shared drive.",
+  ],
+  "MFA is not enabled for all important accounts": [
+    "List your critical accounts: email, banking, payroll, accounting, cloud storage, domain registrar.",
+    "Turn on MFA in each account's security settings, preferring an authenticator app over SMS.",
+    "Save the backup codes in your password manager or a locked safe.",
+    "Where the service allows it, make MFA mandatory for all users in the admin console.",
+    "Check monthly that new accounts also have MFA turned on.",
+  ],
+  "No password manager in use": [
+    "Pick a business password manager (e.g. 1Password, Bitwarden) with team sharing.",
+    "Create a strong master password and turn on MFA for the password manager itself.",
+    "Move shared logins into shared vaults instead of spreadsheets or chats.",
+    "Replace reused or weak passwords, starting with email and banking.",
+  ],
+  "Admin access is not limited to those who need it": [
+    "Export the list of admin/owner users from each key system.",
+    "Remove admin rights from anyone who doesn't need them day to day.",
+    "Give admins a separate everyday account without admin rights.",
+    "Review the admin list every quarter.",
+  ],
+  "Former staff access is not removed promptly": [
+    "Create an offboarding checklist listing every system a person may have access to.",
+    "On someone's last day, disable their accounts and change any shared passwords they knew.",
+    "Collect company devices and wipe or reassign them.",
+    "Review all active accounts now and remove anyone who has left.",
+  ],
+  "Not all business devices are locked": [
+    "Require a PIN, password or biometric lock on every laptop, phone and tablet.",
+    "Set screens to auto-lock after 5 minutes or less.",
+    "Turn on disk encryption (BitLocker on Windows, FileVault on Mac; on by default on modern phones).",
+    "Spot-check devices once a quarter.",
+  ],
+  "Lost devices can't be wiped remotely": [
+    "Turn on Find My (Apple) or Find My Device (Google/Microsoft) on every device.",
+    "For a team, enrol devices in a device management tool such as Microsoft Intune or Google Endpoint Management.",
+    "Write down who to call and what to do when a device is lost.",
+    "Test a remote lock on a spare device so you know it works.",
+  ],
+  "Personal devices access business data": [
+    "Decide which business apps may be used on personal devices.",
+    "Require a screen lock and up-to-date software on those devices.",
+    "Use app-level controls (e.g. Microsoft or Google work profiles) so business data can be wiped separately.",
+    "Have staff agree to the rules in writing.",
+  ],
+  "Software is not updated automatically": [
+    "Turn on automatic updates for the operating system on every device.",
+    "Turn on auto-update in browsers and key apps.",
+    "Schedule restarts weekly so updates actually install.",
+    "Check monthly that no device is more than one update behind.",
+  ],
+  "Unsupported software may be in use": [
+    "List the operating systems and key apps in use and their versions.",
+    "Check each against the vendor's support end date.",
+    "Plan upgrades or replacements for anything out of support, highest-risk first.",
+    "Until replaced, keep unsupported machines off the internet where possible.",
+  ],
+  "Important data is not reliably backed up": [
+    "List the data you can't lose: accounting, customer records, contracts, email.",
+    "Set up automatic daily backups (cloud backup service or a backup drive).",
+    "Follow the 3-2-1 rule: 3 copies, 2 types of storage, 1 offsite.",
+    "Get an alert when a backup fails.",
+  ],
+  "Backups are not stored separately": [
+    "Keep at least one backup copy offsite or in a separate cloud account.",
+    "Make sure the backup can't be deleted by the same login used daily.",
+    "Turn on versioning or immutable backups if your service offers it.",
+  ],
+  "Backups have not been tested": [
+    "Pick one important file and one full folder and restore them from backup.",
+    "Time how long it takes and note any problems.",
+    "Repeat a test restore every quarter.",
+    "Write down the restore steps so someone else could do it.",
+  ],
+  "Email is not protected with MFA": [
+    "Turn on MFA for every mailbox in Google Workspace or Microsoft 365.",
+    "Enforce it in the admin console so new users can't skip it.",
+    "Block legacy sign-in methods that bypass MFA (e.g. old IMAP/POP).",
+    "Review sign-in alerts for unusual locations.",
+  ],
+  "Staff are not trained to spot phishing": [
+    "Run a short (20-minute) session on spotting fake emails, links and invoice requests.",
+    "Set a rule: payment or bank-detail changes are always confirmed by phone.",
+    "Make reporting a suspicious email easy and blame-free.",
+    "Repeat training twice a year, ideally with a practice phishing test.",
+  ],
+  "Cloud tool access is not reviewed": [
+    "List the cloud tools you pay for or use (storage, CRM, accounting, chat).",
+    "In each, export the user list and remove people who no longer need access.",
+    "Check sharing settings and remove public links to sensitive files.",
+    "Repeat the review every quarter.",
+  ],
+  "Third-party app access has not been checked": [
+    "Open the connected-apps page in Google or Microsoft admin settings.",
+    "Remove apps nobody recognises or uses.",
+    "Restrict users from granting new apps access to company data without approval.",
+    "Review connected apps every quarter.",
+  ],
+  "Website may not use HTTPS": [
+    "Visit your site and check for the padlock in the browser address bar.",
+    "If missing, turn on a free SSL certificate in your hosting dashboard (most hosts offer Let's Encrypt).",
+    "Redirect all http:// traffic to https://.",
+    "Set a reminder to confirm the certificate renews automatically.",
+  ],
+  "Domain registrar account lacks MFA": [
+    "Log in to your domain registrar and turn on MFA.",
+    "Turn on registrar lock (transfer lock) for your domain.",
+    "Make sure the account email is one you control long-term, not a former employee's.",
+    "Turn on auto-renew so the domain can't lapse.",
+  ],
+};
