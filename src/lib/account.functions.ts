@@ -13,7 +13,7 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       const { error } = await (supabaseAdmin.from(table) as any).delete().eq(col, userId);
       if (error) throw new Error(`Could not delete account data (${table})`);
     }
-    // Keep paid audit records for accounting, but detach them from the account.
+    // Preserve historical payment records for accounting, but detach them from the account.
     await supabaseAdmin.from("audits").update({ user_id: null }).eq("user_id", userId);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (error) throw new Error("Could not delete account");

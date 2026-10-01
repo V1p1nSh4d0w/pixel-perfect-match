@@ -19,8 +19,6 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as AuditIndexRouteImport } from './routes/audit.index'
-import { Route as AuditConfirmedRouteImport } from './routes/audit.confirmed'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
@@ -79,16 +77,6 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuditIndexRoute = AuditIndexRouteImport.update({
-  id: '/audit/',
-  path: '/audit/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditConfirmedRoute = AuditConfirmedRouteImport.update({
-  id: '/audit/confirmed',
-  path: '/audit/confirmed',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
@@ -151,8 +139,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit/': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -172,8 +158,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -196,8 +180,6 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit/': typeof AuditIndexRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -220,8 +202,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app'
-    | '/audit/confirmed'
-    | '/audit/'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
@@ -241,8 +221,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
-    | '/audit/confirmed'
-    | '/audit'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
@@ -264,8 +242,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/_authenticated/app'
-    | '/audit/confirmed'
-    | '/audit/'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/findings'
@@ -287,8 +263,6 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
-  AuditConfirmedRoute: typeof AuditConfirmedRoute
-  AuditIndexRoute: typeof AuditIndexRoute
   ApiRazorpayWebhookRoute: typeof ApiRazorpayWebhookRoute
 }
 
@@ -363,20 +337,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/audit/': {
-      id: '/audit/'
-      path: '/audit'
-      fullPath: '/audit/'
-      preLoaderRoute: typeof AuditIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit/confirmed': {
-      id: '/audit/confirmed'
-      path: '/audit/confirmed'
-      fullPath: '/audit/confirmed'
-      preLoaderRoute: typeof AuditConfirmedRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -491,8 +451,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
-  AuditConfirmedRoute: AuditConfirmedRoute,
-  AuditIndexRoute: AuditIndexRoute,
   ApiRazorpayWebhookRoute: ApiRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport

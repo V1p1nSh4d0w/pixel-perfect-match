@@ -18,8 +18,7 @@
 - Shared types live in `src/types/` — reused across routes and components.
 - Reusable UI primitives (`Button`, `Card`, `Input`, `PageHeader`, `SidebarNav`) live in `src/components/` — built on design tokens in `src/styles.css`, never ad hoc colors.
 - Assessment results are read from the database via `useLatestResult()` (React Query, key `latest-assessment`); the in-memory assessment store only holds in-progress answers — keeps one source of truth for results.
-- Billing: Razorpay calls and signature checks live in `src/lib/billing.functions.ts` (server functions); subscription rows are written only server-side with the admin client, users can only read theirs — keeps payment state tamper-proof.
-- Pro gating reads `useSubscription().isPro` (via `isProActive`) — one definition of "Pro" for every gated feature.
-- Audit (one-time) uses Razorpay Orders in `billing.functions.ts`; audit rows are written only server-side, guests allowed via email — payment state stays tamper-proof.
+- Billing: the Starter Kit uses a one-time Razorpay Order; signatures and ownership are verified in server functions before server-only writes — keeps payment state tamper-proof.
+- Paid gating reads the database `has_paid_access()` result through `useSubscription()`; paid content is also filtered by authenticated server functions — UI state never grants access.
 - Admin access uses `user_roles` + `has_role()`; admin page is `/app/admin` — roles never live on profiles.
-- Booking links, support email and pricing copy constants live in `src/lib/config.ts` — one place to edit placeholders.
+- Shared support contact copy lives in `src/lib/config.ts` — one place to edit it.
