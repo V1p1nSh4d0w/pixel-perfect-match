@@ -44,6 +44,9 @@ function AppShell() {
       <div className="flex-1 px-2">
         <SidebarNav onNavigate={() => setDrawerOpen(false)} />
       </div>
+      <div className="px-5 pb-3">
+        <Link to="/audit" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Full Audit — ₹15,000</Link>
+      </div>
       <div className="space-y-1 border-t border-border px-5 py-4">
         <p className="truncate text-xs text-muted-foreground">{email}</p>
         <button

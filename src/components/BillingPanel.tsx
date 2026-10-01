@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -97,6 +98,10 @@ export function BillingPanel() {
             ) : null}
           </>
         )}
+        <p className="border-t border-border pt-4 text-xs">
+          <Link to="/audit" className="text-primary hover:underline">Book a full audit</Link>
+          <span className="text-muted-foreground"> — ₹15,000 one-time, 1-hour call + written report</span>
+        </p>
         {audit ? (
           <p className="border-t border-border pt-4 text-xs text-muted-foreground">Audit purchased — {fmt(audit.paid_at)}</p>
         ) : null}
