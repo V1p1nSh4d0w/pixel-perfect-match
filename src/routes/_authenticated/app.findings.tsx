@@ -44,6 +44,24 @@ function FindingsPage() {
   const { severity, finding } = Route.useSearch();
   const planQuery = useQuery({ queryKey: ACTION_PLAN_KEY, queryFn: fetchActionPlanFindingIds });
   const inPlan = new Set(planQuery.data ?? []);
+  const [flash, setFlash] = useState(false);
+  const scrolledFor = useRef<string | null>(null);
+
+  // Auto-scroll to the linked finding once the list has rendered. The ~100ms
+  // delay lets the list paint first; the highlight only starts after the
+  // scroll begins so the user sees it land on the highlighted card.
+  useEffect(() => {
+    if (!result || !finding || scrolledFor.current === finding) return;
+    const t = setTimeout(() => {
+      const el = document.querySelector(`[data-finding-id="${finding}"]`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      scrolledFor.current = finding;
+      setFlash(true);
+      setTimeout(() => setFlash(false), 3000);
+    }, 100);
+    return () => clearTimeout(t);
+  }, [result, finding]);
 
   if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
 
@@ -136,7 +154,7 @@ function FindingsPage() {
       ) : (
         <div className="space-y-4">
           {visible.map((f) => (
-            <FindingCard key={f.id} finding={f} inPlan={inPlan.has(f.id)} highlighted={finding === f.id} />
+            <FindingCard key={f.id} finding={f} inPlan={inPlan.has(f.id)} highlighted={finding === f.id} flash={flash} />
           ))}
         </div>
       )}
@@ -144,18 +162,8 @@ function FindingsPage() {
   );
 }
 
-function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; inPlan: boolean; highlighted?: boolean | undefined }) {
+function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Finding; inPlan: boolean; highlighted?: boolean | undefined; flash?: boolean | undefined }) {
   const [expanded, setExpanded] = useState(Boolean(highlighted));
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [flash, setFlash] = useState(Boolean(highlighted));
-  useEffect(() => {
-    if (!highlighted) return;
-    setFlash(true);
-    ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    const t = setTimeout(() => setFlash(false), 3000);
-    return () => clearTimeout(t);
-  }, [highlighted]);
 
   const queryClient = useQueryClient();
 
@@ -186,7 +194,7 @@ function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; in
   const isResolved = f.status === "Resolved";
 
   return (
-    <div ref={ref} className={cn("rounded-card ring-2 transition-shadow duration-700", flash ? "ring-primary" : "ring-transparent")}>
+    <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-700", flash ? "ring-primary" : "ring-transparent")}>
       <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
