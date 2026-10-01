@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { RiskLabel, ScoreRing, SeverityBadge } from "@/components/Results";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/config";

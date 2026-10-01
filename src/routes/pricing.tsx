@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { UpgradeButton } from "@/components/UpgradeButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
