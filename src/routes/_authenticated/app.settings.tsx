@@ -12,6 +12,14 @@ import { signOut, updateBusinessName } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({
+  head: () => ({ meta: [
+    { title: "Settings — SecureCheck" },
+    { name: "description", content: "Manage your SecureCheck account and billing settings." },
+    { property: "og:title", content: "Settings — SecureCheck" },
+    { property: "og:description", content: "Manage your SecureCheck account and billing settings." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   validateSearch: (search: Record<string, unknown>) =>
     search["tab"] === "billing" ? { tab: "billing" as const } : {},
   component: SettingsPage,

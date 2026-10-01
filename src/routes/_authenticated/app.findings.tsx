@@ -21,7 +21,14 @@ export const Route = createFileRoute("/_authenticated/app/findings")({
     const finding = typeof search["finding"] === "string" && search["finding"] ? { finding: search["finding"] } : {};
     return { ...severity, ...finding };
   },
-  head: () => ({ meta: [{ title: "Findings — SecureCheck" }] }),
+  head: () => ({ meta: [
+    { title: "Findings — SecureCheck" },
+    { name: "description", content: "Review security self-assessment findings and recommended fixes." },
+    { property: "og:title", content: "Findings — SecureCheck" },
+    { property: "og:description", content: "Review security self-assessment findings and recommended fixes." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: FindingsPage,
 });
 

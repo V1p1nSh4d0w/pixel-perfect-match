@@ -12,6 +12,14 @@ import { fetchActionItems } from "@/lib/supabase";
 import type { Severity } from "@/types/assessment";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  head: () => ({ meta: [
+    { title: "Security Dashboard — SecureCheck" },
+    { name: "description", content: "Review your security posture score, findings, and action-plan progress." },
+    { property: "og:title", content: "Security Dashboard — SecureCheck" },
+    { property: "og:description", content: "Review your security posture score, findings, and action-plan progress." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: DashboardPage,
 });
 
