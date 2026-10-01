@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessments: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          risk_level: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          risk_level: string
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          risk_level?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      findings: {
+        Row: {
+          assessment_id: string
+          category: string
+          created_at: string
+          id: string
+          recommended_action: string
+          severity: string
+          status: string
+          title: string
+          user_id: string
+          why_it_matters: string
+        }
+        Insert: {
+          assessment_id: string
+          category: string
+          created_at?: string
+          id?: string
+          recommended_action: string
+          severity: string
+          status?: string
+          title: string
+          user_id: string
+          why_it_matters: string
+        }
+        Update: {
+          assessment_id?: string
+          category?: string
+          created_at?: string
+          id?: string
+          recommended_action?: string
+          severity?: string
+          status?: string
+          title?: string
+          user_id?: string
+          why_it_matters?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "findings_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           business_name: string
