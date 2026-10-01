@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
-    const severity = typeof search.severity === "string" ? search.severity : "";
+    const severity = typeof search["severity"] === "string" ? search["severity"] : "";
     return severity ? { severity } : {};
   },
   head: () => ({ meta: [{ title: "Findings — SecureCheck" }] }),
