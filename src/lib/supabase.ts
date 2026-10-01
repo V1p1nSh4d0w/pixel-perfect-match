@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { riskLevelFor } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
@@ -109,7 +110,7 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   findings.sort((x, y) => SEVERITY_ORDER.indexOf(x.severity) - SEVERITY_ORDER.indexOf(y.severity));
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
-  return { score: a.score, riskLevel: a.risk_level as RiskLevel, findings, counts };
+  return { score: a.score, riskLevel: riskLevelFor(a.score), findings, counts };
 }
 
 // ---- Findings & action items ----
@@ -209,7 +210,7 @@ export async function fetchScoreHistory(): Promise<ScoreHistoryData> {
     .limit(10);
   if (error) throw error;
   return {
-    points: ((data ?? []) as ScoreHistoryPoint[]).reverse(),
+    points: ((data ?? []) as ScoreHistoryPoint[]).map((p) => ({ ...p, risk_level: riskLevelFor(p.score) })).reverse(),
     total: count ?? data?.length ?? 0,
   };
 }

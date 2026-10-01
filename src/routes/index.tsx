@@ -131,7 +131,7 @@ function LandingPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
               </span>
-              Live scan
+              Sample self-assessment
             </div>
             <div className="mt-4 flex flex-col items-center gap-2">
               <ScoreRing score={score} risk="Moderate risk" />

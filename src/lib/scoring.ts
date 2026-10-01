@@ -1,32 +1,58 @@
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 
-interface Rule {
+/**
+ * SecureCheck scoring engine (deterministic self-assessment scoring).
+ *
+ * This is a SELF-ASSESSMENT based on the owner's answers — not a technical scan.
+ * Findings describe reported gaps, never detected vulnerabilities.
+ *
+ * How the score is calculated:
+ * 1. Every scored question maps to exactly one security control (see CONTROLS).
+ *    "business_size" is context only and does not score.
+ * 2. Each control has a fixed weight (points). Weights per category roughly follow:
+ *    Accounts 25, Devices 15, Software 15, Backups 20, Email 10, Cloud 10, Website 5, Business 5.
+ * 3. A control earns:
+ *      - full weight for a "best" answer,
+ *      - half weight for a "partial" answer,
+ *      - zero for any other answer ("No", "Not sure", unanswered).
+ *    Controls whose answer is "not applicable" (e.g. "No website") are removed
+ *    from both earned and possible points.
+ * 4. score = round(earned / possible * 100), clamped to 0–100.
+ * 5. Risk level is derived only from the score (see riskLevelFor).
+ *
+ * Pure function of the answers: same answers => same score, and changing one
+ * answer only affects that answer's control.
+ */
+export interface Control {
+  /** Question id this control is evaluated from. */
   id: string;
+  /** Human-readable control name. */
+  name: string;
   category: string;
+  /** Points this control contributes to the total possible score. */
+  weight: number;
   best: string[];
   partial?: string[];
   /** Answers that make the question not applicable (no score impact, no finding). */
   na?: string[];
+  /** Risk (finding severity) when the control is missing. */
   severity: Severity;
+  /** Risk when only partially in place. */
   partialSeverity?: Severity;
   title: string;
+  /** Explanation of why the control matters. */
   why: string;
+  /** Remediation recommendation. */
   action: string;
 }
 
-const CATEGORY_WEIGHTS: Record<string, number> = {
-  Accounts: 25,
-  Devices: 15,
-  Software: 15,
-  Backups: 20,
-  Email: 10,
-  Cloud: 10,
-  Website: 5,
-};
+type Rule = Control;
 
 const RULES: Rule[] = [
   {
     id: "security_policy",
+    name: "Written security policy",
+    weight: 5,
     category: "Business",
     best: ["Yes"],
     severity: "Low",
@@ -36,6 +62,8 @@ const RULES: Rule[] = [
   },
   {
     id: "mfa_accounts",
+    name: "MFA on important accounts",
+    weight: 10,
     category: "Accounts",
     best: ["Yes, all important accounts"],
     partial: ["Yes, some"],
@@ -47,6 +75,8 @@ const RULES: Rule[] = [
   },
   {
     id: "password_manager",
+    name: "Password manager",
+    weight: 5,
     category: "Accounts",
     best: ["Yes"],
     severity: "Medium",
@@ -56,6 +86,8 @@ const RULES: Rule[] = [
   },
   {
     id: "admin_limited",
+    name: "Least-privilege admin access",
+    weight: 5,
     category: "Accounts",
     best: ["Yes"],
     severity: "High",
@@ -65,6 +97,8 @@ const RULES: Rule[] = [
   },
   {
     id: "offboarding",
+    name: "Leaver access removal",
+    weight: 5,
     category: "Accounts",
     best: ["Yes"],
     severity: "High",
@@ -74,6 +108,8 @@ const RULES: Rule[] = [
   },
   {
     id: "device_lock",
+    name: "Device screen lock",
+    weight: 6,
     category: "Devices",
     best: ["All devices"],
     partial: ["Some"],
@@ -85,6 +121,8 @@ const RULES: Rule[] = [
   },
   {
     id: "remote_wipe",
+    name: "Remote device wipe",
+    weight: 5,
     category: "Devices",
     best: ["Yes"],
     severity: "Medium",
@@ -94,6 +132,8 @@ const RULES: Rule[] = [
   },
   {
     id: "personal_devices",
+    name: "Personal device policy",
+    weight: 4,
     category: "Devices",
     best: ["No"],
     severity: "Medium",
@@ -103,6 +143,8 @@ const RULES: Rule[] = [
   },
   {
     id: "auto_updates",
+    name: "Automatic software updates",
+    weight: 9,
     category: "Software",
     best: ["Yes"],
     partial: ["Sometimes"],
@@ -114,6 +156,8 @@ const RULES: Rule[] = [
   },
   {
     id: "unsupported_software",
+    name: "Supported software only",
+    weight: 6,
     category: "Software",
     best: ["No"],
     severity: "High",
@@ -123,6 +167,8 @@ const RULES: Rule[] = [
   },
   {
     id: "backups_exist",
+    name: "Automated backups",
+    weight: 10,
     category: "Backups",
     best: ["Yes, automated"],
     partial: ["Yes, manual"],
@@ -134,6 +180,8 @@ const RULES: Rule[] = [
   },
   {
     id: "backups_separate",
+    name: "Separate backup storage",
+    weight: 5,
     category: "Backups",
     best: ["Yes"],
     severity: "High",
@@ -143,6 +191,8 @@ const RULES: Rule[] = [
   },
   {
     id: "backups_tested",
+    name: "Backup restore testing",
+    weight: 5,
     category: "Backups",
     best: ["Yes"],
     severity: "Medium",
@@ -152,6 +202,8 @@ const RULES: Rule[] = [
   },
   {
     id: "email_mfa",
+    name: "Email MFA",
+    weight: 7,
     category: "Email",
     best: ["Yes"],
     severity: "Critical",
@@ -161,6 +213,8 @@ const RULES: Rule[] = [
   },
   {
     id: "phishing_training",
+    name: "Phishing awareness training",
+    weight: 3,
     category: "Email",
     best: ["Yes"],
     severity: "Medium",
@@ -170,6 +224,8 @@ const RULES: Rule[] = [
   },
   {
     id: "cloud_access_review",
+    name: "Cloud access review",
+    weight: 5,
     category: "Cloud",
     best: ["Yes"],
     severity: "Medium",
@@ -179,6 +235,8 @@ const RULES: Rule[] = [
   },
   {
     id: "third_party_apps",
+    name: "Third-party app review",
+    weight: 5,
     category: "Cloud",
     best: ["Yes"],
     severity: "Medium",
@@ -188,6 +246,8 @@ const RULES: Rule[] = [
   },
   {
     id: "https",
+    name: "Website HTTPS",
+    weight: 3,
     category: "Website",
     best: ["Yes"],
     na: ["No website"],
@@ -198,6 +258,8 @@ const RULES: Rule[] = [
   },
   {
     id: "registrar_mfa",
+    name: "Domain registrar MFA",
+    weight: 2,
     category: "Website",
     best: ["Yes"],
     severity: "High",
@@ -207,48 +269,49 @@ const RULES: Rule[] = [
   },
 ];
 
+/** 80–100 Low, 60–79 Moderate, 40–59 High, 0–39 Critical. */
 export function riskLevelFor(score: number): RiskLevel {
   if (score >= 80) return "Low risk";
-  if (score >= 50) return "Moderate risk";
-  return "High risk";
+  if (score >= 60) return "Moderate risk";
+  if (score >= 40) return "High risk";
+  return "Critical risk";
 }
+
+export const CONTROLS: readonly Control[] = RULES;
 
 export function scoreAssessment(answers: AssessmentAnswers): AssessmentResult {
   const findings: Finding[] = [];
   let earned = 0;
   let possible = 0;
 
-  for (const [category, weight] of Object.entries(CATEGORY_WEIGHTS)) {
-    const rules = RULES.filter((r) => r.category === category && !r.na?.includes(answers[r.id] ?? ""));
-    if (rules.length === 0) continue;
-    possible += weight;
-    const each = weight / rules.length;
-    for (const r of rules) {
-      const a = answers[r.id];
-      if (a && r.best.includes(a)) earned += each;
-      else if (a && r.partial?.includes(a)) earned += each / 2;
+  for (const c of RULES) {
+    const a = answers[c.id];
+    // Not applicable: excluded from scoring and findings.
+    if (a && c.na?.includes(a)) continue;
+    possible += c.weight;
+    if (a && c.best.includes(a)) {
+      earned += c.weight; // control in place
+      continue;
     }
-  }
-
-  for (const r of RULES) {
-    const a = answers[r.id];
-    if (a && (r.best.includes(a) || r.na?.includes(a))) continue;
-    const partial = Boolean(a && r.partial?.includes(a));
+    const partial = Boolean(a && c.partial?.includes(a));
+    if (partial) earned += c.weight / 2; // partially in place
+    // Any non-best answer produces a self-reported gap finding.
     findings.push({
-      id: r.id,
-      severity: partial && r.partialSeverity ? r.partialSeverity : r.severity,
-      category: r.category,
-      title: r.title,
-      why_it_matters: r.why,
-      recommended_action: r.action,
+      id: c.id,
+      severity: partial && c.partialSeverity ? c.partialSeverity : c.severity,
+      category: c.category,
+      title: c.title,
+      why_it_matters: c.why,
+      recommended_action: c.action,
       status: "Open",
     });
   }
 
   const order: Severity[] = ["Critical", "High", "Medium", "Low"];
+  // Stable sort by severity, then by control order => deterministic output.
   findings.sort((x, y) => order.indexOf(x.severity) - order.indexOf(y.severity));
 
-  const score = possible ? Math.round((earned / possible) * 100) : 0;
+  const score = possible ? Math.min(100, Math.max(0, Math.round((earned / possible) * 100))) : 0;
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => counts[f.severity]++);
 
