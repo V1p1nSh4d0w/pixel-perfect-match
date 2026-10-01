@@ -178,3 +178,22 @@ export async function fetchLatestAssessmentMeta(): Promise<AssessmentMeta | null
   if (!data) return null;
   return { id: data.id, created_at: data.created_at, answers: (data.answers ?? {}) as AssessmentAnswers };
 }
+
+// ---- Subscription & history ----
+export async function fetchSubscription(): Promise<import("@/types/subscription").Subscription | null> {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .maybeSingle();
+  if (error) throw error;
+  return data as import("@/types/subscription").Subscription | null;
+}
+
+export async function fetchScoreHistory(): Promise<{ id: string; created_at: string; score: number }[]> {
+  const { data, error } = await supabase
+    .from("assessments")
+    .select("id, created_at, score")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
