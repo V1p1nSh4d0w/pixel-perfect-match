@@ -70,7 +70,7 @@ function AppShell() {
         </div>
       ) : null}
 
-      <div className="md:pl-60">
+      <div className="md:pl-60 print:pl-0">
         <header className="flex h-16 items-center justify-between gap-4 border-b border-border px-5 print:hidden">
           <div className="flex items-center gap-3">
             <button
