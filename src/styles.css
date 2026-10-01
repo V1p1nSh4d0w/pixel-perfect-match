@@ -103,5 +103,4 @@
   [data-sonner-toaster],
   [class*="lovable"], [id*="lovable"],
   body > div[style*="position: fixed"], body > iframe { display: none !important; }
-  .print-footer { position: fixed; bottom: -0.35in; left: 0; right: 0; }
 }
