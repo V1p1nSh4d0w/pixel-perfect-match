@@ -85,7 +85,7 @@ function AccountPanel() {
     await queryClient.cancelQueries();
     queryClient.clear();
     await signOut();
-    await navigate({ to: "/login", replace: true });
+    await navigate({ to: "/", replace: true });
   }
 
   return (

@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
 import { signOut } from "@/lib/supabase";
 import { SUPPORT_EMAIL } from "@/lib/config";
+import { AccountMenu } from "@/components/AccountMenu";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppShell,
@@ -31,7 +32,7 @@ function AppShell() {
     await queryClient.cancelQueries();
     queryClient.clear();
     await signOut();
-    await navigate({ to: "/login", replace: true });
+    await navigate({ to: "/", replace: true });
   }
 
   const sidebar = (
@@ -102,9 +103,7 @@ function AppShell() {
             {isPro ? (
               <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PRO</span>
             ) : null}
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-xs font-medium text-foreground">
-              {initial}
-            </span>
+            <AccountMenu initial={initial} email={email} isPro={isPro} />
           </div>
         </header>
 

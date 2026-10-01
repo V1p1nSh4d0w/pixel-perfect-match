@@ -60,6 +60,7 @@ function SignupPage() {
 
   return (
     <AuthLayout
+      backHome
       title="Create your account"
       subtitle="Takes less than a minute."
       footer={
