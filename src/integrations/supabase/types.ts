@@ -85,10 +85,13 @@ export type Database = {
       audits: {
         Row: {
           amount_paise: number
+          business_name: string
           created_at: string
           email: string
           id: string
+          name: string
           paid_at: string | null
+          phone: string
           razorpay_order_id: string
           razorpay_payment_id: string | null
           status: string
@@ -96,10 +99,13 @@ export type Database = {
         }
         Insert: {
           amount_paise: number
+          business_name?: string
           created_at?: string
           email: string
           id?: string
+          name?: string
           paid_at?: string | null
+          phone?: string
           razorpay_order_id: string
           razorpay_payment_id?: string | null
           status?: string
@@ -107,10 +113,13 @@ export type Database = {
         }
         Update: {
           amount_paise?: number
+          business_name?: string
           created_at?: string
           email?: string
           id?: string
+          name?: string
           paid_at?: string | null
+          phone?: string
           razorpay_order_id?: string
           razorpay_payment_id?: string | null
           status?: string
