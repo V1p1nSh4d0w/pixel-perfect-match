@@ -239,7 +239,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
           Status: <span className={isResolved ? "text-success" : f.status === "In progress" ? "text-medium" : "text-foreground"}>{f.status}</span>
         </span>
       </div>
-      <h2 className="text-base font-semibold text-foreground">{f.title}</h2>
+      <h2 className="type-card-title">{f.title}</h2>
       {f.effort && <p className="text-xs text-muted-foreground">Estimated effort: <span className="text-foreground">{f.effort}</span></p>}
 
       {expanded ? (

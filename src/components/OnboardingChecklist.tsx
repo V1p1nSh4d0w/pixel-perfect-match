@@ -35,7 +35,7 @@ export function OnboardingChecklist() {
     <div className="mb-6 rounded-card border border-border/75 bg-card p-6 shadow-sm shadow-background/10">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Getting started</h2>
+          <h2 className="type-card-title">Getting started</h2>
           <p className="mt-1 text-sm text-muted-foreground">Finish these steps to get the most out of SecureCheck.</p>
         </div>
         <button onClick={dismiss} className="text-xs text-muted-foreground hover:text-foreground">Dismiss</button>
