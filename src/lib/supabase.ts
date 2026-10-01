@@ -159,3 +159,22 @@ export async function deleteActionItem(id: string) {
   const { error } = await supabase.from("action_items").delete().eq("id", id);
   if (error) throw error;
 }
+
+// ---- Report ----
+export interface AssessmentMeta {
+  id: string;
+  created_at: string;
+  answers: AssessmentAnswers;
+}
+
+export async function fetchLatestAssessmentMeta(): Promise<AssessmentMeta | null> {
+  const { data, error } = await supabase
+    .from("assessments")
+    .select("id, created_at, answers")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return { id: data.id, created_at: data.created_at, answers: (data.answers ?? {}) as AssessmentAnswers };
+}

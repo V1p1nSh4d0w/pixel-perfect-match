@@ -56,7 +56,7 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 hidden w-60 md:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 left-0 hidden w-60 md:block print:hidden">{sidebar}</aside>
 
       {drawerOpen ? (
         <div className="fixed inset-0 z-40 md:hidden">
@@ -71,7 +71,7 @@ function AppShell() {
       ) : null}
 
       <div className="md:pl-60">
-        <header className="flex h-16 items-center justify-between gap-4 border-b border-border px-5">
+        <header className="flex h-16 items-center justify-between gap-4 border-b border-border px-5 print:hidden">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -96,7 +96,7 @@ function AppShell() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1100px] p-8">
+        <main className="mx-auto max-w-[1100px] p-8 print:max-w-none print:p-0">
           <Outlet />
         </main>
       </div>
