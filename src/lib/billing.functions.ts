@@ -195,7 +195,14 @@ async function optionalUserId(): Promise<string | null> {
 }
 
 export const createAuditOrder = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ email: z.string().trim().email().max(255) }).parse(d))
+  .inputValidator((d) =>
+    z.object({
+      email: z.string().trim().email().max(255),
+      name: z.string().trim().min(1).max(100),
+      business_name: z.string().trim().min(1).max(150),
+      phone: z.string().trim().min(6).max(20).regex(/^[0-9+\-\s()]+$/),
+    }).parse(d),
+  )
   .handler(async ({ data }) => {
     const { keyId } = razorpayCreds();
     const userId = await optionalUserId();
@@ -205,7 +212,7 @@ export const createAuditOrder = createServerFn({ method: "POST" })
     });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("audits").insert({
-      user_id: userId, email: data.email, amount_paise: AUDIT_AMOUNT_PAISE, razorpay_order_id: order.id,
+      user_id: userId, email: data.email, name: data.name, business_name: data.business_name, phone: data.phone, amount_paise: AUDIT_AMOUNT_PAISE, razorpay_order_id: order.id,
     });
     if (error) throw new Error(error.message);
     return { orderId: order.id, keyId, amount: AUDIT_AMOUNT_PAISE };
@@ -224,11 +231,52 @@ export const verifyAuditPayment = createServerFn({ method: "POST" })
     const expected = await hmacHex(keySecret, `${data.razorpay_order_id}|${data.razorpay_payment_id}`);
     if (!safeEqual(expected, data.razorpay_signature)) throw new Error("Payment could not be verified.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const { data: row, error } = await supabaseAdmin
       .from("audits")
-      .update({ status: "audit_paid", razorpay_payment_id: data.razorpay_payment_id, paid_at: new Date().toISOString() })
-      .eq("razorpay_order_id", data.razorpay_order_id);
+      .update({ status: "paid", razorpay_payment_id: data.razorpay_payment_id, paid_at: new Date().toISOString() })
+      .eq("razorpay_order_id", data.razorpay_order_id)
+      .eq("status", "pending")
+      .select("email, name")
+      .maybeSingle();
     if (error) throw new Error(error.message);
-    // TODO: send audit confirmation email (with booking link) once an email domain is set up.
+    if (row) {
+      try {
+        await sendAuditConfirmation(row.email, row.name);
+      } catch (e) {
+        console.error("Audit confirmation email failed", e);
+      }
+    }
     return { ok: true };
   });
+
+/*
+ * Sends the audit confirmation via Resend (connector gateway).
+ * FROM: until you verify your own domain in Resend, "onboarding@resend.dev" only delivers
+ * to the Resend account owner's email. After verifying, change AUDIT_EMAIL_FROM.
+ */
+const AUDIT_EMAIL_FROM = "SecureCheck <onboarding@resend.dev>";
+
+function escapeHtml(s: string) {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+}
+
+async function sendAuditConfirmation(to: string, name: string) {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const resendKey = process.env["RESEND_API_KEY"];
+  if (!lovableKey || !resendKey) throw new Error("Email is not configured.");
+  const { AUDIT_CALL_BOOKING_URL, RETAINER_LINE, SUPPORT_EMAIL } = await import("@/lib/config");
+  const html = `<div style="font-family:Arial,sans-serif;background:#ffffff;color:#111;padding:24px;max-width:560px">
+<h2 style="margin:0 0 16px">Payment received</h2>
+<p>Hi ${escapeHtml(name || "there")},</p>
+<p>Thanks for booking the SecureCheck Full Audit (₹15,000). Book your 1-hour call here:</p>
+<p><a href="${AUDIT_CALL_BOOKING_URL}" style="display:inline-block;background:#3D8BFF;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Book your audit call</a></p>
+<p>We'll respond within 24 hours. Questions? Email ${SUPPORT_EMAIL}.</p>
+<p style="color:#666;font-size:13px;border-top:1px solid #eee;padding-top:12px">${RETAINER_LINE}</p>
+</div>`;
+  const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": resendKey },
+    body: JSON.stringify({ from: AUDIT_EMAIL_FROM, to: [to], reply_to: SUPPORT_EMAIL, subject: "SecureCheck Audit — Payment received", html }),
+  });
+  if (!res.ok) throw new Error(`Resend failed [${res.status}]: ${await res.text()}`);
+}

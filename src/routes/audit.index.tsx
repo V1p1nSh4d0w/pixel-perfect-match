@@ -23,18 +23,22 @@ export const Route = createFileRoute("/audit/")({
 });
 
 const INCLUDED = [
-  ["1-hour video call with Aman", "Walk through your setup with the founder of SecureCheck."],
-  ["Full manual review", "A hands-on review of your business's setup, based on your assessment answers."],
-  ["Written PDF report", "Prioritized, personalized recommendations you can act on."],
-  ["30-day follow-up", "An email check-in a month later to see how the fixes are going."],
-] as const;
+  "1-hour video call with a Security+ certified auditor",
+  "Manual review of your setup based on your assessment answers",
+  "A written PDF report with personalized recommendations, prioritized by risk",
+  "A 30-day follow-up email check-in",
+];
+const NOT = ["Not a penetration test", "Not a compliance certification", "Not a substitute for a full technical audit"];
 
 function AuditPage() {
   const navigate = useNavigate();
   const createOrder = useServerFn(createAuditOrder);
   const verify = useServerFn(verifyAuditPayment);
   const [email, setEmail] = useState("");
-  const [error, setError] = useState<string>();
+  const [name, setName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
 
@@ -46,11 +50,16 @@ function AuditPage() {
 
   async function buy(e: FormEvent) {
     e.preventDefault();
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) { setError("Enter a valid email address"); return; }
-    setError(undefined);
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs["name"] = "Enter your name";
+    if (!businessName.trim()) errs["business"] = "Enter your business name";
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) errs["email"] = "Enter a valid email address";
+    if (!/^[0-9+\-\s()]{6,20}$/.test(phone.trim())) errs["phone"] = "Enter a valid phone number";
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
     setBusy(true);
     try {
-      const order = await createOrder({ data: { email: email.trim() } });
+      const order = await createOrder({ data: { email: email.trim(), name: name.trim(), business_name: businessName.trim(), phone: phone.trim() } });
       const res = await openRazorpayOrderCheckout({ keyId: order.keyId, orderId: order.orderId, amount: order.amount, email: email.trim() });
       if (!res) return;
       await verify({ data: res });
@@ -73,22 +82,31 @@ function AuditPage() {
         </div>
         <p className="text-xs font-medium uppercase tracking-wide text-primary">One-time audit</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">Full Security Audit</h1>
-        <p className="mt-3 text-sm text-muted-foreground">A done-for-you manual audit of your business's security, with a clear written plan.</p>
+        <p className="mt-3 text-sm text-muted-foreground">A 1-hour call with a certified security auditor, a full review of your setup, and a written report with prioritized fixes.</p>
 
-        <div className="mt-8 space-y-3">
-          {INCLUDED.map(([t, d]) => (
-            <div key={t} className="rounded-card border border-border bg-card p-4">
-              <p className="text-sm font-medium text-foreground">{t}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-            </div>
-          ))}
+        <div className="mt-8 rounded-card border border-border bg-card p-6">
+          <h2 className="text-base font-semibold text-foreground">What's included</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-foreground">
+            {INCLUDED.map((t) => <li key={t}>{t}</li>)}
+          </ul>
+        </div>
+        <div className="mt-4 px-1">
+          <h2 className="text-xs font-medium text-muted-foreground">What it's not</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+            {NOT.map((t) => <li key={t}>{t}</li>)}
+          </ul>
         </div>
 
         <form onSubmit={buy} className="mt-8 space-y-4 rounded-card border border-primary bg-card p-6">
-          <p><span className="text-3xl font-semibold text-foreground">₹15,000</span> <span className="text-sm text-muted-foreground">one-time</span></p>
-          <Input label="Email for the booking link" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={error} />
+          <p><span className="text-3xl font-semibold text-foreground">₹15,000</span> <span className="text-sm text-muted-foreground">(one-time)</span></p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Your name" value={name} onChange={(e) => setName(e.target.value)} error={errors["name"]} />
+            <Input label="Business name" value={businessName} onChange={(e) => setBusinessName(e.target.value)} error={errors["business"]} />
+            <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors["email"]} />
+            <Input label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} error={errors["phone"]} />
+          </div>
           <Button type="submit" fullWidth loading={busy}>Book Full Audit — ₹15,000</Button>
-          <p className="text-xs text-muted-foreground">One-time payment. Includes a 1-hour call and a written report. Secure payments via Razorpay.</p>
+          <p className="text-xs text-muted-foreground">Payment via Razorpay. After payment, you'll receive a booking link by email within 24 hours.</p>
         </form>
       </div>
     </div>

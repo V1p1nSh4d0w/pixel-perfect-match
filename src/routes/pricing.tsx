@@ -43,6 +43,24 @@ const AUDIT = [
   "30-day follow-up email check-in",
 ];
 
+const COMPARISON: [string, boolean, boolean, boolean][] = [
+  ["Complete security assessment", true, true, true],
+  ["Security score", true, true, true],
+  ["Findings list", true, true, true],
+  ["Action plan", true, true, true],
+  ["PDF report download", false, true, true],
+  ["Extended remediation playbooks", false, true, true],
+  ["Score history chart", false, true, true],
+  ["Monthly re-scan reminder email", false, true, false],
+  ["Monthly email report", false, true, false],
+  ["Quarterly 1-hour call", false, true, false],
+  ["Priority email support (24h response)", false, true, true],
+  ["1-hour audit call with founder", false, false, true],
+  ["Written personalized PDF report", false, false, true],
+  ["30-day follow-up email check-in", false, false, true],
+  ["Retainer discount (₹5,000/mo option)", false, false, true],
+];
+
 function Check() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="mt-1 shrink-0 text-primary" aria-hidden="true">
@@ -92,7 +110,32 @@ function PricingPage() {
           </PlanCard>
         </div>
 
-        <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure payments via Razorpay.</p>
+        <div className="mt-12 overflow-x-auto rounded-card border border-border bg-card">
+          <table className="w-full min-w-[560px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="px-5 py-3 font-medium text-muted-foreground">Feature</th>
+                <th className="px-5 py-3 text-center font-medium text-foreground">Free</th>
+                <th className="bg-primary/10 px-5 py-3 text-center font-medium text-primary">Pro</th>
+                <th className="px-5 py-3 text-center font-medium text-foreground">Audit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.map(([label, ...tiers]) => (
+                <tr key={label} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-foreground">{label}</td>
+                  {tiers.map((on, i) => (
+                    <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-primary/10")}>
+                      {on ? <span className="inline-flex justify-center"><Check /></span> : <span className="text-muted-foreground">—</span>}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure payments via Razorpay. Cancel Pro anytime.</p>
       </div>
     </div>
   );
