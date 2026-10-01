@@ -3,6 +3,7 @@ import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { ScoreHistory } from "@/components/ScoreHistory";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
@@ -32,6 +33,7 @@ function DashboardPage() {
           }
         />
         <div className="space-y-6">
+          <OnboardingChecklist />
           <Card className="flex flex-col items-center gap-6 sm:flex-row">
             <ScoreRing score={result.score} risk={result.riskLevel} />
             <div className="space-y-2 text-center sm:text-left">
@@ -56,6 +58,7 @@ function DashboardPage() {
   return (
     <>
       <PageHeader title="Dashboard" />
+      <OnboardingChecklist />
       <div className="flex justify-center py-8">
         <Card className="w-full max-w-md text-center">
           <CardTitle>No assessment yet</CardTitle>

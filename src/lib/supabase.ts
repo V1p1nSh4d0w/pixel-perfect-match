@@ -243,3 +243,42 @@ export async function adminRemoveCall(id: string) {
   const { error } = await supabase.from("quarterly_calls").delete().eq("id", id);
   if (error) throw error;
 }
+
+// ---- Onboarding ----
+export type OnboardingFlag = "viewed_findings" | "downloaded_report" | "dismissed_onboarding";
+
+export interface OnboardingState {
+  eligible: boolean;
+  viewed_findings: boolean;
+  downloaded_report: boolean;
+  dismissed_onboarding: boolean;
+  hasAssessment: boolean;
+  hasActionItem: boolean;
+}
+
+export async function fetchOnboarding(): Promise<OnboardingState | null> {
+  const { data: u } = await supabase.auth.getUser();
+  if (!u.user) return null;
+  const [p, a, ai] = await Promise.all([
+    supabase.from("profiles").select("onboarding_eligible, viewed_findings, downloaded_report, dismissed_onboarding").eq("id", u.user.id).maybeSingle(),
+    supabase.from("assessments").select("id", { count: "exact", head: true }),
+    supabase.from("action_items").select("id", { count: "exact", head: true }),
+  ]);
+  if (p.error) throw p.error;
+  if (!p.data) return null;
+  return {
+    eligible: p.data.onboarding_eligible,
+    viewed_findings: p.data.viewed_findings,
+    downloaded_report: p.data.downloaded_report,
+    dismissed_onboarding: p.data.dismissed_onboarding,
+    hasAssessment: (a.count ?? 0) > 0,
+    hasActionItem: (ai.count ?? 0) > 0,
+  };
+}
+
+export async function setOnboardingFlag(flag: OnboardingFlag) {
+  const { data: u } = await supabase.auth.getUser();
+  if (!u.user) return;
+  const { error } = await supabase.from("profiles").update({ [flag]: true } as Partial<Record<OnboardingFlag, boolean>>).eq("id", u.user.id);
+  if (error) throw error;
+}
