@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_items: {
+        Row: {
+          completed: boolean
+          created_at: string
+          finding_id: string | null
+          id: string
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          finding_id?: string | null
+          id?: string
+          priority?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          finding_id?: string | null
+          id?: string
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "findings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           answers: Json
