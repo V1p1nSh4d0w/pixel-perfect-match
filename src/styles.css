@@ -104,3 +104,17 @@
   [class*="lovable"], [id*="lovable"],
   body > div[style*="position: fixed"], body > iframe { display: none !important; }
 }
+
+@keyframes landing-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@utility animate-rise {
+  animation: landing-rise 0.4s ease-out both;
+}
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
