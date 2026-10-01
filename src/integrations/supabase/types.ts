@@ -133,6 +133,11 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          new_score: number | null
+          previous_answer: string | null
+          previous_score: number | null
+          reassessed_answer: string | null
+          reassessed_at: string | null
           recommended_action: string
           severity: string
           status: string
@@ -145,6 +150,11 @@ export type Database = {
           category: string
           created_at?: string
           id?: string
+          new_score?: number | null
+          previous_answer?: string | null
+          previous_score?: number | null
+          reassessed_answer?: string | null
+          reassessed_at?: string | null
           recommended_action: string
           severity: string
           status?: string
@@ -157,6 +167,11 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          new_score?: number | null
+          previous_answer?: string | null
+          previous_score?: number | null
+          reassessed_answer?: string | null
+          reassessed_at?: string | null
           recommended_action?: string
           severity?: string
           status?: string
