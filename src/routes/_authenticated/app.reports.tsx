@@ -122,15 +122,58 @@ function ReportPage() {
             {businessName} • {date}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 print:hidden">
+        <div className="flex flex-wrap items-start gap-2 print:hidden">
           {isPro ? (
             <Button onClick={() => { setOnboardingFlag("downloaded_report").catch(() => {}); window.print(); }}>Download PDF</Button>
           ) : (
-            <Link to="/pricing">
-              <Button title="Unlock PDF download">Upgrade to Pro — ₹999/month</Button>
-            </Link>
+            <div className="flex flex-col items-start gap-1.5">
+              <span className="group relative inline-flex">
+                <button
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-button border border-border bg-surface-raised px-4 text-sm font-medium text-muted-foreground"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M4 21h16" />
+                  </svg>
+                  Download PDF
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-0.5" aria-hidden="true">
+                    <rect x="5" y="11" width="14" height="10" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                </button>
+                <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-max max-w-64 -translate-x-1/2 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-foreground opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+                  Available on Pro.
+                </span>
+              </span>
+              <p className="text-xs text-muted-foreground">
+                Unlock PDF downloads and full remediation playbooks.{" "}
+                <Link to="/pricing" className="text-primary hover:underline">
+                  Upgrade to Pro →
+                </Link>
+              </p>
+            </div>
           )}
-          <Button variant="secondary" onClick={share}>Share report</Button>
+          {isPro ? (
+            <Button variant="secondary" onClick={share}>Share report</Button>
+          ) : (
+            <span className="group relative inline-flex">
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="inline-flex h-10 cursor-not-allowed items-center justify-center rounded-button border border-border bg-surface-raised px-4 text-sm font-medium text-muted-foreground"
+              >
+                Share report
+              </button>
+              <span className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-max max-w-64 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-foreground opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+                Available on Pro — share a read-only link with your accountant or team.
+              </span>
+            </span>
+          )}
         </div>
       </header>
 
