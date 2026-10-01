@@ -279,6 +279,6 @@ export async function fetchOnboarding(): Promise<OnboardingState | null> {
 export async function setOnboardingFlag(flag: OnboardingFlag) {
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return;
-  const { error } = await supabase.from("profiles").update({ [flag]: true }).eq("id", u.user.id);
+  const { error } = await supabase.from("profiles").update({ [flag]: true } as Partial<Record<OnboardingFlag, boolean>>).eq("id", u.user.id);
   if (error) throw error;
 }
