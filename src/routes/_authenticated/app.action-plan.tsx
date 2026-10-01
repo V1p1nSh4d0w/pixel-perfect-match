@@ -30,11 +30,15 @@ const SECTIONS: Section[] = [
 
 function ActionPlanPage() {
   const queryClient = useQueryClient();
-  const { data: items, isLoading } = useQuery({
+  const { data: allItems, isLoading } = useQuery({
     queryKey: ACTION_ITEMS_KEY,
     queryFn: fetchActionItems,
   });
-  const { result } = useLatestResult();
+  const { result, isLoading: resultLoading } = useLatestResult();
+  // Only show actions for the latest assessment's findings (plus any manual,
+  // unlinked items), so older assessments don't produce duplicate actions.
+  const currentIds = new Set(result?.findings.map((f) => f.id) ?? []);
+  const items = allItems?.filter((it) => !it.finding_id || currentIds.has(it.finding_id));
 
   // Auto-generate the plan from the latest assessment's unresolved findings
   // (once per assessment; see generateActionPlan).
@@ -96,7 +100,7 @@ function ActionPlanPage() {
     },
   });
 
-  if (isLoading || !items) {
+  if (isLoading || resultLoading || !items) {
     return (
       <div>
         <PageHeader title="Action plan" />
