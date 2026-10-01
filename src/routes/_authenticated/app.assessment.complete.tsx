@@ -35,7 +35,7 @@ function CompletePage() {
         <ScoreRing score={result.score} risk={result.riskLevel} />
         <RiskLabel risk={result.riskLevel} />
         <CardBody>
-          {total === 0 ? "No findings — nice work." : `We found ${total} thing${total === 1 ? "" : "s"} to improve.`}
+          {total === 0 ? "No findings — nice work." : `Your answers point to ${total} thing${total === 1 ? "" : "s"} to improve.`}
         </CardBody>
       </Card>
       <SeverityCounts counts={result.counts} />
