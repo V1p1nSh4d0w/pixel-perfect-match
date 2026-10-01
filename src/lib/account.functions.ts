@@ -9,7 +9,8 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     for (const table of ["action_items", "findings", "assessments", "subscriptions", "quarterly_calls", "user_roles", "profiles"] as const) {
       const col = table === "profiles" ? "id" : "user_id";
-      const { error } = await supabaseAdmin.from(table).delete().eq(col, userId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabaseAdmin.from(table) as any).delete().eq(col, userId);
       if (error) throw new Error(`Could not delete account data (${table})`);
     }
     // Keep paid audit records for accounting, but detach them from the account.
