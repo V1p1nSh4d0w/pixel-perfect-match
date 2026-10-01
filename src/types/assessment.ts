@@ -44,4 +44,6 @@ export interface AssessmentResult {
   riskLevel: RiskLevel;
   findings: Finding[];
   counts: Record<Severity, number>;
+  /** When the assessment was completed (set when loaded from the database). */
+  created_at?: string;
 }
