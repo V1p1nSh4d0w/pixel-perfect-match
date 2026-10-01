@@ -189,13 +189,29 @@ export async function fetchSubscription(): Promise<import("@/types/subscription"
   return data as import("@/types/subscription").Subscription | null;
 }
 
-export async function fetchScoreHistory(): Promise<{ id: string; created_at: string; score: number }[]> {
-  const { data, error } = await supabase
+export interface ScoreHistoryPoint {
+  id: string;
+  created_at: string;
+  score: number;
+  risk_level: RiskLevel;
+}
+
+export interface ScoreHistoryData {
+  points: ScoreHistoryPoint[];
+  total: number;
+}
+
+export async function fetchScoreHistory(): Promise<ScoreHistoryData> {
+  const { data, error, count } = await supabase
     .from("assessments")
-    .select("id, created_at, score")
-    .order("created_at", { ascending: true });
+    .select("id, created_at, score, risk_level", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .limit(10);
   if (error) throw error;
-  return data ?? [];
+  return {
+    points: ((data ?? []) as ScoreHistoryPoint[]).reverse(),
+    total: count ?? data?.length ?? 0,
+  };
 }
 
 // ---- Audits, quarterly calls, admin ----
