@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SidebarNav, pageTitleForPath } from "@/components/SidebarNav";
 import { useProfile } from "@/hooks/useProfile";
+import { useSubscription } from "@/hooks/useSubscription";
 import { signOut } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -14,6 +15,7 @@ function AppShell() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data } = useProfile();
+  const { isPro } = useSubscription();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -90,6 +92,9 @@ function AppShell() {
 
           <div className="flex items-center gap-3">
             <span className="hidden truncate text-sm text-muted-foreground sm:block">{businessName}</span>
+            {isPro ? (
+              <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PRO</span>
+            ) : null}
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-xs font-medium text-foreground">
               {initial}
             </span>
