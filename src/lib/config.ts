@@ -6,7 +6,7 @@ export const SUPPORT_EMAIL = "hello.securecheck@gmail.com";
 
 export const AUDIT_PRICE_INR = 15000;
 export const RETAINER_LINE =
-  "Want ongoing help? Retainer at ₹5,000/month includes quarterly audits, monthly re-checks, and a private support channel. Reply to this email to discuss.";
+  "Want ongoing help? Our Retainer at ₹5,000/month includes quarterly audits, monthly re-checks, and a private support channel. Reply to the confirmation email to discuss.";
 
 /** Start of the current calendar quarter (Jan/Apr/Jul/Oct). */
 export function quarterStart(d = new Date()): Date {

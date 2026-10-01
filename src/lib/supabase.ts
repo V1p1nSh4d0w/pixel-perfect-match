@@ -200,7 +200,7 @@ export async function fetchScoreHistory(): Promise<{ id: string; created_at: str
 
 // ---- Audits, quarterly calls, admin ----
 export async function fetchMyAudits(): Promise<{ id: string; paid_at: string }[]> {
-  const { data, error } = await supabase.from("audits").select("id, paid_at").eq("status", "audit_paid").order("paid_at", { ascending: false });
+  const { data, error } = await supabase.from("audits").select("id, paid_at").eq("status", "paid").order("paid_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as { id: string; paid_at: string }[];
 }
@@ -229,7 +229,7 @@ export async function adminFetchProUsers() {
 }
 
 export async function adminFetchAudits() {
-  const { data, error } = await supabase.from("audits").select("id, email, paid_at, status").eq("status", "audit_paid").order("paid_at", { ascending: false });
+  const { data, error } = await supabase.from("audits").select("id, email, paid_at, status").eq("status", "paid").order("paid_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
 }
