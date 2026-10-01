@@ -8,7 +8,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 
 export function ScoreHistory() {
   const { isPro, isLoading } = useSubscription();
-  const q = useQuery({ queryKey: ["score-history"], queryFn: fetchScoreHistory, enabled: isPro });
+  const q = useQuery({ queryKey: ["score-history", "latest-10"], queryFn: fetchScoreHistory, enabled: isPro });
   const [activePoint, setActivePoint] = useState<ScoreHistoryPoint | null>(null);
 
   if (isLoading) return null;
