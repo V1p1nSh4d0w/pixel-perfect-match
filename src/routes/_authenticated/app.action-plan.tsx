@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardBody } from "@/components/Card";
+import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { deleteActionItem, fetchActionItems, setActionItemCompleted } from "@/lib/supabase";
 import type { ActionItem } from "@/types/action-item";
