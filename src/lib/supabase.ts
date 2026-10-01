@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { riskLevelFor } from "@/lib/scoring";
+import { enrichFindings, riskLevelFor } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
@@ -95,7 +95,7 @@ const SEVERITY_ORDER: Severity[] = ["Critical", "High", "Medium", "Low"];
 export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   const { data: a, error } = await supabase
     .from("assessments")
-    .select("id, score, risk_level")
+    .select("id, score, risk_level, answers")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -106,7 +106,7 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
     .select("id, severity, category, title, why_it_matters, recommended_action, status")
     .eq("assessment_id", a.id);
   if (fErr) throw fErr;
-  const findings = (rows ?? []) as Finding[];
+  const findings = enrichFindings((rows ?? []) as Finding[], (a.answers ?? {}) as AssessmentAnswers);
   findings.sort((x, y) => SEVERITY_ORDER.indexOf(x.severity) - SEVERITY_ORDER.indexOf(y.severity));
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
@@ -115,7 +115,11 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
 
 // ---- Findings & action items ----
 export async function markFindingResolved(findingId: string) {
-  const { error } = await supabase.from("findings").update({ status: "Resolved" }).eq("id", findingId);
+  return setFindingStatus(findingId, "Resolved");
+}
+
+export async function setFindingStatus(findingId: string, status: Finding["status"]) {
+  const { error } = await supabase.from("findings").update({ status }).eq("id", findingId);
   if (error) throw error;
 }
 

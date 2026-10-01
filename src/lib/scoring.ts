@@ -1,4 +1,5 @@
-import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
+import type { AssessmentAnswers, AssessmentResult, Effort, Finding, RiskLevel, Severity } from "@/types/assessment";
+import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 
 /**
  * SecureCheck scoring engine (deterministic self-assessment scoring).
@@ -343,4 +344,44 @@ const SHORT_ACTIONS: Record<string, string> = {
 
 export function shortActionFor(finding: { title: string; recommended_action: string }): string {
   return SHORT_ACTIONS[finding.title] ?? finding.recommended_action;
+}
+
+/** Estimated effort to remediate each control, keyed by control id. */
+const CONTROL_EFFORT: Record<string, Effort> = {
+  security_policy: "Low", mfa_accounts: "Medium", password_manager: "Medium", admin_limited: "Low",
+  offboarding: "Low", device_lock: "Low", remote_wipe: "Low", personal_devices: "Medium",
+  auto_updates: "Low", unsupported_software: "High", backups_exist: "Medium", backups_separate: "Medium",
+  backups_tested: "Medium", email_mfa: "Low", phishing_training: "Medium", cloud_access_review: "Low",
+  third_party_apps: "Low", https: "Medium", registrar_mfa: "Low",
+};
+
+const QUESTION_TEXT: Record<string, string> = Object.fromEntries(
+  ASSESSMENT_STEPS.flatMap((s) => s.questions.map((q) => [q.id, q.text])),
+);
+
+/**
+ * Re-evaluates stored findings against the assessment's saved answers.
+ * - Drops any finding whose control is satisfied (best answer) or not applicable,
+ *   so a finding is never shown for something the user said they already do.
+ * - Sets severity from the control's defined risk level for the given answer.
+ * - Attaches evidence (question + answer) and estimated effort.
+ * Findings that don't map to a known control are dropped.
+ */
+export function enrichFindings(findings: Finding[], answers: AssessmentAnswers): Finding[] {
+  const byTitle = new Map(RULES.map((c) => [c.title, c]));
+  const out: Finding[] = [];
+  for (const f of findings) {
+    const c = byTitle.get(f.title);
+    if (!c) continue;
+    const a = answers[c.id];
+    if (a && (c.best.includes(a) || c.na?.includes(a))) continue;
+    const partial = Boolean(a && c.partial?.includes(a));
+    out.push({
+      ...f,
+      severity: partial && c.partialSeverity ? c.partialSeverity : c.severity,
+      evidence: { question: QUESTION_TEXT[c.id] ?? c.name, answer: a ?? "Not answered" },
+      effort: CONTROL_EFFORT[c.id] ?? "Medium",
+    });
+  }
+  return out;
 }
