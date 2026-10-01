@@ -7,6 +7,8 @@ import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { ScoreHistory } from "@/components/ScoreHistory";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
+import { useQuery } from "@tanstack/react-query";
+import { fetchActionItems } from "@/lib/supabase";
 import type { Severity } from "@/types/assessment";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -15,13 +17,22 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function DashboardPage() {
   const navigate = useNavigate();
+  // Every metric below is derived from the latest saved assessment
+  // (useLatestResult) and the user's action items — no demo values.
   const { result, isLoading } = useLatestResult();
+  const actions = useQuery({ queryKey: ["action-items"], queryFn: fetchActionItems });
   if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
 
   if (result) {
     const openFindings = result.findings.filter((f) => f.status !== "Resolved");
     const openCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
     openFindings.forEach((f) => { openCounts[f.severity]++; });
+    const resolvedCount = result.findings.length - openFindings.length;
+    // Action-plan progress counts only actions linked to this assessment's findings.
+    const ids = new Set(result.findings.map((f) => f.id));
+    const planItems = (actions.data ?? []).filter((it) => !it.finding_id || ids.has(it.finding_id));
+    const planDone = planItems.filter((it) => it.completed).length;
+    const planPct = planItems.length ? Math.round((planDone / planItems.length) * 100) : 0;
     return (
       <>
         <PageHeader
@@ -41,6 +52,10 @@ function DashboardPage() {
               <p className="text-xs text-muted-foreground">Based on your assessment responses.</p>
               <RiskLabel risk={result.riskLevel} />
               <CardBody>{openFindings.length} findings to review.</CardBody>
+              <p className="text-xs text-muted-foreground">
+                {result.findings.length} total · {resolvedCount} resolved
+                {planItems.length > 0 && <> · Action plan {planDone}/{planItems.length} completed ({planPct}%)</>}
+              </p>
               {openFindings.length === 0 && (
                 <p className="text-sm text-success">All findings resolved.</p>
               )}

@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
+const QUESTION_COUNT = ASSESSMENT_STEPS.reduce((n, s) => n + s.questions.length, 0);
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOnboarding, setOnboardingFlag } from "@/lib/supabase";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -13,7 +15,7 @@ export function OnboardingChecklist() {
   if (!data || !data.eligible || data.dismissed_onboarding) return null;
 
   const steps = [
-    { title: "Complete your first assessment", desc: "Answer 10 questions about your business.", done: data.hasAssessment, label: "Start assessment", to: "/app/assessment" },
+    { title: "Complete your first assessment", desc: `Answer ${QUESTION_COUNT} questions about your business.`, done: data.hasAssessment, label: "Start assessment", to: "/app/assessment" },
     { title: "Review your findings", desc: "See what needs attention and why.", done: data.viewed_findings, label: "View findings", to: "/app/findings" },
     { title: "Build your action plan", desc: "Pick which fixes to tackle first.", done: data.hasActionItem, label: "Open action plan", to: "/app/action-plan" },
     {

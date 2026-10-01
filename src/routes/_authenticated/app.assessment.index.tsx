@@ -36,6 +36,8 @@ function AssessmentPage() {
       const answers = assessmentStore.getAnswers();
       await saveAssessment(answers, scoreAssessment(answers));
       await queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
+      await queryClient.invalidateQueries({ queryKey: ["score-history"] });
+      await queryClient.invalidateQueries({ queryKey: ["action-items"] });
       assessmentStore.reset();
       navigate({ to: "/app/assessment/complete" });
     } catch (e) {
