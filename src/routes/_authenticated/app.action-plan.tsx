@@ -85,7 +85,7 @@ function ActionPlanPage() {
       <div>
         <PageHeader title="Action plan" />
         <Card>
-          <CardBody className="flex flex-col items-center py-12 text-center">
+          <div className="flex flex-col items-center py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">No actions yet.</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Add findings to your action plan from the Findings page to start building your
@@ -94,7 +94,7 @@ function ActionPlanPage() {
             <Link to="/app/findings" className="mt-6">
               <Button>Go to Findings</Button>
             </Link>
-          </CardBody>
+          </div>
         </Card>
       </div>
     );
@@ -108,7 +108,7 @@ function ActionPlanPage() {
       <PageHeader title="Action plan" />
 
       <Card className="mb-8">
-        <CardBody>
+        <div>
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="font-medium text-foreground">
               {completedCount} / {items.length} actions completed
@@ -121,7 +121,7 @@ function ActionPlanPage() {
               style={{ width: `${percent}%` }}
             />
           </div>
-        </CardBody>
+        </div>
       </Card>
 
       <div className="space-y-8">
