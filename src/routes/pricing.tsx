@@ -93,22 +93,21 @@ function PricingPage() {
           </Link>
         </div>
         <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">Simple pricing</h1>
-        <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you want the full toolkit.</p>
+        <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you're ready.</p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <PlanCard name="Free" price="₹0" features={FREE}>
+          <PlanCard name="Free" price="₹0" note="Forever free" features={FREE}>
             <Link to={signedIn ? "/app" : "/signup"} className="block">
               <Button fullWidth variant="secondary">Get started free</Button>
             </Link>
           </PlanCard>
-          <PlanCard name="Pro" price="₹999" suffix="/month" features={PRO} highlighted>
+          <PlanCard name="Pro" price="₹999" suffix=" / month" note="Billed monthly. Cancel anytime." features={PRO} highlighted>
             {signedIn ? <ProCta /> : (
               <Link to="/signup" className="block"><Button fullWidth>Upgrade to Pro</Button></Link>
             )}
           </PlanCard>
-          <PlanCard name="Audit" price="₹15,000" suffix=" one-time" features={AUDIT}>
+          <PlanCard name="Full Audit" price="₹15,000" note="One-time payment" features={AUDIT}>
             <Link to="/audit" className="block"><Button fullWidth variant="secondary">Book Full Audit</Button></Link>
-            <p className="mt-3 text-xs text-muted-foreground">One-time payment. Includes a 1-hour call and a written report.</p>
           </PlanCard>
         </div>
 
@@ -124,7 +123,7 @@ function PricingPage() {
             </thead>
             <tbody>
               {COMPARISON.map(([label, ...tiers]) => (
-                <tr key={label} className="border-b border-border last:border-0">
+                <tr key={label} className="border-b border-border last:border-0 even:bg-surface-raised/40">
                   <td className="px-5 py-3 text-foreground">{label}</td>
                   {tiers.map((on, i) => (
                     <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-primary/10")}>
@@ -143,11 +142,11 @@ function PricingPage() {
   );
 }
 
-function PlanCard({ name, price, suffix, features, highlighted, children }: {
-  name: string; price: string; suffix?: string | undefined; features: string[]; highlighted?: boolean | undefined; children: React.ReactNode;
+function PlanCard({ name, price, suffix, note, features, highlighted, children }: {
+  name: string; price: string; suffix?: string | undefined; note: string; features: string[]; highlighted?: boolean | undefined; children: React.ReactNode;
 }) {
   return (
-    <div className={cn("relative flex flex-col rounded-card border bg-card p-6", highlighted ? "border-primary" : "border-border")}>
+    <div className={cn("relative flex flex-col rounded-card border bg-card p-6", highlighted ? "border-2 border-primary md:-my-3 md:py-9" : "border-border")}>
       {highlighted ? (
         <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">Recommended</span>
       ) : null}
@@ -156,6 +155,7 @@ function PlanCard({ name, price, suffix, features, highlighted, children }: {
         <span className="text-3xl font-semibold text-foreground">{price}</span>
         {suffix ? <span className="text-sm text-muted-foreground">{suffix}</span> : null}
       </p>
+      <p className="mt-1 text-xs text-muted-foreground">{note}</p>
       <ul className="mt-6 flex-1 space-y-2">
         {features.map((f) => (
           <li key={f} className="flex gap-2 text-sm text-foreground"><Check />{f}</li>
