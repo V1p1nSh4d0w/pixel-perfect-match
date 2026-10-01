@@ -385,3 +385,27 @@ export function enrichFindings(findings: Finding[], answers: AssessmentAnswers):
   }
   return out;
 }
+
+const SEVERITY_RANK: Record<Severity, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+const EFFORT_RANK: Record<Effort, number> = { Low: 0, Medium: 1, High: 2 };
+
+/**
+ * Action plan ordering. Compares two findings by:
+ *   1. severity (Critical first),
+ *   2. security impact = the control's score weight (bigger first),
+ *   3. estimated effort (quicker wins first).
+ * Ties fall back to title so the order is deterministic.
+ */
+export function compareActions(
+  a: { title: string; severity: Severity },
+  b: { title: string; severity: Severity },
+): number {
+  const ca = RULES.find((c) => c.title === a.title);
+  const cb = RULES.find((c) => c.title === b.title);
+  return (
+    SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+    (cb?.weight ?? 0) - (ca?.weight ?? 0) ||
+    EFFORT_RANK[CONTROL_EFFORT[ca?.id ?? ""] ?? "Medium"] - EFFORT_RANK[CONTROL_EFFORT[cb?.id ?? ""] ?? "Medium"] ||
+    a.title.localeCompare(b.title)
+  );
+}

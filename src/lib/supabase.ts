@@ -149,15 +149,54 @@ export async function fetchActionPlanFindingIds(): Promise<string[]> {
 export async function fetchActionItems(): Promise<ActionItem[]> {
   const { data, error } = await supabase
     .from("action_items")
-    .select("id, user_id, finding_id, title, priority, completed, created_at, finding:findings(category, recommended_action)")
+    .select("id, user_id, finding_id, title, priority, completed, created_at, finding:findings(category, recommended_action, title, severity, status, assessment_id)")
     .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as ActionItem[];
 }
 
-export async function setActionItemCompleted(id: string, completed: boolean) {
+/**
+ * Completing an action resolves its linked finding; un-completing reopens it
+ * (only if it is currently Resolved). The security score is NOT changed: the
+ * score is calculated from assessment answers, and the scoring model does not
+ * treat a resolved finding as an improved control until the user retakes the
+ * assessment with updated answers.
+ */
+export async function setActionItemCompleted(id: string, completed: boolean, findingId?: string | null) {
   const { error } = await supabase.from("action_items").update({ completed }).eq("id", id);
   if (error) throw error;
+  if (!findingId) return;
+  const q = supabase.from("findings").update({ status: completed ? "Resolved" : "Open" }).eq("id", findingId);
+  const { error: fErr } = completed ? await q : await q.eq("status", "Resolved");
+  if (fErr) throw fErr;
+}
+
+/**
+ * Builds the action plan for an assessment from its unresolved findings.
+ * Runs once per assessment: if any of these findings already has an action
+ * item, nothing is added (so items the user removed don't come back).
+ * Returns the number of actions created.
+ */
+export async function generateActionPlan(findings: Finding[]): Promise<number> {
+  const open = findings.filter((f) => f.status !== "Resolved");
+  if (open.length === 0) return 0;
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error("You need to be signed in.");
+  const { data: existing, error } = await supabase
+    .from("action_items")
+    .select("finding_id")
+    .in("finding_id", findings.map((f) => f.id));
+  if (error) throw error;
+  if ((existing ?? []).length > 0) return 0;
+  const rows = open.map((f) => ({
+    user_id: userData.user.id,
+    finding_id: f.id,
+    title: shortActionFor(f),
+    priority: f.severity,
+  }));
+  const { error: insErr } = await supabase.from("action_items").insert(rows);
+  if (insErr) throw insErr;
+  return rows.length;
 }
 
 export async function deleteActionItem(id: string) {
