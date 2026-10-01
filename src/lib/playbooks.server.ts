@@ -1,4 +1,4 @@
-/** Extended step-by-step remediation playbooks (Pro), keyed by finding title. */
+/** Extended step-by-step remediation playbooks (Starter Kit), keyed by finding title. */
 export const PLAYBOOKS: Record<string, string[]> = {
   "No written security policy": [
     "Write a one-page policy covering passwords, MFA, device locks, backups and who to tell about a problem.",
