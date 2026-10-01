@@ -148,8 +148,13 @@ function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; in
   const [expanded, setExpanded] = useState(Boolean(highlighted));
   const ref = useRef<HTMLDivElement>(null);
 
+  const [flash, setFlash] = useState(Boolean(highlighted));
   useEffect(() => {
-    if (highlighted) ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!highlighted) return;
+    setFlash(true);
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => setFlash(false), 3000);
+    return () => clearTimeout(t);
   }, [highlighted]);
 
   const queryClient = useQueryClient();
@@ -181,7 +186,7 @@ function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; in
   const isResolved = f.status === "Resolved";
 
   return (
-    <div ref={ref} className={cn(highlighted && "rounded-card ring-1 ring-primary")}>
+    <div ref={ref} className={cn("rounded-card ring-2 transition-shadow duration-700", flash ? "ring-primary" : "ring-transparent")}>
       <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">

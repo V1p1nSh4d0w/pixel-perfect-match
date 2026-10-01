@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
+import { shortActionFor } from "@/lib/scoring";
 
 export { supabase };
 
@@ -118,13 +119,13 @@ export async function markFindingResolved(findingId: string) {
 }
 
 /** Returns false when the finding is already in the action plan. */
-export async function addFindingToActionPlan(finding: Pick<Finding, "id" | "recommended_action" | "severity">) {
+export async function addFindingToActionPlan(finding: Pick<Finding, "id" | "title" | "recommended_action" | "severity">) {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) throw new Error("You need to be signed in.");
   const { error } = await supabase.from("action_items").insert({
     user_id: userData.user.id,
     finding_id: finding.id,
-    title: finding.recommended_action,
+    title: shortActionFor(finding),
     priority: finding.severity,
   });
   if (error) {
@@ -143,7 +144,7 @@ export async function fetchActionPlanFindingIds(): Promise<string[]> {
 export async function fetchActionItems(): Promise<ActionItem[]> {
   const { data, error } = await supabase
     .from("action_items")
-    .select("id, user_id, finding_id, title, priority, completed, created_at, finding:findings(category)")
+    .select("id, user_id, finding_id, title, priority, completed, created_at, finding:findings(category, recommended_action)")
     .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as ActionItem[];
