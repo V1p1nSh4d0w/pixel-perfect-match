@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
+import type { ActionItem } from "@/types/action-item";
 
 export { supabase };
 
@@ -137,4 +138,23 @@ export async function fetchActionPlanFindingIds(): Promise<string[]> {
   const { data, error } = await supabase.from("action_items").select("finding_id").not("finding_id", "is", null);
   if (error) throw error;
   return (data ?? []).map((r) => r.finding_id as string);
+}
+
+export async function fetchActionItems(): Promise<ActionItem[]> {
+  const { data, error } = await supabase
+    .from("action_items")
+    .select("id, user_id, finding_id, title, priority, completed, created_at")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as ActionItem[];
+}
+
+export async function setActionItemCompleted(id: string, completed: boolean) {
+  const { error } = await supabase.from("action_items").update({ completed }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteActionItem(id: string) {
+  const { error } = await supabase.from("action_items").delete().eq("id", id);
+  if (error) throw error;
 }
