@@ -117,7 +117,10 @@ function FindingsPage() {
   const activeTab = showResolved ? "resolved" : activeSeverity ? severity : "";
   const open = result.findings.filter((f) => f.status !== "Resolved");
   const resolved = result.findings.filter((f) => f.status === "Resolved");
-  const visible = showResolved ? resolved : activeSeverity ? open.filter((f) => f.severity === activeSeverity) : open;
+  const SEV_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  const visible = (showResolved ? resolved : activeSeverity ? open.filter((f) => f.severity === activeSeverity) : open)
+    .slice()
+    .sort((a, b) => (SEV_RANK[a.severity] ?? 9) - (SEV_RANK[b.severity] ?? 9));
 
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   open.forEach((f) => counts[f.severity]++);
@@ -229,51 +232,60 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
 
   return (
     <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-1000", highlighted && flash ? "ring-primary" : "ring-transparent")}>
-      <Card className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <SeverityBadge severity={f.severity} />
-          <span className="text-xs uppercase tracking-wide text-muted-foreground">{f.category}</span>
+      <Card className="space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <SeverityBadge severity={f.severity} />
+            <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">{f.category}</span>
+          </div>
+          <h2 className="type-card-title">{f.title}</h2>
         </div>
-        <span className="text-xs text-muted-foreground">
-          Status: <span className={isResolved ? "text-success" : f.status === "In progress" ? "text-medium" : "text-foreground"}>{f.status}</span>
-        </span>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {f.effort && (
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-muted-foreground">
+              Effort: <span className="text-foreground">{f.effort}</span>
+            </span>
+          )}
+          <span className={cn("rounded-full border px-2.5 py-0.5", isResolved ? "border-success/40 text-success" : f.status === "In progress" ? "border-medium/40 text-medium" : "border-border text-foreground")}>
+            {f.status}
+          </span>
+        </div>
       </div>
-      <h2 className="type-card-title">{f.title}</h2>
-      {f.effort && <p className="text-xs text-muted-foreground">Estimated effort: <span className="text-foreground">{f.effort}</span></p>}
 
       {expanded ? (
-        <div className="space-y-4 border-t border-border pt-4">
-          <div>
-            <p className="mb-1 text-xs font-medium text-muted-foreground">Why it matters</p>
-            <p className="text-sm text-foreground">{f.why_it_matters}</p>
-          </div>
+        <div className="space-y-5 border-t border-border pt-5">
+          <section>
+            <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Why it matters</h3>
+            <p className="text-sm leading-relaxed text-foreground">{f.why_it_matters}</p>
+          </section>
           {f.evidence && (
-            <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">Evidence from your answers</p>
-              <p className="text-sm text-muted-foreground">{f.evidence.question}</p>
-              <p className="text-sm text-foreground">You answered: “{f.evidence.answer}”</p>
-            </div>
+            <section>
+              <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Evidence · from your assessment response</h3>
+              <div className="rounded-lg border-l-2 border-primary/60 bg-surface-raised px-4 py-3">
+                <p className="text-sm text-muted-foreground">{f.evidence.question}</p>
+                <p className="mt-1 text-sm text-foreground">You answered: “{f.evidence.answer}”</p>
+              </div>
+            </section>
           )}
-          <div>
-            <p className="mb-1 text-xs font-medium text-muted-foreground">Suggested fix</p>
-            <p className="text-sm text-foreground">{f.recommended_action}</p>
-          </div>
+          <section>
+            <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recommended fix</h3>
+            <p className="text-sm leading-relaxed text-foreground">{f.recommended_action}</p>
+          </section>
           {playbook ? (
-            <div className="rounded-card border border-border/60 bg-surface-raised p-4">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Step-by-step remediation</p>
-              <ol className="list-decimal space-y-1.5 pl-5 text-sm text-foreground">
-                {(isPro ? playbook : playbook.slice(0, 2)).map((step) => <li key={step}>{step}</li>)}
+            <section>
+              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Remediation playbook</h3>
+              <ol className="space-y-2">
+                {(isPro ? playbook : playbook.slice(0, 2)).map((step, i) => (
+                  <li key={step} className="flex gap-3 text-sm leading-relaxed text-foreground">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-[11px] text-muted-foreground">{i + 1}</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
               </ol>
-            </div>
+            </section>
           ) : null}
-          <div className="flex flex-wrap gap-2">
-            {f.status === "Open" && (
-              <Button variant="secondary" onClick={() => startProgress.mutate()} loading={startProgress.isPending}>Mark in progress</Button>
-            )}
-            {!isResolved && (
-              <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
-            )}
+          <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             <Button
               variant="secondary"
               onClick={() => addToPlan.mutate()}
@@ -282,12 +294,18 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             >
               {inPlan ? "In action plan" : "Add to action plan"}
             </Button>
+            {!isResolved && (
+              <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
+            )}
+            {f.status === "Open" && (
+              <Button variant="ghost" onClick={() => startProgress.mutate()} loading={startProgress.isPending}>Mark in progress</Button>
+            )}
             <Button variant="ghost" onClick={() => setExpanded(false)}>Hide</Button>
           </div>
         </div>
       ) : (
         <>
-          <p className="line-clamp-2 text-sm text-muted-foreground">{f.why_it_matters}</p>
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{f.why_it_matters}</p>
           <Button variant="secondary" onClick={() => setExpanded(true)}>View remediation</Button>
         </>
       )}
