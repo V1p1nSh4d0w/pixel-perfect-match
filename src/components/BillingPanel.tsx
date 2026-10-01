@@ -52,7 +52,7 @@ export function BillingPanel() {
               </p>
             ) : null}
             <p className="text-muted-foreground">
-              Priority support: <a href="mailto:support@securecheck.app" className="text-primary hover:underline">support@securecheck.app</a>
+              Priority support: <a href="mailto:hello.securecheck@gmail.com" className="text-primary hover:underline">hello.securecheck@gmail.com</a>
             </p>
             {!cancelled ? (
               <Button variant="secondary" loading={cancel.isPending} onClick={() => {
