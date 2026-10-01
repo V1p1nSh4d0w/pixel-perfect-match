@@ -45,6 +45,7 @@ export function BillingPanel() {
           Current plan: <span className="font-semibold">{isPro ? "Pro" : "Free"}</span>
           {isPro && cancelled ? <span className="text-muted-foreground"> (cancelled)</span> : null}
         </p>
+        <a href="/pricing" className="inline-block text-sm text-primary hover:underline">Compare plans →</a>
 
         {!isPro ? (
           <>

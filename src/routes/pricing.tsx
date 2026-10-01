@@ -21,26 +21,28 @@ export const Route = createFileRoute("/pricing")({
 });
 
 const FREE = [
-  "Complete the security assessment",
+  "Complete security assessment",
   "Security score",
-  "Findings list with suggested fixes",
-  "Action plan checklist",
+  "Findings list",
+  "Action plan",
 ];
 const PRO = [
   "Everything in Free",
-  "Download the full PDF report",
-  "Step-by-step remediation playbooks on every finding",
-  "Score history across all assessments",
+  "PDF report download",
+  "Extended remediation playbooks",
+  "Score history chart",
   "Monthly re-scan reminder email",
-  "Monthly email report: score change and top 3 open findings",
-  "One 30-minute video call per quarter with Aman",
-  "Priority email support (24h on business days)",
+  "Monthly email report",
+  "Quarterly 1-hour call with the founder",
+  "Priority email support (24h response)",
 ];
 const AUDIT = [
-  "1-hour video call with Aman",
-  "Full manual review of your setup",
-  "Written PDF report with personalized recommendations",
-  "30-day follow-up email check-in",
+  "1-hour audit call with the founder",
+  "Manual review of your setup",
+  "Written personalized PDF report",
+  "Prioritized recommendations",
+  "30-day follow-up check-in",
+  "Retainer option at ₹5,000/month after the audit",
 ];
 
 const COMPARISON: [string, boolean, boolean, boolean][] = [
@@ -54,11 +56,11 @@ const COMPARISON: [string, boolean, boolean, boolean][] = [
   ["Monthly re-scan reminder email", false, true, false],
   ["Monthly email report", false, true, false],
   ["Quarterly 1-hour call", false, true, false],
-  ["Priority email support (24h response)", false, true, true],
+  ["Priority email support", false, true, true],
   ["1-hour audit call with founder", false, false, true],
   ["Written personalized PDF report", false, false, true],
-  ["30-day follow-up email check-in", false, false, true],
-  ["Retainer discount (₹5,000/mo option)", false, false, true],
+  ["30-day follow-up check-in", false, false, true],
+  ["Retainer option (₹5,000/mo)", false, false, true],
 ];
 
 function Check() {
