@@ -148,7 +148,7 @@ function ActionPlanPage() {
                         aria-label={`Mark "${item.title}" as completed`}
                       />
                       <div className="min-w-0 flex-1">
-                        <span className="inline-flex items-start gap-2">
+                        <span className="flex flex-wrap items-start gap-x-2">
                         <span
                           className={`text-sm ${
                             item.completed
