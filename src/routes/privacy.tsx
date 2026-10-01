@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/LegalPage";
 import { SUPPORT_EMAIL } from "@/lib/config";
 
@@ -35,4 +35,3 @@ export const Route = createFileRoute("/privacy")({
   },
 });
 
-export { Link };
