@@ -84,7 +84,7 @@ function AssessmentPage() {
         <ReviewStep answers={answers} onJump={go} />
       ) : (
         <Card className="space-y-8">
-          <h2 className="text-lg font-semibold text-foreground">{ASSESSMENT_STEPS[stepIndex]!.name}</h2>
+          <h2 className="type-section">{ASSESSMENT_STEPS[stepIndex]!.name}</h2>
           {ASSESSMENT_STEPS[stepIndex]!.questions.map((q) => (
             <fieldset key={q.id} className="space-y-3">
               <legend className="mb-3 text-sm font-medium text-foreground">{q.text}</legend>
@@ -147,7 +147,7 @@ function ReviewStep({ answers, onJump }: { answers: Record<string, string>; onJu
     <div className="space-y-4">
       {ASSESSMENT_STEPS.map((step, i) => (
         <Card key={step.id}>
-          <h2 className="mb-4 text-base font-semibold text-foreground">{step.name}</h2>
+          <h2 className="mb-4 type-card-title">{step.name}</h2>
           <ul className="space-y-1">
             {step.questions.map((q) => (
               <li key={q.id}>

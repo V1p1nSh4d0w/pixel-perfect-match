@@ -93,7 +93,7 @@ function PricingPage() {
             {signedIn ? "Go to app" : "Log in"}
           </Link>
         </div>
-        <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">Simple pricing</h1>
+        <h1 className="text-center type-page-title text-3xl">Simple pricing</h1>
         <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you're ready.</p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -151,7 +151,7 @@ function PlanCard({ name, price, suffix, note, features, highlighted, children }
       {highlighted ? (
         <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">Recommended</span>
       ) : null}
-      <h2 className="text-base font-semibold text-foreground">{name}</h2>
+      <h2 className="type-card-title">{name}</h2>
       <p className="mt-3">
         <span className="text-3xl font-semibold text-foreground">{price}</span>
         {suffix ? <span className="text-sm text-muted-foreground">{suffix}</span> : null}

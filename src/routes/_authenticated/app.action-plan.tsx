@@ -123,7 +123,7 @@ function ActionPlanPage() {
         <PageHeader title="Action plan" />
         <Card>
           <div className="flex flex-col items-center py-12 text-center">
-            <h2 className="text-lg font-semibold text-foreground">No actions yet.</h2>
+            <h2 className="type-section">No actions yet.</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Your action plan is built automatically from unresolved findings. Complete an
               assessment, or add findings from the Findings page.
@@ -175,7 +175,7 @@ function ActionPlanPage() {
           if (sectionItems.length === 0) return null;
           return (
             <section key={section.name}>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-3 type-section">
                 {section.name}
               </h2>
               <Card className="p-0">
