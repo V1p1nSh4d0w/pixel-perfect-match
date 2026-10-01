@@ -8,7 +8,7 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { SEVERITIES, SeverityBadge } from "@/components/Results";
 import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
-import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved } from "@/lib/supabase";
+import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved, setFindingStatus } from "@/lib/supabase";
 import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -195,6 +195,18 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the finding."),
   });
 
+  const startProgress = useMutation({
+    mutationFn: () => setFindingStatus(f.id, "In progress"),
+    onSuccess: () => {
+      queryClient.setQueryData<AssessmentResult | null>(LATEST_RESULT_KEY, (prev) =>
+        prev ? { ...prev, findings: prev.findings.map((x) => (x.id === f.id ? { ...x, status: "In progress" } : x)) } : prev,
+      );
+      queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
+      toast.success("Marked as in progress");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the finding."),
+  });
+
   const addToPlan = useMutation({
     mutationFn: () => addFindingToActionPlan(f),
     onSuccess: (added) => {
@@ -217,10 +229,11 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
           <span className="text-xs uppercase tracking-wide text-muted-foreground">{f.category}</span>
         </div>
         <span className="text-xs text-muted-foreground">
-          Status: <span className={isResolved ? "text-success" : "text-foreground"}>{f.status}</span>
+          Status: <span className={isResolved ? "text-success" : f.status === "In progress" ? "text-warning" : "text-foreground"}>{f.status}</span>
         </span>
       </div>
       <h2 className="text-base font-semibold text-foreground">{f.title}</h2>
+      {f.effort && <p className="text-xs text-muted-foreground">Estimated effort: <span className="text-foreground">{f.effort}</span></p>}
 
       {expanded ? (
         <div className="space-y-4 border-t border-border pt-4">
@@ -228,19 +241,29 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             <p className="mb-1 text-xs font-medium text-muted-foreground">Why it matters</p>
             <p className="text-sm text-foreground">{f.why_it_matters}</p>
           </div>
+          {f.evidence && (
+            <div>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Evidence from your answers</p>
+              <p className="text-sm text-muted-foreground">{f.evidence.question}</p>
+              <p className="text-sm text-foreground">You answered: “{f.evidence.answer}”</p>
+            </div>
+          )}
           <div>
             <p className="mb-1 text-xs font-medium text-muted-foreground">Suggested fix</p>
             <p className="text-sm text-foreground">{f.recommended_action}</p>
           </div>
-          {isPro && playbook ? (
+          {playbook ? (
             <div className="rounded-button border border-border bg-surface-raised p-4">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Remediation playbook</p>
+              <p className="mb-2 text-xs font-medium text-muted-foreground">Step-by-step remediation</p>
               <ol className="list-decimal space-y-1.5 pl-5 text-sm text-foreground">
-                {playbook.map((step) => <li key={step}>{step}</li>)}
+                {(isPro ? playbook : playbook.slice(0, 2)).map((step) => <li key={step}>{step}</li>)}
               </ol>
             </div>
           ) : null}
           <div className="flex flex-wrap gap-2">
+            {f.status === "Open" && (
+              <Button variant="secondary" onClick={() => startProgress.mutate()} loading={startProgress.isPending}>Mark in progress</Button>
+            )}
             {!isResolved && (
               <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
             )}
@@ -265,7 +288,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-button border border-dashed border-border bg-surface-raised/50 p-4">
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <LockIcon />
-            Full remediation playbook available on Pro
+            Full step-by-step playbook available on Pro
           </span>
           <Link to="/pricing" className="text-sm text-primary hover:underline">Upgrade</Link>
         </div>

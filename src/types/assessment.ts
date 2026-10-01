@@ -22,7 +22,8 @@ export interface AssessmentState {
 
 export type Severity = "Critical" | "High" | "Medium" | "Low";
 export type RiskLevel = "Low risk" | "Moderate risk" | "High risk" | "Critical risk";
-export type FindingStatus = "Open" | "Resolved";
+export type FindingStatus = "Open" | "In progress" | "Resolved";
+export type Effort = "Low" | "Medium" | "High";
 
 export interface Finding {
   id: string;
@@ -32,6 +33,10 @@ export interface Finding {
   why_it_matters: string;
   recommended_action: string;
   status: FindingStatus;
+  /** The assessment question and the user's answer that produced this finding. */
+  evidence?: { question: string; answer: string };
+  /** Estimated effort to fix, defined per control. */
+  effort?: Effort;
 }
 
 export interface AssessmentResult {
