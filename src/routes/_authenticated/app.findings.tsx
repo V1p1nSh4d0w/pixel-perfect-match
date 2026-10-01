@@ -141,9 +141,13 @@ function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean
   const resolve = useMutation({
     mutationFn: () => markFindingResolved(f.id),
     onSuccess: () => {
+      // Optimistic update for instant UI, then reconcile with the database so
+      // an in-flight refetch (e.g. triggered by window focus) can't overwrite
+      // the change with stale pre-resolve counts.
       queryClient.setQueryData<AssessmentResult | null>(LATEST_RESULT_KEY, (prev) =>
         prev ? { ...prev, findings: prev.findings.map((x) => (x.id === f.id ? { ...x, status: "Resolved" } : x)) } : prev,
       );
+      queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
       toast.success("Marked as resolved");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the finding."),
