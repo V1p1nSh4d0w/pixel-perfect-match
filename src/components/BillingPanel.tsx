@@ -6,6 +6,8 @@ import { Card, CardTitle } from "@/components/Card";
 import { UpgradeButton } from "@/components/UpgradeButton";
 import { SUBSCRIPTION_KEY, useSubscription } from "@/hooks/useSubscription";
 import { cancelProSubscription, getPaymentHistory } from "@/lib/billing.functions";
+import { fetchCallsSince, fetchMyAudits } from "@/lib/supabase";
+import { QUARTERLY_CALL_BOOKING_URL, SUPPORT_EMAIL, quarterStart } from "@/lib/config";
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
@@ -26,8 +28,13 @@ export function BillingPanel() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not cancel."),
   });
 
+  const calls = useQuery({ queryKey: ["my-calls"], queryFn: () => fetchCallsSince(quarterStart()), enabled: isPro });
+  const audits = useQuery({ queryKey: ["my-audits"], queryFn: fetchMyAudits });
+
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   const cancelled = subscription?.status === "cancelled";
+  const callUsed = (calls.data?.length ?? 0) >= 1;
+  const audit = audits.data?.[0];
 
   return (
     <Card>
@@ -52,8 +59,22 @@ export function BillingPanel() {
               </p>
             ) : null}
             <p className="text-muted-foreground">
-              Priority support: <a href="mailto:hello.securecheck@gmail.com" className="text-primary hover:underline">hello.securecheck@gmail.com</a>
+              Priority support: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">{SUPPORT_EMAIL}</a>
+              <span className="block text-xs">Responses within 24 hours on business days.</span>
             </p>
+            <div className="border-t border-border pt-4">
+              <p className="text-foreground">Quarterly call with Aman (30 min)</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {callUsed ? "This quarter's call is used. Next one opens at the start of next quarter." : "1 call available this quarter."}
+              </p>
+              {callUsed ? (
+                <Button className="mt-3" disabled>Book quarterly call</Button>
+              ) : (
+                <a href={QUARTERLY_CALL_BOOKING_URL} target="_blank" rel="noreferrer" className="mt-3 inline-block">
+                  <Button>Book quarterly call</Button>
+                </a>
+              )}
+            </div>
             {!cancelled ? (
               <Button variant="secondary" loading={cancel.isPending} onClick={() => {
                 if (confirm("Cancel your Pro subscription? You keep Pro until the end of this billing period.")) cancel.mutate();
@@ -76,6 +97,9 @@ export function BillingPanel() {
             ) : null}
           </>
         )}
+        {audit ? (
+          <p className="border-t border-border pt-4 text-xs text-muted-foreground">Audit purchased — {fmt(audit.paid_at)}</p>
+        ) : null}
       </div>
     </Card>
   );

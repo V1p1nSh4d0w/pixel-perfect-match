@@ -11,13 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuditRouteImport } from './routes/audit'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuditIndexRouteImport } from './routes/audit.index'
 import { Route as AuditConfirmedRouteImport } from './routes/audit.confirmed'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
@@ -35,11 +35,6 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditRoute = AuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -72,10 +67,15 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuditIndexRoute = AuditIndexRouteImport.update({
+  id: '/audit/',
+  path: '/audit/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuditConfirmedRoute = AuditConfirmedRouteImport.update({
-  id: '/confirmed',
-  path: '/confirmed',
-  getParentRoute: () => AuditRoute,
+  id: '/audit/confirmed',
+  path: '/audit/confirmed',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
@@ -125,7 +125,6 @@ const AuthenticatedAppAssessmentCompleteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/audit': typeof AuditRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
@@ -133,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/audit/confirmed': typeof AuditConfirmedRoute
+  '/audit/': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
@@ -144,13 +144,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/audit': typeof AuditRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/audit/confirmed': typeof AuditConfirmedRoute
+  '/audit': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
@@ -164,7 +164,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/audit': typeof AuditRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
@@ -172,6 +171,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/audit/confirmed': typeof AuditConfirmedRoute
+  '/audit/': typeof AuditIndexRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
@@ -185,7 +185,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/audit'
     | '/forgot-password'
     | '/login'
     | '/pricing'
@@ -193,6 +192,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app'
     | '/audit/confirmed'
+    | '/audit/'
     | '/app/action-plan'
     | '/app/findings'
     | '/app/reports'
@@ -204,13 +204,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/audit'
     | '/forgot-password'
     | '/login'
     | '/pricing'
     | '/reset-password'
     | '/signup'
     | '/audit/confirmed'
+    | '/audit'
     | '/app/action-plan'
     | '/app/findings'
     | '/app/reports'
@@ -223,7 +223,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/audit'
     | '/forgot-password'
     | '/login'
     | '/pricing'
@@ -231,6 +230,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/app'
     | '/audit/confirmed'
+    | '/audit/'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
@@ -244,12 +244,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuditRoute: typeof AuditRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  AuditConfirmedRoute: typeof AuditConfirmedRoute
+  AuditIndexRoute: typeof AuditIndexRoute
   ApiRazorpayWebhookRoute: typeof ApiRazorpayWebhookRoute
 }
 
@@ -267,13 +268,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit': {
-      id: '/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -318,12 +312,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/audit/': {
+      id: '/audit/'
+      path: '/audit'
+      fullPath: '/audit/'
+      preLoaderRoute: typeof AuditIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/audit/confirmed': {
       id: '/audit/confirmed'
-      path: '/confirmed'
+      path: '/audit/confirmed'
       fullPath: '/audit/confirmed'
       preLoaderRoute: typeof AuditConfirmedRouteImport
-      parentRoute: typeof AuditRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -419,25 +420,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AuditRouteChildren {
-  AuditConfirmedRoute: typeof AuditConfirmedRoute
-}
-
-const AuditRouteChildren: AuditRouteChildren = {
-  AuditConfirmedRoute: AuditConfirmedRoute,
-}
-
-const AuditRouteWithChildren = AuditRoute._addFileChildren(AuditRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuditRoute: AuditRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  AuditConfirmedRoute: AuditConfirmedRoute,
+  AuditIndexRoute: AuditIndexRoute,
   ApiRazorpayWebhookRoute: ApiRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
