@@ -25,7 +25,6 @@ import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
-import { Route as ApiRazorpayWebhookRouteImport } from './routes/api/razorpay/webhook'
 import { Route as AuthenticatedAppAssessmentIndexRouteImport } from './routes/_authenticated/app.assessment.index'
 import { Route as AuthenticatedAppAssessmentCompleteRouteImport } from './routes/_authenticated/app.assessment.complete'
 
@@ -111,11 +110,6 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const ApiRazorpayWebhookRoute = ApiRazorpayWebhookRouteImport.update({
-  id: '/api/razorpay/webhook',
-  path: '/api/razorpay/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAppAssessmentIndexRoute =
   AuthenticatedAppAssessmentIndexRouteImport.update({
     id: '/assessment/',
@@ -144,7 +138,6 @@ export interface FileRoutesByFullPath {
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -163,7 +156,6 @@ export interface FileRoutesByTo {
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/app/assessment': typeof AuthenticatedAppAssessmentIndexRoute
@@ -185,7 +177,6 @@ export interface FileRoutesById {
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/_authenticated/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -207,7 +198,6 @@ export interface FileRouteTypes {
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
-    | '/api/razorpay/webhook'
     | '/app/'
     | '/app/assessment/complete'
     | '/app/assessment/'
@@ -226,7 +216,6 @@ export interface FileRouteTypes {
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
-    | '/api/razorpay/webhook'
     | '/app'
     | '/app/assessment/complete'
     | '/app/assessment'
@@ -247,7 +236,6 @@ export interface FileRouteTypes {
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
-    | '/api/razorpay/webhook'
     | '/_authenticated/app/'
     | '/_authenticated/app/assessment/complete'
     | '/_authenticated/app/assessment/'
@@ -263,7 +251,6 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
-  ApiRazorpayWebhookRoute: typeof ApiRazorpayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -380,13 +367,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/api/razorpay/webhook': {
-      id: '/api/razorpay/webhook'
-      path: '/api/razorpay/webhook'
-      fullPath: '/api/razorpay/webhook'
-      preLoaderRoute: typeof ApiRazorpayWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/app/assessment/': {
       id: '/_authenticated/app/assessment/'
       path: '/assessment'
@@ -451,7 +431,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
-  ApiRazorpayWebhookRoute: ApiRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

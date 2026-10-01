@@ -7,6 +7,8 @@ import { RiskLabel, ScoreRing, SeverityBadge, SEVERITIES } from "@/components/Re
 import { useLatestResult } from "@/lib/use-latest-result";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useServerFn } from "@tanstack/react-start";
+import { authorizePaidFeature } from "@/lib/billing.functions";
 import { fetchActionItems, fetchLatestAssessmentMeta, setOnboardingFlag } from "@/lib/supabase";
 import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 import { cn } from "@/lib/utils";
@@ -66,6 +68,7 @@ function ReportPage() {
   const { result, isLoading } = useLatestResult();
   const { data: profileData } = useProfile();
   const { isPro } = useSubscription();
+  const authorizePaid = useServerFn(authorizePaidFeature);
   const metaQ = useQuery({ queryKey: ["latest-assessment-meta"], queryFn: fetchLatestAssessmentMeta });
   const actionsQ = useQuery({ queryKey: ["action-items"], queryFn: fetchActionItems });
 
@@ -101,10 +104,21 @@ function ReportPage() {
 
   async function share() {
     try {
+      await authorizePaid();
       await navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard.", { position: "bottom-center" });
     } catch {
       toast.error("Couldn't copy the link.", { position: "bottom-center" });
+    }
+  }
+
+  async function download() {
+    try {
+      await authorizePaid();
+      await setOnboardingFlag("downloaded_report");
+      window.print();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Starter Kit access is required.");
     }
   }
 
@@ -125,7 +139,7 @@ function ReportPage() {
         </div>
         <div className="flex flex-wrap items-start gap-2 print:hidden">
           {isPro ? (
-            <Button onClick={() => { setOnboardingFlag("downloaded_report").catch(() => {}); window.print(); }}>Download PDF</Button>
+            <Button onClick={download}>Download PDF</Button>
           ) : (
             <div className="flex flex-col items-start gap-1.5">
               <span className="group relative inline-flex">

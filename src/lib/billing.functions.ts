@@ -115,3 +115,11 @@ export const getPaymentHistory = createServerFn({ method: "GET" })
     if (!row?.razorpay_payment_id || !row.paid_at) return [];
     return [{ id: row.razorpay_payment_id, amount: row.plan === "starter" ? 499 : 0, status: "paid", date: row.paid_at }];
   });
+
+export const authorizePaidFeature = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: allowed, error } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
+    if (error || !allowed) throw new Error("Starter Kit access is required.");
+    return { allowed: true };
+  });

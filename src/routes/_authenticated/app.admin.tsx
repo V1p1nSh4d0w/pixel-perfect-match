@@ -24,7 +24,8 @@ function fmt(iso: string) {
 
 function AdminPage() {
   const { data: me } = useProfile();
-  const admin = useQuery({ queryKey: ["is-admin", me?.userId], queryFn: () => isAdmin(me!.userId), enabled: Boolean(me?.userId) });
+  const userId = me?.userId;
+  const admin = useQuery({ queryKey: ["is-admin", userId], queryFn: () => userId ? isAdmin(userId) : false, enabled: Boolean(userId) });
   const enabled = admin.data === true;
   const users = useQuery({ queryKey: ["admin-paid-users"], queryFn: adminFetchPaidUsers, enabled });
 
