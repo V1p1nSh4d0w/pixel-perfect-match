@@ -21,6 +21,8 @@ import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppAssessmentIndexRouteImport } from './routes/_authenticated/app.assessment.index'
+import { Route as AuthenticatedAppAssessmentCompleteRouteImport } from './routes/_authenticated/app.assessment.complete'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -84,6 +86,18 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAssessmentIndexRoute =
+  AuthenticatedAppAssessmentIndexRouteImport.update({
+    id: '/assessment/',
+    path: '/assessment/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAssessmentCompleteRoute =
+  AuthenticatedAppAssessmentCompleteRouteImport.update({
+    id: '/assessment/complete',
+    path: '/assessment/complete',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,6 +111,8 @@ export interface FileRoutesByFullPath {
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
+  '/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +125,8 @@ export interface FileRoutesByTo {
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
+  '/app/assessment': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +142,8 @@ export interface FileRoutesById {
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
+  '/_authenticated/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,6 +159,8 @@ export interface FileRouteTypes {
     | '/app/reports'
     | '/app/settings'
     | '/app/'
+    | '/app/assessment/complete'
+    | '/app/assessment/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,6 +173,8 @@ export interface FileRouteTypes {
     | '/app/reports'
     | '/app/settings'
     | '/app'
+    | '/app/assessment/complete'
+    | '/app/assessment'
   id:
     | '__root__'
     | '/'
@@ -165,6 +189,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
     | '/_authenticated/app/'
+    | '/_authenticated/app/assessment/complete'
+    | '/_authenticated/app/assessment/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +288,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/assessment/': {
+      id: '/_authenticated/app/assessment/'
+      path: '/assessment'
+      fullPath: '/app/assessment/'
+      preLoaderRoute: typeof AuthenticatedAppAssessmentIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/assessment/complete': {
+      id: '/_authenticated/app/assessment/complete'
+      path: '/assessment/complete'
+      fullPath: '/app/assessment/complete'
+      preLoaderRoute: typeof AuthenticatedAppAssessmentCompleteRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -271,6 +311,8 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAssessmentCompleteRoute: typeof AuthenticatedAppAssessmentCompleteRoute
+  AuthenticatedAppAssessmentIndexRoute: typeof AuthenticatedAppAssessmentIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -279,6 +321,9 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAssessmentCompleteRoute:
+    AuthenticatedAppAssessmentCompleteRoute,
+  AuthenticatedAppAssessmentIndexRoute: AuthenticatedAppAssessmentIndexRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
