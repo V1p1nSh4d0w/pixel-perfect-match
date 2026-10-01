@@ -46,21 +46,28 @@ function FindingsPage() {
   const inPlan = new Set(planQuery.data ?? []);
   const [flash, setFlash] = useState(false);
   const scrolledFor = useRef<string | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-scroll to the linked finding once the list has rendered. The ~100ms
-  // delay lets the list paint first; the highlight only starts after the
-  // scroll begins so the user sees it land on the highlighted card.
+  // delay lets the list paint first; the highlight starts ~400ms after the
+  // scroll begins so the user sees it land, then holds for 5s and fades out
+  // over 1s.
   useEffect(() => {
     if (!result || !finding || scrolledFor.current === finding) return;
-    const t = setTimeout(() => {
+    const scrollTimer = setTimeout(() => {
       const el = document.querySelector(`[data-finding-id="${finding}"]`);
       if (!el) return;
       el.scrollIntoView({ behavior: "smooth", block: "center" });
       scrolledFor.current = finding;
-      setFlash(true);
-      setTimeout(() => setFlash(false), 3000);
+      flashTimer.current = setTimeout(() => {
+        setFlash(true);
+        flashTimer.current = setTimeout(() => setFlash(false), 5000);
+      }, 400);
     }, 100);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(scrollTimer);
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+    };
   }, [result, finding]);
 
   if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
@@ -194,7 +201,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
   const isResolved = f.status === "Resolved";
 
   return (
-    <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-700", flash ? "ring-primary" : "ring-transparent")}>
+    <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-1000", highlighted && flash ? "ring-primary" : "ring-transparent")}>
       <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
