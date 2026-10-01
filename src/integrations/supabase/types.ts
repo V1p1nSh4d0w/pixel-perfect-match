@@ -233,7 +233,9 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           id: string
+          paid_at: string | null
           plan: string
+          razorpay_order_id: string | null
           razorpay_payment_id: string | null
           razorpay_subscription_id: string | null
           status: string
@@ -244,7 +246,9 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          paid_at?: string | null
           plan?: string
+          razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_subscription_id?: string | null
           status?: string
@@ -255,7 +259,9 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          paid_at?: string | null
           plan?: string
+          razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_subscription_id?: string | null
           status?: string
@@ -287,6 +293,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_paid_access: { Args: { _user_id?: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
