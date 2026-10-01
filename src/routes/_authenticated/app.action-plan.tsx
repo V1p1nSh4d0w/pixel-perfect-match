@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { deleteActionItem, fetchActionItems, setActionItemCompleted } from "@/lib/supabase";
+import { deleteActionItem, fetchActionItems, generateActionPlan, setActionItemCompleted } from "@/lib/supabase";
+import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
+import { compareActions } from "@/lib/scoring";
+import type { Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
 
 export const Route = createFileRoute("/_authenticated/app/action-plan")({
@@ -31,10 +34,29 @@ function ActionPlanPage() {
     queryKey: ACTION_ITEMS_KEY,
     queryFn: fetchActionItems,
   });
+  const { result } = useLatestResult();
+
+  // Auto-generate the plan from the latest assessment's unresolved findings
+  // (once per assessment; see generateActionPlan).
+  const generatedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!result || !items) return;
+    const key = result.findings.map((f) => f.id).join(",");
+    if (!key || generatedFor.current === key) return;
+    generatedFor.current = key;
+    generateActionPlan(result.findings)
+      .then((n) => {
+        if (n > 0) {
+          queryClient.invalidateQueries({ queryKey: ACTION_ITEMS_KEY });
+          queryClient.invalidateQueries({ queryKey: ["action-plan-finding-ids"] });
+        }
+      })
+      .catch(() => toast.error("Couldn't build your action plan."));
+  }, [result, items, queryClient]);
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
-      setActionItemCompleted(id, completed),
+    mutationFn: ({ id, completed, findingId }: { id: string; completed: boolean; findingId: string | null }) =>
+      setActionItemCompleted(id, completed, findingId),
     onMutate: async ({ id, completed }) => {
       await queryClient.cancelQueries({ queryKey: ACTION_ITEMS_KEY });
       const previous = queryClient.getQueryData<ActionItem[]>(ACTION_ITEMS_KEY);
@@ -49,6 +71,8 @@ function ActionPlanPage() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ACTION_ITEMS_KEY });
+      // Linked finding status changed: refresh dashboard/findings counts.
+      queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
     },
   });
 
@@ -89,8 +113,8 @@ function ActionPlanPage() {
           <div className="flex flex-col items-center py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">No actions yet.</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Add findings to your action plan from the Findings page to start building your
-              remediation checklist.
+              Your action plan is built automatically from unresolved findings. Complete an
+              assessment, or add findings from the Findings page.
             </p>
             <Link to="/app/findings" className="mt-6">
               <Button>Go to Findings</Button>
@@ -127,7 +151,15 @@ function ActionPlanPage() {
 
       <div className="space-y-8">
         {SECTIONS.map((section) => {
-          const sectionItems = items.filter((it) => section.priorities.includes(it.priority));
+          // Section by the linked finding's severity (falls back to stored priority),
+          // then order by severity, security impact and effort.
+          const sev = (it: ActionItem) => (it.finding?.severity ?? it.priority) as Severity;
+          const sectionItems = items
+            .filter((it) => section.priorities.includes(sev(it)))
+            .sort((a, b) => compareActions(
+              { title: a.finding?.title ?? a.title, severity: sev(a) },
+              { title: b.finding?.title ?? b.title, severity: sev(b) },
+            ));
           if (sectionItems.length === 0) return null;
           return (
             <section key={section.name}>
@@ -142,7 +174,7 @@ function ActionPlanPage() {
                         type="checkbox"
                         checked={item.completed}
                         onChange={(e) =>
-                          toggleMutation.mutate({ id: item.id, completed: e.target.checked })
+                          toggleMutation.mutate({ id: item.id, completed: e.target.checked, findingId: item.finding_id })
                         }
                         className="mt-1 h-4 w-4 shrink-0 accent-primary"
                         aria-label={`Mark "${item.title}" as completed`}

@@ -9,5 +9,5 @@ export interface ActionItem {
   completed: boolean;
   created_at: string;
   /** Category of the finding this item came from, via the finding_id link. */
-  finding: { category: string; recommended_action: string } | null;
+  finding: { category: string; recommended_action: string; title: string; severity: string; status: string; assessment_id: string } | null;
 }
