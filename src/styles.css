@@ -90,10 +90,10 @@
     box-shadow: none !important;
     opacity: 1 !important;
   }
-  .print-report .print-danger { color: #c62828 !important; border-color: #c62828 !important; }
-  .print-report .print-warning { color: #b26a00 !important; border-color: #b26a00 !important; }
-  .print-report .print-success { color: #1b7f46 !important; border-color: #1b7f46 !important; }
-  .print-report .print-primary { color: #1f5fd1 !important; border-color: #1f5fd1 !important; }
+  .print-report .print-danger, .print-report .print-danger * { color: #c62828 !important; border-color: #c62828 !important; }
+  .print-report .print-warning, .print-report .print-warning * { color: #b26a00 !important; border-color: #b26a00 !important; }
+  .print-report .print-success, .print-report .print-success * { color: #1b7f46 !important; border-color: #1b7f46 !important; }
+  .print-report .print-primary, .print-report .print-primary * { color: #1f5fd1 !important; border-color: #1f5fd1 !important; }
   .print-report svg circle { stroke: #ddd !important; }
   .print-report svg circle + circle { stroke: #000 !important; }
   .print-break { break-before: page; }
