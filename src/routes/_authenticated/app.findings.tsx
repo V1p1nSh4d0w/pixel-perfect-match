@@ -8,7 +8,8 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { SEVERITIES, SeverityBadge } from "@/components/Results";
 import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
-import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved, setFindingStatus } from "@/lib/supabase";
+import { addFindingToActionPlan, fetchActionPlanFindingIds, reassessFinding, setFindingStatus } from "@/lib/supabase";
+import { controlForFinding } from "@/lib/scoring";
 import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -48,7 +49,7 @@ const FILTER_TABS: { value: string; label: string }[] = [
   { value: "high", label: "High" },
   { value: "medium", label: "Medium" },
   { value: "low", label: "Low" },
-  { value: "resolved", label: "Resolved" },
+  { value: "resolved", label: "Resolved / Reported fixed" },
 ];
 
 const ACTION_PLAN_KEY = ["action-plan-finding-ids"] as const;
@@ -129,12 +130,12 @@ function FindingsPage() {
   open.forEach((f) => counts[f.severity]++);
 
   const emptyText = result.findings.length === 0
-    ? "No findings — every answer was the best option."
+    ? "Your assessment currently has no unresolved findings. Keep reassessing as your security practices change."
     : showResolved
       ? "No resolved findings yet."
       : activeSeverity
         ? `No open ${activeSeverity.toLowerCase()} findings.`
-        : "All findings are resolved. Nice work.";
+        : "Your assessment currently has no unresolved findings. Keep reassessing as your security practices change.";
 
   return (
     <>
@@ -193,17 +194,24 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
 
   const queryClient = useQueryClient();
 
+  const [reassessing, setReassessing] = useState(false);
+  const [reply, setReply] = useState<"" | "Yes" | "No" | "Not sure">("");
+  const [scoreChange, setScoreChange] = useState<{ previousScore: number; newScore: number } | null>(null);
+  const control = controlForFinding(f.title);
   const resolve = useMutation({
-    mutationFn: () => markFindingResolved(f.id),
-    onSuccess: () => {
+    mutationFn: () => reassessFinding(f.id, f.title),
+    onSuccess: (change) => {
+      setScoreChange(change);
+      setReassessing(false);
+      queryClient.invalidateQueries({ queryKey: ACTION_PLAN_KEY });
       // Optimistic update for instant UI, then reconcile with the database so
       // an in-flight refetch (e.g. triggered by window focus) can't overwrite
       // the change with stale pre-resolve counts.
       queryClient.setQueryData<AssessmentResult | null>(LATEST_RESULT_KEY, (prev) =>
-        prev ? { ...prev, findings: prev.findings.map((x) => (x.id === f.id ? { ...x, status: "Resolved" } : x)) } : prev,
+        prev ? { ...prev, score: change.newScore, findings: prev.findings.map((x) => (x.id === f.id ? { ...x, status: "Resolved" } : x)) } : prev,
       );
       queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
-      toast.success("Marked as resolved");
+      toast.success("Marked as reported fixed");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the finding."),
   });
@@ -253,7 +261,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             </span>
           )}
           <span className={cn("rounded-full border px-2.5 py-0.5", isResolved ? "border-success/40 text-success" : f.status === "In progress" ? "border-medium/40 text-medium" : "border-border text-foreground")}>
-            {f.status}
+            {isResolved && f.reassessment ? "Reported fixed" : f.status}
           </span>
         </div>
       </div>
@@ -266,10 +274,15 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
           </section>
           {f.evidence && (
             <section>
-              <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Evidence · from your assessment response</h3>
+              <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Evidence · based on your assessment</h3>
               <div className="rounded-lg border-l-2 border-primary/60 bg-surface-raised px-4 py-3">
-                <p className="text-sm text-muted-foreground">{f.evidence.question}</p>
-                <p className="mt-1 text-sm text-foreground">You answered: “{f.evidence.answer}”</p>
+                <p className="text-sm text-foreground">You answered: “{f.evidence.answer}”</p>
+                <p className="mt-2 text-xs text-muted-foreground">Assessment question</p>
+                <p className="text-sm text-muted-foreground">“{f.evidence.question}”</p>
+                <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs">
+                  <div className="flex gap-1.5"><dt className="text-muted-foreground">Source:</dt><dd className="text-foreground">Self-assessment</dd></div>
+                  <div className="flex gap-1.5"><dt className="text-muted-foreground">Confidence:</dt><dd className="text-foreground">Medium</dd></div>
+                </dl>
               </div>
             </section>
           )}
@@ -291,6 +304,43 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
               {TEMPLATE_FOR_FINDING[f.title] ? <div className="mt-4"><TemplateButton findingId={f.id} /></div> : null}
             </section>
           ) : TEMPLATE_FOR_FINDING[f.title] ? <TemplateButton findingId={f.id} /> : null}
+          {isResolved && f.reassessment ? (
+            <section className="rounded-lg border border-success/30 bg-success/5 px-4 py-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-success">Control improved</h3>
+              <dl className="mt-2 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+                <div><dt className="text-xs text-muted-foreground">Previous response</dt><dd className="text-foreground">“{f.reassessment.previous_answer ?? "Not answered"}”</dd></div>
+                <div><dt className="text-xs text-muted-foreground">Current response</dt><dd className="text-foreground">“{f.reassessment.reassessed_answer}” (reported)</dd></div>
+                <div><dt className="text-xs text-muted-foreground">Verification</dt><dd className="text-foreground">Self-assessment</dd></div>
+                <div><dt className="text-xs text-muted-foreground">Last reassessed</dt><dd className="text-foreground">{new Date(f.reassessment.reassessed_at).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</dd></div>
+              </dl>
+              {f.reassessment.previous_score != null && f.reassessment.new_score != null && (
+                <ScoreDelta from={f.reassessment.previous_score} to={f.reassessment.new_score} />
+              )}
+              <p className="mt-2 text-xs text-muted-foreground">This is self-reported. SecureCheck has not technically checked this setting.</p>
+            </section>
+          ) : null}
+          {scoreChange && !f.reassessment ? <ScoreDelta from={scoreChange.previousScore} to={scoreChange.newScore} /> : null}
+          {!isResolved && reassessing && control ? (
+            <section className="rounded-lg border border-border bg-surface-raised px-4 py-4">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Reassess</h3>
+              <p className="mt-1.5 text-sm text-foreground">Now that you've made the change: “{control.question}”</p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-5" role="radiogroup">
+                {(["Yes", "No", "Not sure"] as const).map((o) => (
+                  <label key={o} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                    <input type="radio" name={`reassess-${f.id}`} checked={reply === o} onChange={() => setReply(o)} className="accent-primary" />
+                    {o === "Yes" ? `Yes — ${control.best}` : o}
+                  </label>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">Verification source: Self-assessment</p>
+              {reply === "No" && <p className="mt-2 text-sm text-muted-foreground">This control is still unresolved, so the finding stays open. Follow the playbook above, then reassess.</p>}
+              {reply === "Not sure" && <p className="mt-2 text-sm text-muted-foreground">The finding stays open. Check the setting first, then come back and reassess.</p>}
+              <div className="mt-3 flex flex-wrap gap-2">
+                {reply === "Yes" && <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Save reassessment</Button>}
+                <Button variant="ghost" onClick={() => { setReassessing(false); setReply(""); }}>Cancel</Button>
+              </div>
+            </section>
+          ) : null}
           <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             <Button
               variant="secondary"
@@ -300,8 +350,8 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             >
               {inPlan ? "In action plan" : "Add to action plan"}
             </Button>
-            {!isResolved && (
-              <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
+            {!isResolved && control && !reassessing && (
+              <Button onClick={() => setReassessing(true)}>I've fixed this → Reassess</Button>
             )}
             {f.status === "Open" && (
               <Button variant="ghost" onClick={() => startProgress.mutate()} loading={startProgress.isPending}>Mark in progress</Button>
@@ -325,6 +375,17 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
         </div>
       ) : null}
       </Card>
+    </div>
+  );
+}
+
+function ScoreDelta({ from, to }: { from: number; to: number }) {
+  const d = to - from;
+  return (
+    <div className="mt-3 flex items-baseline gap-3">
+      <span className="text-xs text-muted-foreground">Security score</span>
+      <span className="text-lg font-semibold text-foreground">{from} → {to}</span>
+      <span className={cn("text-sm", d > 0 ? "text-success" : "text-muted-foreground")}>{d > 0 ? `+${d}` : d} points</span>
     </div>
   );
 }

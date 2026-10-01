@@ -37,6 +37,8 @@ export interface Finding {
   evidence?: { question: string; answer: string };
   /** Estimated effort to fix, defined per control. */
   effort?: Effort;
+  /** Set when the user self-reported this control as fixed. */
+  reassessment?: { reassessed_at: string; previous_answer: string | null; reassessed_answer: string | null; previous_score: number | null; new_score: number | null } | null;
 }
 
 export interface AssessmentResult {

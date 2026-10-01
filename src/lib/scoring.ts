@@ -374,6 +374,11 @@ export function enrichFindings(findings: Finding[], answers: AssessmentAnswers):
     const c = byTitle.get(f.title);
     if (!c) continue;
     const a = answers[c.id];
+    // Reported-fixed findings stay visible with their original evidence.
+    if (f.reassessment) {
+      out.push({ ...f, evidence: { question: QUESTION_TEXT[c.id] ?? c.name, answer: f.reassessment.previous_answer ?? "Not answered" }, effort: CONTROL_EFFORT[c.id] ?? "Medium" });
+      continue;
+    }
     if (a && (c.best.includes(a) || c.na?.includes(a))) continue;
     const partial = Boolean(a && c.partial?.includes(a));
     out.push({
@@ -408,4 +413,11 @@ export function compareActions(
     EFFORT_RANK[CONTROL_EFFORT[ca?.id ?? ""] ?? "Medium"] - EFFORT_RANK[CONTROL_EFFORT[cb?.id ?? ""] ?? "Medium"] ||
     a.title.localeCompare(b.title)
   );
+}
+
+/** Control + question text for a finding title (used by reassessment). */
+export function controlForFinding(title: string) {
+  const c = RULES.find((r) => r.title === title);
+  if (!c) return null;
+  return { id: c.id, best: c.best[0]!, question: QUESTION_TEXT[c.id] ?? c.name };
 }

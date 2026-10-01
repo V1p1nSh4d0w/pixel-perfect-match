@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { enrichFindings, riskLevelFor } from "@/lib/scoring";
+import { controlForFinding, enrichFindings, riskLevelFor, scoreAssessment } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
@@ -103,10 +103,14 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   if (!a) return null;
   const { data: rows, error: fErr } = await supabase
     .from("findings")
-    .select("id, severity, category, title, why_it_matters, recommended_action, status")
+    .select("id, severity, category, title, why_it_matters, recommended_action, status, reassessed_at, previous_answer, reassessed_answer, previous_score, new_score")
     .eq("assessment_id", a.id);
   if (fErr) throw fErr;
-  const findings = enrichFindings((rows ?? []) as Finding[], (a.answers ?? {}) as AssessmentAnswers);
+  const mapped: Finding[] = (rows ?? []).map(({ reassessed_at, previous_answer, reassessed_answer, previous_score, new_score, ...f }) => ({
+    ...(f as Finding),
+    reassessment: reassessed_at ? { reassessed_at, previous_answer, reassessed_answer, previous_score, new_score } : null,
+  }));
+  const findings = enrichFindings(mapped, (a.answers ?? {}) as AssessmentAnswers);
   findings.sort((x, y) => SEVERITY_ORDER.indexOf(x.severity) - SEVERITY_ORDER.indexOf(y.severity));
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
@@ -114,6 +118,33 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
 }
 
 // ---- Findings & action items ----
+/**
+ * Self-reported reassessment. "Yes" sets the control's answer to its best
+ * option, re-runs the existing scoring engine, saves the new score, and marks
+ * the finding "Reported fixed" (status Resolved + reassessment fields).
+ */
+export async function reassessFinding(findingId: string, title: string) {
+  const control = controlForFinding(title);
+  if (!control) throw new Error("This finding can't be reassessed.");
+  const { data: f, error: fe } = await supabase.from("findings").select("assessment_id").eq("id", findingId).single();
+  if (fe) throw fe;
+  const { data: a, error: ae } = await supabase.from("assessments").select("id, answers, score").eq("id", f.assessment_id).single();
+  if (ae) throw ae;
+  const answers = { ...((a.answers ?? {}) as AssessmentAnswers) };
+  const previousAnswer = answers[control.id] ?? null;
+  answers[control.id] = control.best;
+  const next = scoreAssessment(answers);
+  const { error: ue } = await supabase.from("assessments").update({ answers, score: next.score, risk_level: next.riskLevel }).eq("id", a.id);
+  if (ue) throw ue;
+  const { error: re } = await supabase.from("findings").update({
+    status: "Resolved", reassessed_at: new Date().toISOString(), previous_answer: previousAnswer,
+    reassessed_answer: control.best, previous_score: a.score, new_score: next.score,
+  }).eq("id", findingId);
+  if (re) throw re;
+  await supabase.from("action_items").update({ completed: true }).eq("finding_id", findingId);
+  return { previousScore: a.score, newScore: next.score };
+}
+
 export async function markFindingResolved(findingId: string) {
   return setFindingStatus(findingId, "Resolved");
 }
