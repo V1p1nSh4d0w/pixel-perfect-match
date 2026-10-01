@@ -45,7 +45,8 @@ export function ScoreRing({ score, risk, size = 160 }: { score: number; risk: Ri
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-4xl font-semibold tracking-tight text-foreground">{score}</span>
+        {/* Larger rings get a bigger score number so it stays the strongest element. */}
+        <span className={cn(size >= 176 ? "text-5xl" : "text-4xl", "font-semibold tracking-tight text-foreground")}>{score}</span>
         <span className="text-xs text-muted-foreground">out of 100</span>
       </div>
     </div>

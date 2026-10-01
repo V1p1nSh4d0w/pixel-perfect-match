@@ -95,7 +95,7 @@ const SEVERITY_ORDER: Severity[] = ["Critical", "High", "Medium", "Low"];
 export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   const { data: a, error } = await supabase
     .from("assessments")
-    .select("id, score, risk_level, answers")
+    .select("id, score, risk_level, answers, created_at")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -110,7 +110,7 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   findings.sort((x, y) => SEVERITY_ORDER.indexOf(x.severity) - SEVERITY_ORDER.indexOf(y.severity));
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
-  return { score: a.score, riskLevel: riskLevelFor(a.score), findings, counts };
+  return { score: a.score, riskLevel: riskLevelFor(a.score), findings, counts, created_at: a.created_at };
 }
 
 // ---- Findings & action items ----
