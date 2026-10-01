@@ -16,6 +16,9 @@ function DashboardPage() {
   if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
 
   if (result) {
+    const openFindings = result.findings.filter((f) => f.status !== "Resolved");
+    const openCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
+    openFindings.forEach((f) => { openCounts[f.severity]++; });
     return (
       <>
         <PageHeader
@@ -32,13 +35,16 @@ function DashboardPage() {
             <div className="space-y-2 text-center sm:text-left">
               <p className="text-sm text-muted-foreground">Security score</p>
               <RiskLabel risk={result.riskLevel} />
-              <CardBody>{result.findings.length} findings to review.</CardBody>
+              <CardBody>{openFindings.length} findings to review.</CardBody>
+              {openFindings.length === 0 && (
+                <p className="text-sm text-success">All findings resolved.</p>
+              )}
               <Link to="/app/findings" className="inline-block text-sm text-primary hover:underline">
                 View findings →
               </Link>
             </div>
           </Card>
-          <SeverityCounts counts={result.counts} />
+          <SeverityCounts counts={openCounts} />
         </div>
       </>
     );
