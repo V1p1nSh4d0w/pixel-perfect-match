@@ -3,45 +3,41 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button, type ButtonProps } from "@/components/Button";
-import { createProSubscription, verifyProPayment } from "@/lib/billing.functions";
-import { openRazorpayCheckout } from "@/lib/razorpay-checkout";
+import { createStarterKitOrder, verifyStarterKitPayment } from "@/lib/billing.functions";
+import { openStarterKitCheckout } from "@/lib/razorpay-checkout";
 import { SUBSCRIPTION_KEY } from "@/hooks/useSubscription";
 import { useProfile } from "@/hooks/useProfile";
 
-/** Starts Razorpay checkout for Pro. Requires a signed-in user. */
-export function UpgradeButton({ children = "Upgrade to Pro", ...props }: ButtonProps) {
+export function UpgradeButton({ children = "Get Starter Kit", ...props }: ButtonProps) {
   const [busy, setBusy] = useState(false);
-  const createSub = useServerFn(createProSubscription);
-  const verify = useServerFn(verifyProPayment);
+  const createOrder = useServerFn(createStarterKitOrder);
+  const verify = useServerFn(verifyStarterKitPayment);
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
 
-  async function upgrade() {
+  async function buy() {
     setBusy(true);
     try {
-      const { subscriptionId, keyId, email } = await createSub();
-      const res = await openRazorpayCheckout({
-        keyId,
-        subscriptionId,
-        email: email || profile?.email || "",
+      const order = await createOrder();
+      const response = await openStarterKitCheckout({
+        keyId: order.keyId,
+        orderId: order.orderId,
+        amount: order.amount,
+        email: order.email || profile?.email || "",
         businessName: profile?.profile?.business_name ?? "",
       });
-      if (!res) return;
-      await verify({ data: res });
+      if (!response) return;
+      await verify({ data: response });
       await queryClient.invalidateQueries({ queryKey: SUBSCRIPTION_KEY });
-      toast.success("You're on Pro. All features are unlocked.");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not start checkout.");
+      toast.success("Starter Kit unlocked.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not start checkout.");
     } finally {
       setBusy(false);
     }
   }
 
-  return (
-    <Button {...props} loading={busy} onClick={upgrade}>
-      {children}
-    </Button>
-  );
+  return <Button {...props} loading={busy} onClick={buy}>{children}</Button>;
 }
 
 export function LockIcon({ className }: { className?: string | undefined }) {
