@@ -164,7 +164,7 @@ function ActionPlanPage() {
                       </button>
                     </div>
                   ))}
-                </CardBody>
+                </div>
               </Card>
             </section>
           );
