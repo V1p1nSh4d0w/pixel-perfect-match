@@ -9,7 +9,15 @@ import { quarterStart } from "@/lib/config";
 import { adminFetchAudits, adminFetchProUsers, adminMarkCall, adminRemoveCall, fetchCallsSince, isAdmin } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_authenticated/app/admin")({
-  head: () => ({ meta: [{ title: "Admin — SecureCheck" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [
+    { title: "Admin — SecureCheck" },
+    { name: "description", content: "SecureCheck account administration." },
+    { property: "og:title", content: "Admin — SecureCheck" },
+    { property: "og:description", content: "SecureCheck account administration." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
   component: AdminPage,
 });
 

@@ -13,7 +13,14 @@ import { scoreAssessment } from "@/lib/scoring";
 import { LATEST_RESULT_KEY } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/assessment/")({
-  head: () => ({ meta: [{ title: "Assessment — SecureCheck" }] }),
+  head: () => ({ meta: [
+    { title: "Assessment — SecureCheck" },
+    { name: "description", content: "Complete your SecureCheck security self-assessment." },
+    { property: "og:title", content: "Assessment — SecureCheck" },
+    { property: "og:description", content: "Complete your SecureCheck security self-assessment." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AssessmentPage,
 });
 

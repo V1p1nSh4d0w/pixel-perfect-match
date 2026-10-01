@@ -4,7 +4,14 @@ import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
 import { useLatestResult } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/assessment/complete")({
-  head: () => ({ meta: [{ title: "Assessment complete — SecureCheck" }] }),
+  head: () => ({ meta: [
+    { title: "Assessment complete — SecureCheck" },
+    { name: "description", content: "Review your security assessment score and findings." },
+    { property: "og:title", content: "Assessment complete — SecureCheck" },
+    { property: "og:description", content: "Review your security assessment score and findings." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: CompletePage,
 });
 
