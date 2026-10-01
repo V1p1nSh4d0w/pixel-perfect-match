@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import type { AssessmentResult, RiskLevel, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 
@@ -55,16 +57,31 @@ export function RiskLabel({ risk }: { risk: RiskLevel }) {
   return <p className={cn("text-lg font-semibold", riskColor(risk))}>{risk}</p>;
 }
 
+const SEVERITY_PARAM: Record<Severity, string> = {
+  Critical: "critical",
+  High: "high",
+  Medium: "medium",
+  Low: "low",
+};
+
 export function SeverityCounts({ counts }: { counts: AssessmentResult["counts"] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {SEVERITIES.map((s) => (
-        <div key={s} className="rounded-card border border-border bg-card p-4">
-          <p className="text-2xl font-semibold text-foreground">{counts[s]}</p>
-          <div className="mt-2">
-            <SeverityBadge severity={s} />
+        <Link
+          key={s}
+          to="/app/findings"
+          search={{ severity: SEVERITY_PARAM[s] }}
+          className="group flex items-start justify-between rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-surface-raised"
+        >
+          <div>
+            <p className="text-2xl font-semibold text-foreground">{counts[s]}</p>
+            <div className="mt-2">
+              <SeverityBadge severity={s} />
+            </div>
           </div>
-        </div>
+          <ArrowRight size={16} className="mt-1 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
       ))}
     </div>
   );
