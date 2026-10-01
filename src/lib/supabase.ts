@@ -143,7 +143,7 @@ export async function fetchActionPlanFindingIds(): Promise<string[]> {
 export async function fetchActionItems(): Promise<ActionItem[]> {
   const { data, error } = await supabase
     .from("action_items")
-    .select("id, user_id, finding_id, title, priority, completed, created_at")
+    .select("id, user_id, finding_id, title, priority, completed, created_at, finding:findings(category)")
     .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as ActionItem[];

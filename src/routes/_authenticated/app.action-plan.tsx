@@ -136,25 +136,41 @@ function ActionPlanPage() {
               <Card className="p-0">
                 <div className="divide-y divide-border">
                   {sectionItems.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 px-5 py-4">
+                    <div key={item.id} className="flex items-start gap-3 px-5 py-4">
                       <input
                         type="checkbox"
                         checked={item.completed}
                         onChange={(e) =>
                           toggleMutation.mutate({ id: item.id, completed: e.target.checked })
                         }
-                        className="h-4 w-4 shrink-0 accent-primary"
+                        className="mt-1 h-4 w-4 shrink-0 accent-primary"
                         aria-label={`Mark "${item.title}" as completed`}
                       />
-                      <span
-                        className={`flex-1 text-sm ${
-                          item.completed
-                            ? "text-muted-foreground line-through"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {item.title}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <span
+                          className={`text-sm ${
+                            item.completed
+                              ? "text-muted-foreground line-through"
+                              : "text-foreground"
+                          }`}
+                        >
+                          {item.title}
+                        </span>
+                        {item.finding?.category && (
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            From: {item.finding.category}
+                          </span>
+                        )}
+                        {item.finding_id && (
+                          <Link
+                            to="/app/findings"
+                            search={{ finding: item.finding_id }}
+                            className="mt-1 inline-block text-xs text-primary transition-colors hover:text-primary-hover"
+                          >
+                            View related finding
+                          </Link>
+                        )}
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeMutation.mutate(item.id)}

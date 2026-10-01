@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -13,8 +13,9 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
-    const severity = typeof search["severity"] === "string" ? search["severity"] : "";
-    return severity ? { severity } : {};
+    const severity = typeof search["severity"] === "string" && search["severity"] ? { severity: search["severity"] } : {};
+    const finding = typeof search["finding"] === "string" && search["finding"] ? { finding: search["finding"] } : {};
+    return { ...severity, ...finding };
   },
   head: () => ({ meta: [{ title: "Findings — SecureCheck" }] }),
   component: FindingsPage,
@@ -40,7 +41,7 @@ const ACTION_PLAN_KEY = ["action-plan-finding-ids"] as const;
 
 function FindingsPage() {
   const { result, isLoading } = useLatestResult();
-  const { severity } = Route.useSearch();
+  const { severity, finding } = Route.useSearch();
   const planQuery = useQuery({ queryKey: ACTION_PLAN_KEY, queryFn: fetchActionPlanFindingIds });
   const inPlan = new Set(planQuery.data ?? []);
 
@@ -64,8 +65,17 @@ function FindingsPage() {
     );
   }
 
-  const showResolved = severity === "resolved";
-  const activeSeverity = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
+  const showResolvedBase = severity === "resolved";
+  const severityBase = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
+  // A highlighted finding (linked from the action plan) must stay visible: if it
+  // is resolved, show the Resolved tab; if the severity filter would hide it,
+  // fall back to all open findings.
+  const highlightFinding = finding ? result.findings.find((f) => f.id === finding) : undefined;
+  const showResolved = highlightFinding?.status === "Resolved" ? true : showResolvedBase;
+  const activeSeverity =
+    highlightFinding && highlightFinding.status !== "Resolved" && severityBase && highlightFinding.severity !== severityBase
+      ? null
+      : severityBase;
   const activeTab = showResolved ? "resolved" : activeSeverity ? severity : "";
   const open = result.findings.filter((f) => f.status !== "Resolved");
   const resolved = result.findings.filter((f) => f.status === "Resolved");
@@ -126,7 +136,7 @@ function FindingsPage() {
       ) : (
         <div className="space-y-4">
           {visible.map((f) => (
-            <FindingCard key={f.id} finding={f} inPlan={inPlan.has(f.id)} />
+            <FindingCard key={f.id} finding={f} inPlan={inPlan.has(f.id)} highlighted={finding === f.id} />
           ))}
         </div>
       )}
@@ -134,8 +144,14 @@ function FindingsPage() {
   );
 }
 
-function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean }) {
-  const [expanded, setExpanded] = useState(false);
+function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; inPlan: boolean; highlighted?: boolean | undefined }) {
+  const [expanded, setExpanded] = useState(Boolean(highlighted));
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (highlighted) ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlighted]);
+
   const queryClient = useQueryClient();
 
   const resolve = useMutation({
@@ -165,7 +181,8 @@ function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean
   const isResolved = f.status === "Resolved";
 
   return (
-    <Card className="space-y-4">
+    <div ref={ref} className={cn(highlighted && "rounded-card ring-1 ring-primary")}>
+      <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <SeverityBadge severity={f.severity} />
@@ -184,7 +201,7 @@ function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean
             <p className="text-sm text-foreground">{f.why_it_matters}</p>
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-muted-foreground">Recommended action</p>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Suggested fix</p>
             <p className="text-sm text-foreground">{f.recommended_action}</p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -208,6 +225,7 @@ function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean
           <Button variant="secondary" onClick={() => setExpanded(true)}>View remediation</Button>
         </>
       )}
-    </Card>
+      </Card>
+    </div>
   );
 }
