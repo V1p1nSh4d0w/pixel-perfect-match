@@ -37,19 +37,31 @@ function AppShell() {
 
   const sidebar = (
     <div className="flex h-full flex-col border-r border-border bg-card">
-      <div className="px-5 py-5">
+      <div className="border-b border-border px-5 py-4">
         <Link to="/app" className="text-base font-semibold tracking-tight text-foreground">
           SecureCheck
         </Link>
       </div>
-      <div className="flex-1 px-2">
+      <div className="flex-1 overflow-y-auto px-2 py-3">
         <SidebarNav onNavigate={() => setDrawerOpen(false)} />
       </div>
-      <div className="px-5 pb-3">
-        <Link to="/audit" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Full Audit — ₹15,000</Link>
-      </div>
-      <div className="space-y-1 border-t border-border px-5 py-4">
-        <p className="truncate text-xs text-muted-foreground">{email}</p>
+      <div className="space-y-1.5 border-t border-border px-5 py-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="truncate text-xs text-muted-foreground">{email}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-foreground">
+            {isPro ? "Pro plan" : "Free plan"}
+          </span>
+          {isPro ? (
+            <span className="rounded-full border border-primary px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-primary">
+              Pro
+            </span>
+          ) : null}
+        </div>
+        <Link to="/audit" onClick={() => setDrawerOpen(false)} className="block text-xs text-muted-foreground transition-colors hover:text-foreground">
+          Full Audit — ₹15,000
+        </Link>
         <button
           type="button"
           onClick={handleSignOut}
