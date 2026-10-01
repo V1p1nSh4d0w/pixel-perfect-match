@@ -7,7 +7,7 @@ import { RiskLabel, ScoreRing, SeverityBadge, SEVERITIES } from "@/components/Re
 import { useLatestResult } from "@/lib/use-latest-result";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
-import { fetchActionItems, fetchLatestAssessmentMeta } from "@/lib/supabase";
+import { fetchActionItems, fetchLatestAssessmentMeta, setOnboardingFlag } from "@/lib/supabase";
 import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 import { cn } from "@/lib/utils";
 import type { RiskLevel, Severity } from "@/types/assessment";
@@ -124,7 +124,7 @@ function ReportPage() {
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
           {isPro ? (
-            <Button onClick={() => window.print()}>Download PDF</Button>
+            <Button onClick={() => { setOnboardingFlag("downloaded_report").catch(() => {}); window.print(); }}>Download PDF</Button>
           ) : (
             <Link to="/pricing">
               <Button title="Unlock PDF download">Upgrade to Pro — ₹999/month</Button>

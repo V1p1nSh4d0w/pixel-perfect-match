@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { setOnboardingFlag } from "@/lib/supabase";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -50,6 +51,8 @@ function FindingsPage() {
   const [flash, setFlash] = useState(false);
   const scrolledFor = useRef<string | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => { setOnboardingFlag("viewed_findings").catch(() => {}); }, []);
 
   // Auto-scroll to the linked finding once the list has rendered. The ~100ms
   // delay lets the list paint first; the highlight starts ~400ms after the
