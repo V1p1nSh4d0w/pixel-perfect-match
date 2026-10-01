@@ -109,3 +109,32 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
   return { score: a.score, riskLevel: a.risk_level as RiskLevel, findings, counts };
 }
+
+// ---- Findings & action items ----
+export async function markFindingResolved(findingId: string) {
+  const { error } = await supabase.from("findings").update({ status: "Resolved" }).eq("id", findingId);
+  if (error) throw error;
+}
+
+/** Returns false when the finding is already in the action plan. */
+export async function addFindingToActionPlan(finding: Pick<Finding, "id" | "recommended_action" | "severity">) {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error("You need to be signed in.");
+  const { error } = await supabase.from("action_items").insert({
+    user_id: userData.user.id,
+    finding_id: finding.id,
+    title: finding.recommended_action,
+    priority: finding.severity,
+  });
+  if (error) {
+    if (error.code === "23505") return false;
+    throw error;
+  }
+  return true;
+}
+
+export async function fetchActionPlanFindingIds(): Promise<string[]> {
+  const { data, error } = await supabase.from("action_items").select("finding_id").not("finding_id", "is", null);
+  if (error) throw error;
+  return (data ?? []).map((r) => r.finding_id as string);
+}
