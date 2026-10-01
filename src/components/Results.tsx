@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 const SEVERITY_STYLES: Record<Severity, string> = {
   Critical: "border-danger text-danger",
   High: "border-warning text-warning",
-  Medium: "border-primary text-primary",
-  Low: "border-border text-muted-foreground",
+  Medium: "border-medium text-medium",
+  Low: "border-low text-low",
 };
 
 export const SEVERITIES: Severity[] = ["Critical", "High", "Medium", "Low"];
@@ -20,7 +20,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
 }
 
 function riskColor(risk: RiskLevel) {
-  return risk === "Low risk" ? "text-success" : risk === "Moderate risk" ? "text-warning" : "text-danger";
+  return risk === "Low risk" ? "text-low" : risk === "Moderate risk" ? "text-medium" : risk === "High risk" ? "text-warning" : "text-danger";
 }
 
 export function ScoreRing({ score, risk, size = 160 }: { score: number; risk: RiskLevel; size?: number }) {

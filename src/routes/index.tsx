@@ -112,7 +112,7 @@ function LandingPage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 md:grid-cols-2 md:py-28">
           <div className="min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" /> For small businesses in India
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> For small businesses in India
             </span>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">Know your security. Fix what matters.</h1>
             <p className="mt-5 max-w-lg text-base text-muted-foreground">
@@ -128,8 +128,8 @@ function LandingPage() {
           <div className="rounded-card border border-border bg-card p-6 md:justify-self-end md:w-[380px]">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
               </span>
               Sample self-assessment
             </div>
@@ -192,7 +192,7 @@ function LandingPage() {
         <div className="mt-10 grid items-center gap-10 md:grid-cols-[auto_1fr]">
           <div className="flex flex-col items-center gap-2 rounded-card border border-border bg-card p-8">
             <ScoreRing score={72} risk="Moderate risk" />
-            <p className="text-lg font-semibold text-warning">Moderate</p>
+            <p className="text-lg font-semibold text-medium">Moderate</p>
           </div>
           <div className="space-y-4 text-muted-foreground">
             <p>The score is a snapshot of your current security baseline.</p>
