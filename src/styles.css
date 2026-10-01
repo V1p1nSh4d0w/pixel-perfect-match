@@ -48,11 +48,11 @@
 :root {
   --background: oklch(0.1721 0.0324 268.88);
   --foreground: oklch(0.9446 0.012 259.82);
-  --card: oklch(0.22 0.0351 266.48);
-  --surface-raised: oklch(0.2558 0.0433 268.07);
-  --border: oklch(0.2847 0.0401 261.96);
-  --input: oklch(0.2847 0.0401 261.96);
-  --muted: oklch(0.2558 0.0433 268.07);
+  --card: oklch(0.215 0.032 265);
+  --surface-raised: oklch(0.25 0.035 265);
+  --border: oklch(0.30 0.029 264);
+  --input: oklch(0.30 0.029 264);
+  --muted: oklch(0.25 0.035 265);
   --muted-foreground: oklch(0.6645 0.0291 262.29);
   --primary: oklch(0.70 0.16 246);
   --primary-hover: oklch(0.76 0.14 246);

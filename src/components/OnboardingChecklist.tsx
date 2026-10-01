@@ -32,7 +32,7 @@ export function OnboardingChecklist() {
   };
 
   return (
-    <div className="mb-6 rounded-card border border-primary/30 bg-card p-6">
+    <div className="mb-6 rounded-card border border-border/75 bg-card p-6 shadow-sm shadow-background/10">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-foreground">Getting started</h2>
