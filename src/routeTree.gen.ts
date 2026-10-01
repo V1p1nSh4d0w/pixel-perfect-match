@@ -21,6 +21,7 @@ import { Route as AuditIndexRouteImport } from './routes/audit.index'
 import { Route as AuditConfirmedRouteImport } from './routes/audit.confirmed'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
+import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -88,6 +89,11 @@ const AuthenticatedAppActionPlanRoute =
     path: '/action-plan',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAdminRoute = AuthenticatedAppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppFindingsRoute =
   AuthenticatedAppFindingsRouteImport.update({
     id: '/findings',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/audit/confirmed': typeof AuditConfirmedRoute
   '/audit/': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
+  '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/audit/confirmed': typeof AuditConfirmedRoute
   '/audit': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
+  '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/audit/confirmed': typeof AuditConfirmedRoute
   '/audit/': typeof AuditIndexRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
+  '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/audit/confirmed'
     | '/audit/'
     | '/app/action-plan'
+    | '/app/admin'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/audit/confirmed'
     | '/audit'
     | '/app/action-plan'
+    | '/app/admin'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/audit/confirmed'
     | '/audit/'
     | '/_authenticated/app/action-plan'
+    | '/_authenticated/app/admin'
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
@@ -340,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppActionPlanRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/admin': {
+      id: '/_authenticated/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AuthenticatedAppAdminRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/findings': {
       id: '/_authenticated/app/findings'
       path: '/findings'
@@ -387,6 +406,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppActionPlanRoute: typeof AuthenticatedAppActionPlanRoute
+  AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRoute
   AuthenticatedAppFindingsRoute: typeof AuthenticatedAppFindingsRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
@@ -397,6 +417,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppActionPlanRoute: AuthenticatedAppActionPlanRoute,
+  AuthenticatedAppAdminRoute: AuthenticatedAppAdminRoute,
   AuthenticatedAppFindingsRoute: AuthenticatedAppFindingsRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
