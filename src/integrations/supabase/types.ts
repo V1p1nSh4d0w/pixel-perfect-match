@@ -178,20 +178,32 @@ export type Database = {
         Row: {
           business_name: string
           created_at: string
+          dismissed_onboarding: boolean
+          downloaded_report: boolean
           email: string
           id: string
+          onboarding_eligible: boolean
+          viewed_findings: boolean
         }
         Insert: {
           business_name?: string
           created_at?: string
+          dismissed_onboarding?: boolean
+          downloaded_report?: boolean
           email: string
           id: string
+          onboarding_eligible?: boolean
+          viewed_findings?: boolean
         }
         Update: {
           business_name?: string
           created_at?: string
+          dismissed_onboarding?: boolean
+          downloaded_report?: boolean
           email?: string
           id?: string
+          onboarding_eligible?: boolean
+          viewed_findings?: boolean
         }
         Relationships: []
       }
