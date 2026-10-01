@@ -263,7 +263,7 @@ function LandingPage() {
       </section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-5">
           <p className="font-semibold">SecureCheck</p>
           <FooterCol title="Product">
             <a href="#how-it-works">How it works</a>
@@ -276,9 +276,11 @@ function LandingPage() {
             <Link to="/signup">Sign up</Link>
           </FooterCol>
           <FooterCol title="Legal">
-            <span>Privacy</span>
-            <span>Terms</span>
-            <a href={`mailto:${SUPPORT_EMAIL}`}>Contact</a>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+          </FooterCol>
+          <FooterCol title="Contact">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="break-all">{SUPPORT_EMAIL}</a>
           </FooterCol>
         </div>
         <div className="mx-auto max-w-6xl space-y-2 border-t border-border px-5 py-6 text-xs text-muted-foreground">
