@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
+import type { Severity } from "@/types/assessment";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: DashboardPage,
