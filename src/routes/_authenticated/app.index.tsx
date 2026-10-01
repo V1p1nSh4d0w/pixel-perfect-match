@@ -3,7 +3,8 @@ import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
-import { useAssessment } from "@/lib/assessment-store";
+import { assessmentStore } from "@/lib/assessment-store";
+import { useLatestResult } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: DashboardPage,
@@ -11,12 +12,20 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { result } = useAssessment();
+  const { result, isLoading } = useLatestResult();
+  if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
 
   if (result) {
     return (
       <>
-        <PageHeader title="Dashboard" />
+        <PageHeader
+          title="Dashboard"
+          actions={
+            <Button variant="secondary" onClick={() => { assessmentStore.reset(); navigate({ to: "/app/assessment" }); }}>
+              Retake assessment
+            </Button>
+          }
+        />
         <div className="space-y-6">
           <Card className="flex flex-col items-center gap-6 sm:flex-row">
             <ScoreRing score={result.score} risk={result.riskLevel} />

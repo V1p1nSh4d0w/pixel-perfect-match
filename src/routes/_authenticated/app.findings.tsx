@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { SeverityBadge } from "@/components/Results";
-import { useAssessment } from "@/lib/assessment-store";
+import { useLatestResult } from "@/lib/use-latest-result";
 import type { Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 
@@ -31,8 +31,9 @@ const FILTER_TABS: { value: string; label: string }[] = [
 ];
 
 function FindingsPage() {
-  const { result } = useAssessment();
+  const { result, isLoading } = useLatestResult();
   const { severity } = Route.useSearch();
+  if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
   const activeSeverity = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
   const visible = activeSeverity ? result?.findings.filter((f) => f.severity === activeSeverity) : result?.findings;
 

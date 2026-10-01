@@ -15,6 +15,9 @@ export const assessmentStore = {
   setAnswer(questionId: string, value: string) {
     set({ answers: { ...state.answers, [questionId]: value } });
   },
+  getAnswers() {
+    return state.answers;
+  },
   setStep(stepIndex: number) {
     set({ stepIndex });
   },

@@ -17,3 +17,4 @@
 - All Supabase access for the app goes through `src/lib/supabase.ts` helpers — keeps auth/profile calls in one place.
 - Shared types live in `src/types/` — reused across routes and components.
 - Reusable UI primitives (`Button`, `Card`, `Input`, `PageHeader`, `SidebarNav`) live in `src/components/` — built on design tokens in `src/styles.css`, never ad hoc colors.
+- Assessment results are read from the database via `useLatestResult()` (React Query, key `latest-assessment`); the in-memory assessment store only holds in-progress answers — keeps one source of truth for results.

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
-import { useAssessment } from "@/lib/assessment-store";
+import { useLatestResult } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/assessment/complete")({
   head: () => ({ meta: [{ title: "Assessment complete — SecureCheck" }] }),
@@ -12,7 +12,8 @@ const linkClass =
   "inline-flex h-10 items-center justify-center rounded-button bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
 
 function CompletePage() {
-  const { result } = useAssessment();
+  const { result, isLoading } = useLatestResult();
+  if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
 
   if (!result) {
     return (
