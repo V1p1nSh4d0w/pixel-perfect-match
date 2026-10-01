@@ -270,6 +270,36 @@ export type Database = {
         }
         Relationships: []
       }
+      template_events: {
+        Row: {
+          created_at: string
+          event: string
+          finding_id: string | null
+          id: string
+          price_paise: number | null
+          template_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          finding_id?: string | null
+          id?: string
+          price_paise?: number | null
+          template_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          finding_id?: string | null
+          id?: string
+          price_paise?: number | null
+          template_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
