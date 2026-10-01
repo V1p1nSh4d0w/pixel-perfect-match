@@ -59,7 +59,14 @@ function AssessmentPage() {
       <PageHeader title="Assessment" description="Answer in plain terms. Pick “Not sure” whenever you don’t know." />
 
       <div className="mb-8 space-y-4">
-        <div className="h-1 w-full overflow-hidden rounded-full bg-surface-raised">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="text-sm font-semibold text-foreground">
+            Step {stepIndex + 1} of {STEP_NAMES.length}
+            <span className="ml-2 font-normal text-muted-foreground">· {STEP_NAMES[stepIndex]}</span>
+          </p>
+          <p className="text-xs text-muted-foreground">{Math.round(progress)}% complete</p>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-raised">
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
         <ol className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
@@ -68,11 +75,25 @@ function AssessmentPage() {
               <button
                 type="button"
                 onClick={() => go(i)}
+                aria-current={i === stepIndex ? "step" : undefined}
                 className={cn(
-                  "transition-colors hover:text-foreground",
+                  "flex items-center gap-1.5 transition-colors hover:text-foreground",
                   i === stepIndex ? "font-semibold text-primary" : i < stepIndex ? "text-foreground" : "text-muted-foreground",
                 )}
               >
+                {i < stepIndex ? (
+                  <svg viewBox="0 0 12 12" className="h-3 w-3 text-success" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M2 6.5 4.8 9 10 3.5" />
+                  </svg>
+                ) : (
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      i === stepIndex ? "bg-primary" : "bg-border",
+                    )}
+                    aria-hidden="true"
+                  />
+                )}
                 {i + 1}. {name}
               </button>
             </li>
