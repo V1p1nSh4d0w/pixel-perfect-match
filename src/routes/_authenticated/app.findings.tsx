@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
-import { SeverityBadge } from "@/components/Results";
-import { useLatestResult } from "@/lib/use-latest-result";
-import type { Severity } from "@/types/assessment";
+import { SEVERITIES, SeverityBadge } from "@/components/Results";
+import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
+import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved } from "@/lib/supabase";
+import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
@@ -28,14 +33,18 @@ const FILTER_TABS: { value: string; label: string }[] = [
   { value: "high", label: "High" },
   { value: "medium", label: "Medium" },
   { value: "low", label: "Low" },
+  { value: "resolved", label: "Resolved" },
 ];
+
+const ACTION_PLAN_KEY = ["action-plan-finding-ids"] as const;
 
 function FindingsPage() {
   const { result, isLoading } = useLatestResult();
   const { severity } = Route.useSearch();
+  const planQuery = useQuery({ queryKey: ACTION_PLAN_KEY, queryFn: fetchActionPlanFindingIds });
+  const inPlan = new Set(planQuery.data ?? []);
+
   if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
-  const activeSeverity = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
-  const visible = activeSeverity ? result?.findings.filter((f) => f.severity === activeSeverity) : result?.findings;
 
   if (!result) {
     return (
@@ -55,59 +64,146 @@ function FindingsPage() {
     );
   }
 
+  const showResolved = severity === "resolved";
+  const activeSeverity = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
+  const activeTab = showResolved ? "resolved" : activeSeverity ? severity : "";
+  const open = result.findings.filter((f) => f.status !== "Resolved");
+  const resolved = result.findings.filter((f) => f.status === "Resolved");
+  const visible = showResolved ? resolved : activeSeverity ? open.filter((f) => f.severity === activeSeverity) : open;
+
+  const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
+  open.forEach((f) => counts[f.severity]++);
+
+  const emptyText = result.findings.length === 0
+    ? "No findings — every answer was the best option."
+    : showResolved
+      ? "No resolved findings yet."
+      : activeSeverity
+        ? `No open ${activeSeverity.toLowerCase()} findings.`
+        : "All findings are resolved. Nice work.";
+
   return (
     <>
-      <PageHeader title="Findings" description={`${result.findings.length} findings, most serious first.`} />
+      <PageHeader title="Findings" description="Most serious first." />
+
+      <Card className="mb-6 flex flex-wrap items-center gap-x-8 gap-y-4 p-4">
+        <div>
+          <p className="text-2xl font-semibold text-foreground">{result.findings.length}</p>
+          <p className="text-xs text-muted-foreground">Total findings</p>
+        </div>
+        {SEVERITIES.map((s) => (
+          <div key={s} className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-foreground">{counts[s]}</span>
+            <SeverityBadge severity={s} />
+          </div>
+        ))}
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-semibold text-foreground">{resolved.length}</span>
+          <span className="text-xs text-muted-foreground">Resolved</span>
+        </div>
+      </Card>
+
       <div className="mb-4 flex flex-wrap gap-2">
-        {FILTER_TABS.map((tab) => {
-          const isActive = tab.value === (activeSeverity ? severity : "");
-          return (
-            <Link
-              key={tab.label}
-              to="/app/findings"
-              search={tab.value ? { severity: tab.value } : {}}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-sm transition-colors",
-                isActive
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:bg-surface-raised hover:text-foreground",
-              )}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
+        {FILTER_TABS.map((tab) => (
+          <Link
+            key={tab.label}
+            to="/app/findings"
+            search={tab.value ? { severity: tab.value } : {}}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-sm transition-colors",
+              tab.value === activeTab
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:bg-surface-raised hover:text-foreground",
+            )}
+          >
+            {tab.label}
+          </Link>
+        ))}
       </div>
-      {result.findings.length === 0 ? (
-        <Card><CardBody>No findings — every answer was the best option.</CardBody></Card>
-      ) : visible && visible.length === 0 ? (
-        <Card><CardBody>No {activeSeverity!.toLowerCase()} findings.</CardBody></Card>
+
+      {visible.length === 0 ? (
+        <Card><CardBody>{emptyText}</CardBody></Card>
       ) : (
         <div className="space-y-4">
-          {visible!.map((f) => (
-            <Card key={f.id} className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <SeverityBadge severity={f.severity} />
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">{f.category}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">Status: <span className="text-foreground">{f.status}</span></span>
-              </div>
-              <h2 className="text-base font-semibold text-foreground">{f.title}</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">Why it matters</p>
-                  <p className="text-sm text-foreground">{f.why_it_matters}</p>
-                </div>
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">Recommended action</p>
-                  <p className="text-sm text-foreground">{f.recommended_action}</p>
-                </div>
-              </div>
-            </Card>
+          {visible.map((f) => (
+            <FindingCard key={f.id} finding={f} inPlan={inPlan.has(f.id)} />
           ))}
         </div>
       )}
     </>
+  );
+}
+
+function FindingCard({ finding: f, inPlan }: { finding: Finding; inPlan: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const queryClient = useQueryClient();
+
+  const resolve = useMutation({
+    mutationFn: () => markFindingResolved(f.id),
+    onSuccess: () => {
+      queryClient.setQueryData<AssessmentResult | null>(LATEST_RESULT_KEY, (prev) =>
+        prev ? { ...prev, findings: prev.findings.map((x) => (x.id === f.id ? { ...x, status: "Resolved" } : x)) } : prev,
+      );
+      toast.success("Marked as resolved");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the finding."),
+  });
+
+  const addToPlan = useMutation({
+    mutationFn: () => addFindingToActionPlan(f),
+    onSuccess: (added) => {
+      queryClient.invalidateQueries({ queryKey: ACTION_PLAN_KEY });
+      toast.success(added ? "Added to action plan" : "Already in your action plan");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not add to action plan."),
+  });
+
+  const isResolved = f.status === "Resolved";
+
+  return (
+    <Card className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <SeverityBadge severity={f.severity} />
+          <span className="text-xs uppercase tracking-wide text-muted-foreground">{f.category}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          Status: <span className={isResolved ? "text-success" : "text-foreground"}>{f.status}</span>
+        </span>
+      </div>
+      <h2 className="text-base font-semibold text-foreground">{f.title}</h2>
+
+      {expanded ? (
+        <div className="space-y-4 border-t border-border pt-4">
+          <div>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Why it matters</p>
+            <p className="text-sm text-foreground">{f.why_it_matters}</p>
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Recommended action</p>
+            <p className="text-sm text-foreground">{f.recommended_action}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {!isResolved && (
+              <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
+            )}
+            <Button
+              variant="secondary"
+              onClick={() => addToPlan.mutate()}
+              loading={addToPlan.isPending}
+              disabled={inPlan}
+            >
+              {inPlan ? "In action plan" : "Add to action plan"}
+            </Button>
+            <Button variant="ghost" onClick={() => setExpanded(false)}>Hide</Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{f.why_it_matters}</p>
+          <Button variant="secondary" onClick={() => setExpanded(true)}>View remediation</Button>
+        </>
+      )}
+    </Card>
   );
 }
