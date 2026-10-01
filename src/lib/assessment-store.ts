@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from "react";
+import { scoreAssessment } from "@/lib/scoring";
 import type { AssessmentState } from "@/types/assessment";
 
 // Local-only state for now; will be wired to the database later.
-let state: AssessmentState = { answers: {}, stepIndex: 0, savedAt: null, submittedAt: null };
+let state: AssessmentState = { answers: {}, stepIndex: 0, savedAt: null, submittedAt: null, result: null };
 const listeners = new Set<() => void>();
 
 function set(patch: Partial<AssessmentState>) {
@@ -21,10 +22,10 @@ export const assessmentStore = {
     set({ savedAt: Date.now() });
   },
   submit() {
-    set({ submittedAt: Date.now(), savedAt: Date.now() });
+    set({ submittedAt: Date.now(), savedAt: Date.now(), result: scoreAssessment(state.answers) });
   },
   reset() {
-    set({ answers: {}, stepIndex: 0, savedAt: null, submittedAt: null });
+    set({ answers: {}, stepIndex: 0, savedAt: null, submittedAt: null, result: null });
   },
 };
 

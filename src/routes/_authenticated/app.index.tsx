@@ -1,7 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
+import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
+import { useAssessment } from "@/lib/assessment-store";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: DashboardPage,
@@ -9,6 +11,29 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { result } = useAssessment();
+
+  if (result) {
+    return (
+      <>
+        <PageHeader title="Dashboard" />
+        <div className="space-y-6">
+          <Card className="flex flex-col items-center gap-6 sm:flex-row">
+            <ScoreRing score={result.score} risk={result.riskLevel} />
+            <div className="space-y-2 text-center sm:text-left">
+              <p className="text-sm text-muted-foreground">Security score</p>
+              <RiskLabel risk={result.riskLevel} />
+              <CardBody>{result.findings.length} findings to review.</CardBody>
+              <Link to="/app/findings" className="inline-block text-sm text-primary hover:underline">
+                View findings →
+              </Link>
+            </div>
+          </Card>
+          <SeverityCounts counts={result.counts} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
