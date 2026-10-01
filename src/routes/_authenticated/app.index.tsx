@@ -33,22 +33,20 @@ const SEVERITY_VALUE_CLASS: Record<Severity, string> = {
 
 /** Compact clickable metric card. Severity values are tinted with their status color. */
 function StatCard({
-  to,
-  search,
+  severityParam,
   value,
   label,
   valueClass,
 }: {
-  to: "/app/findings";
-  search: { severity?: string };
+  severityParam?: string;
   value: number;
   label: string;
   valueClass?: string;
 }) {
   return (
     <Link
-      to={to}
-      search={search}
+      to="/app/findings"
+      search={severityParam ? { severity: severityParam } : {}}
       className="group flex items-start justify-between rounded-card border border-border/75 bg-card p-4 shadow-sm shadow-background/10 transition-colors hover:border-primary/40 hover:bg-surface-raised"
     >
       <div className="min-w-0">
@@ -123,18 +121,17 @@ function DashboardPage() {
 
           {/* Compact metrics row — real counts from the latest assessment. */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <StatCard to="/app/findings" search={{}} value={result.findings.length} label="Total findings" />
+            <StatCard value={result.findings.length} label="Total findings" />
             {(["Critical", "High", "Medium", "Low"] as Severity[]).map((s) => (
               <StatCard
                 key={s}
-                to="/app/findings"
-                search={{ severity: s.toLowerCase() }}
+                severityParam={s.toLowerCase()}
                 value={openCounts[s]}
                 label={s}
                 valueClass={SEVERITY_VALUE_CLASS[s]}
               />
             ))}
-            <StatCard to="/app/findings" search={{ severity: "resolved" }} value={resolvedCount} label="Resolved" />
+            <StatCard severityParam="resolved" value={resolvedCount} label="Resolved" />
           </div>
 
           <ScoreHistory />
