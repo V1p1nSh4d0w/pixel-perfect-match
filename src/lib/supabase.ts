@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { enrichFindings, riskLevelFor } from "@/lib/scoring";
+import { controlForFinding, enrichFindings, riskLevelFor, scoreAssessment } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
