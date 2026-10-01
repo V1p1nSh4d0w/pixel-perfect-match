@@ -15,6 +15,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { LockIcon } from "@/components/UpgradeButton";
 import { useServerFn } from "@tanstack/react-start";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
+import { TEMPLATE_FOR_FINDING } from "@/lib/templates.functions";
+import { TemplateButton } from "@/components/TemplateButton";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -286,8 +288,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
                   </li>
                 ))}
               </ol>
+              {TEMPLATE_FOR_FINDING[f.title] ? <div className="mt-4"><TemplateButton findingId={f.id} /></div> : null}
             </section>
-          ) : null}
+          ) : TEMPLATE_FOR_FINDING[f.title] ? <TemplateButton findingId={f.id} /> : null}
           <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             <Button
               variant="secondary"
