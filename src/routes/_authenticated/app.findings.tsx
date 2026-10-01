@@ -32,8 +32,8 @@ const FILTER_TABS: { value: string; label: string }[] = [
 
 function FindingsPage() {
   const { result, isLoading } = useLatestResult();
-  if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
   const { severity } = Route.useSearch();
+  if (isLoading) return <p className="py-8 text-sm text-muted-foreground">Loading…</p>;
   const activeSeverity = severity && PARAM_TO_SEVERITY[severity] ? PARAM_TO_SEVERITY[severity] : null;
   const visible = activeSeverity ? result?.findings.filter((f) => f.severity === activeSeverity) : result?.findings;
 
