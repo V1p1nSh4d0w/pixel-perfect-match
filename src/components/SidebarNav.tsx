@@ -31,19 +31,32 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       {NAV_ITEMS.map((item) => {
         const active = item.to === current;
         return (
-          <Link
-            key={item.to}
-            to={item.to}
-            onClick={onNavigate}
-            className={cn(
-              "border-l-2 py-2 pl-3 text-sm transition-colors",
-              active
-                ? "border-primary bg-surface-raised font-medium text-foreground"
-                : "border-transparent text-muted-foreground hover:bg-surface-raised hover:text-foreground",
-            )}
-          >
-            {item.label}
-          </Link>
+          <div key={item.to} className="flex flex-col gap-1">
+            {item.to === "/app/settings" ? (
+              <>
+                <div className="my-2 border-t border-border" />
+                <Link
+                  to="/pricing"
+                  onClick={onNavigate}
+                  className="border-l-2 border-transparent py-2 pl-3 text-sm text-muted-foreground transition-colors hover:bg-surface-raised hover:text-foreground"
+                >
+                  Pricing
+                </Link>
+              </>
+            ) : null}
+            <Link
+              to={item.to}
+              onClick={onNavigate}
+              className={cn(
+                "border-l-2 py-2 pl-3 text-sm transition-colors",
+                active
+                  ? "border-primary bg-surface-raised font-medium text-foreground"
+                  : "border-transparent text-muted-foreground hover:bg-surface-raised hover:text-foreground",
+              )}
+            >
+              {item.label}
+            </Link>
+          </div>
         );
       })}
     </nav>
