@@ -6,6 +6,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { ASSESSMENT_STEPS, REVIEW_INDEX, STEP_NAMES } from "@/lib/assessment-questions";
 import { assessmentStore, useAssessment } from "@/lib/assessment-store";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { saveAssessment } from "@/lib/supabase";
+import { scoreAssessment } from "@/lib/scoring";
+import { LATEST_RESULT_KEY } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/assessment/")({
   head: () => ({ meta: [{ title: "Assessment — SecureCheck" }] }),
@@ -23,9 +28,21 @@ function AssessmentPage() {
     window.scrollTo({ top: 0 });
   }
 
-  function submit() {
-    assessmentStore.submit();
-    navigate({ to: "/app/assessment/complete" });
+  const queryClient = useQueryClient();
+  const [submitting, setSubmitting] = useState(false);
+  async function submit() {
+    setSubmitting(true);
+    try {
+      const answers = assessmentStore.getAnswers();
+      await saveAssessment(answers, scoreAssessment(answers));
+      await queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
+      assessmentStore.reset();
+      navigate({ to: "/app/assessment/complete" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save your assessment.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -106,7 +123,7 @@ function AssessmentPage() {
             Save progress
           </Button>
           {isReview ? (
-            <Button onClick={submit}>Submit assessment</Button>
+            <Button onClick={submit} loading={submitting}>Submit assessment</Button>
           ) : (
             <Button onClick={() => go(stepIndex + 1)}>Next →</Button>
           )}

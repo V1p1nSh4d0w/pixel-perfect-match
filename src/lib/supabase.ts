@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/types/profile";
+import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 
 export { supabase };
 
@@ -57,7 +58,6 @@ export async function updateBusinessName(userId: string, businessName: string) {
 }
 
 // ---- Assessments ----
-import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 
 export async function saveAssessment(answers: AssessmentAnswers, result: AssessmentResult) {
   const { data: userData, error: userError } = await supabase.auth.getUser();
