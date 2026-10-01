@@ -260,7 +260,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             <p className="text-sm text-foreground">{f.recommended_action}</p>
           </div>
           {playbook ? (
-            <div className="rounded-button border border-border bg-surface-raised p-4">
+            <div className="rounded-card border border-border/60 bg-surface-raised p-4">
               <p className="mb-2 text-xs font-medium text-muted-foreground">Step-by-step remediation</p>
               <ol className="list-decimal space-y-1.5 pl-5 text-sm text-foreground">
                 {(isPro ? playbook : playbook.slice(0, 2)).map((step) => <li key={step}>{step}</li>)}
@@ -292,7 +292,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
         </>
       )}
       {!isPro && playbook ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-button border border-dashed border-border bg-surface-raised/50 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border/60 bg-surface-raised p-4">
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <LockIcon />
             Full step-by-step playbook available on Pro

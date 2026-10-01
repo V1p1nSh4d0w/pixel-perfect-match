@@ -112,22 +112,22 @@ function PricingPage() {
           </PlanCard>
         </div>
 
-        <div className="mt-12 overflow-x-auto rounded-card border border-border bg-card">
+        <div className="mt-12 overflow-x-auto rounded-card border border-border/75 bg-card shadow-sm shadow-background/10">
           <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="px-5 py-3 font-medium text-muted-foreground">Feature</th>
                 <th className="px-5 py-3 text-center font-medium text-foreground">Free</th>
-                <th className="bg-primary/10 px-5 py-3 text-center font-medium text-primary">Pro</th>
+                <th className="bg-surface-raised px-5 py-3 text-center font-medium text-primary">Pro</th>
                 <th className="px-5 py-3 text-center font-medium text-foreground">Audit</th>
               </tr>
             </thead>
             <tbody>
               {COMPARISON.map(([label, ...tiers]) => (
-                <tr key={label} className="border-b border-border last:border-0 even:bg-surface-raised/40">
+                <tr key={label} className="border-b border-border/75 last:border-0 even:bg-surface-raised/50">
                   <td className="px-5 py-3 text-foreground">{label}</td>
                   {tiers.map((on, i) => (
-                    <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-primary/10")}>
+                    <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-surface-raised")}>
                       {on ? <span className="inline-flex justify-center"><Check /></span> : <span className="text-muted-foreground">—</span>}
                     </td>
                   ))}
@@ -147,7 +147,7 @@ function PlanCard({ name, price, suffix, note, features, highlighted, children }
   name: string; price: string; suffix?: string | undefined; note: string; features: string[]; highlighted?: boolean | undefined; children: React.ReactNode;
 }) {
   return (
-    <div className={cn("relative flex flex-col rounded-card border bg-card p-6", highlighted ? "border-2 border-primary md:-my-3 md:py-9" : "border-border")}>
+    <div className={cn("relative flex flex-col rounded-card border bg-card p-6 shadow-sm shadow-background/10", highlighted ? "border-primary/65 md:-my-3 md:py-9" : "border-border/75")}>
       {highlighted ? (
         <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">Recommended</span>
       ) : null}

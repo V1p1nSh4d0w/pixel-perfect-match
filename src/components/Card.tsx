@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cn("rounded-card border border-border bg-card p-6", className)}>{children}</div>
+    <div className={cn("rounded-card border border-border/75 bg-card p-6 shadow-sm shadow-background/10", className)}>{children}</div>
   );
 }
 

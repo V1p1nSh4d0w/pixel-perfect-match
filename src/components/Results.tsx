@@ -71,7 +71,7 @@ export function SeverityCounts({ counts }: { counts: AssessmentResult["counts"] 
           key={s}
           to="/app/findings"
           search={{ severity: SEVERITY_PARAM[s] }}
-          className="group flex items-start justify-between rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-surface-raised"
+          className="group flex items-start justify-between rounded-card border border-border/75 bg-card p-4 shadow-sm shadow-background/10 transition-colors hover:border-primary/40 hover:bg-surface-raised"
         >
           <div>
             <p className="text-2xl font-semibold text-foreground">{counts[s]}</p>
