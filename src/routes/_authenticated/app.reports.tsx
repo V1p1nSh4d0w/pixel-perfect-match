@@ -330,7 +330,7 @@ function ReportPage() {
       <section className="print-avoid">
         <SectionHeading title="Assessment limitations" />
         <p className="text-sm leading-relaxed text-muted-foreground">
-          This assessment is based on the answers you provided and reflects a snapshot in time. It is a self-reported indicator, not a security audit or penetration test. It does not guarantee protection against cyber incidents. For a full technical audit, contact a qualified security professional.
+          This assessment is based on the answers you provided and reflects a snapshot in time. It is a self-reported indicator, not a penetration test or independent technical review. It does not guarantee protection against cyber incidents. For technical testing, contact a qualified security professional.
         </p>
       </section>
 

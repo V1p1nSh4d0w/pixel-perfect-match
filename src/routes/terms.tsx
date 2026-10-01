@@ -23,7 +23,7 @@ export const Route = createFileRoute("/terms")({
         title="Terms of Service"
         updated="October 1, 2026"
         sections={[
-          { heading: "What SecureCheck does", items: ["Provides a self-reported security assessment based on your answers.", "Provides a score, findings, and recommendations.", "Is not a security audit, penetration test, or compliance certification."] },
+          { heading: "What SecureCheck does", items: ["Provides a self-reported security assessment based on your answers.", "Provides a score, findings, and recommendations.", "Is not a penetration test, independent technical review, or compliance certification."] },
           { heading: "What SecureCheck does not do", items: ["Does not guarantee your business is or will remain secure.", "Does not replace professional security services.", "Does not cover every possible security issue."] },
           { heading: "Your responsibilities", items: ["Provide accurate answers to the assessment questions.", "Take action on findings; the assessment is guidance, not a fix.", "Keep your login credentials secure."] },
           { heading: "Payments (Starter Kit)", items: ["₹499 one-time payment via Razorpay.", "A verified payment unlocks PDF report downloads and extended remediation playbooks for the purchasing account."] },

@@ -108,12 +108,28 @@ export const getPaymentHistory = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: row, error } = await context.supabase
       .from("subscriptions")
-      .select("plan, razorpay_payment_id, paid_at")
+      .select("plan, razorpay_payment_id, razorpay_subscription_id, paid_at")
       .eq("user_id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!row?.razorpay_payment_id || !row.paid_at) return [];
-    return [{ id: row.razorpay_payment_id, amount: row.plan === "starter" ? 499 : 0, status: "paid", date: row.paid_at }];
+    if (!row) return [];
+    if (row.plan === "starter" && row.razorpay_payment_id && row.paid_at) {
+      return [{ id: row.razorpay_payment_id, amount: 499, status: "paid", date: row.paid_at }];
+    }
+    if (row.plan !== "pro" || !row.razorpay_subscription_id) return [];
+    try {
+      const invoices = await rzp<{ items: { id: string; amount_paid: number; status: string; paid_at: number | null; created_at: number }[] }>(
+        `/invoices?subscription_id=${encodeURIComponent(row.razorpay_subscription_id)}`,
+      );
+      return invoices.items.map((item) => ({
+        id: item.id,
+        amount: item.amount_paid / 100,
+        status: item.status,
+        date: new Date((item.paid_at ?? item.created_at) * 1000).toISOString(),
+      }));
+    } catch {
+      return [];
+    }
   });
 
 export const authorizePaidFeature = createServerFn({ method: "GET" })

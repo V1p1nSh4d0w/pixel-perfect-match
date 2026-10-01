@@ -235,31 +235,6 @@ export async function fetchSubscription(): Promise<import("@/types/subscription"
   return { ...data, paid_access: Boolean(paidAccess) } as import("@/types/subscription").Subscription;
 }
 
-export interface ScoreHistoryPoint {
-  id: string;
-  created_at: string;
-  score: number;
-  risk_level: RiskLevel;
-}
-
-export interface ScoreHistoryData {
-  points: ScoreHistoryPoint[];
-  total: number;
-}
-
-export async function fetchScoreHistory(): Promise<ScoreHistoryData> {
-  const { data, error, count } = await supabase
-    .from("assessments")
-    .select("id, created_at, score, risk_level", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .limit(10);
-  if (error) throw error;
-  return {
-    points: ((data ?? []) as ScoreHistoryPoint[]).map((p) => ({ ...p, risk_level: riskLevelFor(p.score) })).reverse(),
-    total: count ?? data?.length ?? 0,
-  };
-}
-
 export async function isAdmin(userId: string): Promise<boolean> {
   const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
   if (error) return false;
