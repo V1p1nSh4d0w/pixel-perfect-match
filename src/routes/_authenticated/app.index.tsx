@@ -37,7 +37,8 @@ function DashboardPage() {
           <Card className="flex flex-col items-center gap-6 sm:flex-row">
             <ScoreRing score={result.score} risk={result.riskLevel} />
             <div className="space-y-2 text-center sm:text-left">
-              <p className="text-sm text-muted-foreground">Security score</p>
+              <p className="text-sm text-muted-foreground">Security posture score</p>
+              <p className="text-xs text-muted-foreground">Based on your assessment responses.</p>
               <RiskLabel risk={result.riskLevel} />
               <CardBody>{openFindings.length} findings to review.</CardBody>
               {openFindings.length === 0 && (
@@ -50,6 +51,9 @@ function DashboardPage() {
           </Card>
           <ScoreHistory />
           <SeverityCounts counts={openCounts} />
+          <p className="text-xs text-muted-foreground">
+            SecureCheck provides a security self-assessment and practical recommendations. It does not replace a professional penetration test, vulnerability assessment, or security audit.
+          </p>
         </div>
       </>
     );
