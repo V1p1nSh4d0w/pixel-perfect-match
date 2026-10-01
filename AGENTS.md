@@ -18,3 +18,5 @@
 - Shared types live in `src/types/` — reused across routes and components.
 - Reusable UI primitives (`Button`, `Card`, `Input`, `PageHeader`, `SidebarNav`) live in `src/components/` — built on design tokens in `src/styles.css`, never ad hoc colors.
 - Assessment results are read from the database via `useLatestResult()` (React Query, key `latest-assessment`); the in-memory assessment store only holds in-progress answers — keeps one source of truth for results.
+- Billing: Razorpay calls and signature checks live in `src/lib/billing.functions.ts` (server functions); subscription rows are written only server-side with the admin client, users can only read theirs — keeps payment state tamper-proof.
+- Pro gating reads `useSubscription().isPro` (via `isProActive`) — one definition of "Pro" for every gated feature.
