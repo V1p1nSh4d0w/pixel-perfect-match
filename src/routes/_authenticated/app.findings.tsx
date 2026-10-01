@@ -10,6 +10,9 @@ import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
 import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved } from "@/lib/supabase";
 import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PLAYBOOKS } from "@/lib/playbooks";
+import { LockIcon } from "@/components/UpgradeButton";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -199,6 +202,8 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
   });
 
   const isResolved = f.status === "Resolved";
+  const { isPro } = useSubscription();
+  const playbook = PLAYBOOKS[f.title];
 
   return (
     <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-1000", highlighted && flash ? "ring-primary" : "ring-transparent")}>
@@ -224,6 +229,14 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             <p className="mb-1 text-xs font-medium text-muted-foreground">Suggested fix</p>
             <p className="text-sm text-foreground">{f.recommended_action}</p>
           </div>
+          {isPro && playbook ? (
+            <div className="rounded-button border border-border bg-surface-raised p-4">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">Remediation playbook</p>
+              <ol className="list-decimal space-y-1.5 pl-5 text-sm text-foreground">
+                {playbook.map((step) => <li key={step}>{step}</li>)}
+              </ol>
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             {!isResolved && (
               <Button onClick={() => resolve.mutate()} loading={resolve.isPending}>Mark as resolved</Button>
@@ -245,6 +258,15 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
           <Button variant="secondary" onClick={() => setExpanded(true)}>View remediation</Button>
         </>
       )}
+      {!isPro && playbook ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-button border border-dashed border-border bg-surface-raised/50 p-4">
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <LockIcon />
+            Full remediation playbook available on Pro
+          </span>
+          <Link to="/pricing" className="text-sm text-primary hover:underline">Upgrade</Link>
+        </div>
+      ) : null}
       </Card>
     </div>
   );

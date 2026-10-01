@@ -3,6 +3,7 @@ import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing, SeverityCounts } from "@/components/Results";
+import { ScoreHistory } from "@/components/ScoreHistory";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
 import type { Severity } from "@/types/assessment";
@@ -45,6 +46,7 @@ function DashboardPage() {
               </Link>
             </div>
           </Card>
+          <ScoreHistory />
           <SeverityCounts counts={openCounts} />
         </div>
       </>
