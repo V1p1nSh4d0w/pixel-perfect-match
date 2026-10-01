@@ -46,8 +46,7 @@ const CHECKS = [
 
 const PLANS = [
   { name: "Free", price: "₹0", note: "Forever free", bullets: ["Complete security assessment", "Security score", "Findings and action plan"], to: "/signup", cta: "Start free" },
-  { name: "Pro", price: "₹999/month", note: "Cancel anytime", bullets: ["PDF report download", "Extended remediation playbooks", "Score history chart"], to: "/pricing", cta: "See Pro" },
-  { name: "Audit", price: "₹15,000", note: "One-time", bullets: ["1-hour call with an auditor", "Manual review of your setup", "Written personalized report"], to: "/audit", cta: "See audit" },
+  { name: "Starter Kit", price: "₹499", note: "One-time payment", bullets: ["Everything in Free", "PDF report download", "Extended remediation playbooks"], to: "/pricing", cta: "See Starter Kit" },
 ] as const;
 
 function useCountUp(target: number, ms: number) {
@@ -93,7 +92,6 @@ function LandingPage() {
             <a href="#how-it-works" className="hover:text-foreground">How it works</a>
             <a href="#security-checks" className="hover:text-foreground">Security checks</a>
             <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-            <Link to="/audit" className="hover:text-foreground">Full audit</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <Link to="/login"><Button variant="ghost">Sign in</Button></Link>
@@ -223,9 +221,9 @@ function LandingPage() {
       {/* Pricing teaser */}
       <section className="mx-auto max-w-6xl px-5 py-20">
         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Start free. Upgrade when you're ready.</h2>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
           {PLANS.map((p) => (
-            <div key={p.name} className={`flex flex-col rounded-card border bg-card p-5 ${p.name === "Pro" ? "border-primary" : "border-border"}`}>
+            <div key={p.name} className={`flex flex-col rounded-card border bg-card p-5 ${p.name === "Starter Kit" ? "border-primary" : "border-border"}`}>
               <p className="font-semibold">{p.name}</p>
               <p className="mt-2 text-2xl font-semibold">{p.price}</p>
               <p className="text-xs text-muted-foreground">{p.note}</p>
@@ -237,22 +235,6 @@ function LandingPage() {
           ))}
         </div>
         <Link to="/pricing" className="mt-6 inline-block text-sm text-primary hover:underline">See full pricing →</Link>
-      </section>
-
-      {/* Full audit */}
-      <section className="mx-auto max-w-6xl px-5 py-20">
-        <div className="rounded-card border border-border bg-card p-8 md:p-10">
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Want a human to do it with you?</h2>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            The Full Audit is a 1-hour call with a Security+ certified auditor, plus a written personalized report.
-          </p>
-          <ul className="mt-6 grid gap-2 text-sm sm:grid-cols-2">
-            {["1-hour call", "Manual review", "Written report", "30-day follow-up"].map((b) => (
-              <li key={b} className="flex items-center gap-2"><Tick ok /> {b}</li>
-            ))}
-          </ul>
-          <Link to="/audit" className="mt-8 inline-block"><Button>Book Full Audit — ₹15,000</Button></Link>
-        </div>
       </section>
 
       {/* Final CTA */}
@@ -269,7 +251,6 @@ function LandingPage() {
             <a href="#how-it-works">How it works</a>
             <a href="#security-checks">Security checks</a>
             <Link to="/pricing">Pricing</Link>
-            <Link to="/audit">Full audit</Link>
           </FooterCol>
           <FooterCol title="Account">
             <Link to="/login">Sign in</Link>

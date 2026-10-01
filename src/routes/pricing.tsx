@@ -11,9 +11,9 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — SecureCheck" },
-      { name: "description", content: "SecureCheck Free, Pro (₹999/month) and a one-time ₹15,000 Full Audit." },
+      { name: "description", content: "Start SecureCheck free or unlock the ₹499 one-time Starter Kit." },
       { property: "og:title", content: "Pricing — SecureCheck" },
-      { property: "og:description", content: "Free, Pro ₹999/month, and a ₹15,000 one-time audit." },
+      { property: "og:description", content: "Free security self-assessment tools and a ₹499 one-time Starter Kit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -27,41 +27,19 @@ const FREE = [
   "Findings list",
   "Action plan",
 ];
-const PRO = [
+const STARTER_KIT = [
   "Everything in Free",
   "PDF report download",
   "Extended remediation playbooks",
-  "Score history chart",
-  "Monthly re-assessment reminder email",
-  "Monthly email report",
-  "Quarterly 1-hour call with the founder",
-  "Priority email support (24h response)",
-];
-const AUDIT = [
-  "1-hour audit call with the founder",
-  "Manual review of your setup",
-  "Written personalized PDF report",
-  "Prioritized recommendations",
-  "30-day follow-up check-in",
-  "Retainer option at ₹5,000/month after the audit",
 ];
 
-const COMPARISON: [string, boolean, boolean, boolean][] = [
-  ["Complete security assessment", true, true, true],
-  ["Security score", true, true, true],
-  ["Findings list", true, true, true],
-  ["Action plan", true, true, true],
-  ["PDF report download", false, true, true],
-  ["Extended remediation playbooks", false, true, true],
-  ["Score history chart", false, true, true],
-  ["Monthly re-assessment reminder email", false, true, false],
-  ["Monthly email report", false, true, false],
-  ["Quarterly 1-hour call", false, true, false],
-  ["Priority email support", false, true, true],
-  ["1-hour audit call with founder", false, false, true],
-  ["Written personalized PDF report", false, false, true],
-  ["30-day follow-up check-in", false, false, true],
-  ["Retainer option (₹5,000/mo)", false, false, true],
+const COMPARISON: [string, boolean, boolean][] = [
+  ["Complete security assessment", true, true],
+  ["Security score", true, true],
+  ["Findings list", true, true],
+  ["Action plan", true, true],
+  ["PDF report download", false, true],
+  ["Extended remediation playbooks", false, true],
 ];
 
 function Check() {
@@ -72,9 +50,9 @@ function Check() {
   );
 }
 
-function ProCta() {
+function StarterKitCta() {
   const { isPro } = useSubscription();
-  if (isPro) return <Link to="/app" className="block"><Button fullWidth variant="secondary">You're on Pro — go to app</Button></Link>;
+  if (isPro) return <Link to="/app" className="block"><Button fullWidth variant="secondary">Starter Kit active — go to app</Button></Link>;
   return <UpgradeButton fullWidth />;
 }
 
@@ -96,19 +74,16 @@ function PricingPage() {
         <h1 className="text-center type-page-title text-3xl">Simple pricing</h1>
         <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you're ready.</p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
           <PlanCard name="Free" price="₹0" note="Forever free" features={FREE}>
             <Link to={signedIn ? "/app" : "/signup"} className="block">
               <Button fullWidth variant="secondary">Get started free</Button>
             </Link>
           </PlanCard>
-          <PlanCard name="Pro" price="₹999" suffix=" / month" note="Billed monthly. Cancel anytime." features={PRO} highlighted>
-            {signedIn ? <ProCta /> : (
-              <Link to="/signup" className="block"><Button fullWidth>Upgrade to Pro</Button></Link>
+          <PlanCard name="Starter Kit" price="₹499" note="One-time payment" features={STARTER_KIT} highlighted>
+            {signedIn ? <StarterKitCta /> : (
+              <Link to="/signup" className="block"><Button fullWidth>Get Starter Kit</Button></Link>
             )}
-          </PlanCard>
-          <PlanCard name="Full Audit" price="₹15,000" note="One-time payment" features={AUDIT}>
-            <Link to="/audit" className="block"><Button fullWidth variant="secondary">Book Full Audit</Button></Link>
           </PlanCard>
         </div>
 
@@ -118,8 +93,7 @@ function PricingPage() {
               <tr className="border-b border-border text-left">
                 <th className="px-5 py-3 font-medium text-muted-foreground">Feature</th>
                 <th className="px-5 py-3 text-center font-medium text-foreground">Free</th>
-                <th className="bg-surface-raised px-5 py-3 text-center font-medium text-primary">Pro</th>
-                <th className="px-5 py-3 text-center font-medium text-foreground">Audit</th>
+                <th className="bg-surface-raised px-5 py-3 text-center font-medium text-primary">Starter Kit</th>
               </tr>
             </thead>
             <tbody>
@@ -127,7 +101,7 @@ function PricingPage() {
                 <tr key={label} className="border-b border-border/75 last:border-0 even:bg-surface-raised/50">
                   <td className="px-5 py-3 text-foreground">{label}</td>
                   {tiers.map((on, i) => (
-                    <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-surface-raised")}>
+                    <td key={i} className={cn("px-5 py-3 text-center", i === 1 && "bg-surface-raised")}> 
                       {on ? <span className="inline-flex justify-center"><Check /></span> : <span className="text-muted-foreground">—</span>}
                     </td>
                   ))}
@@ -137,7 +111,7 @@ function PricingPage() {
           </table>
         </div>
 
-        <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure payments via Razorpay. Cancel Pro anytime.</p>
+        <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure one-time payment via Razorpay.</p>
       </div>
     </div>
   );
