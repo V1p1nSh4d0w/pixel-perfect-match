@@ -106,12 +106,16 @@ function ReportPage() {
   }
 
   return (
-    <div className="print-report space-y-8">
+    <div className="print-report space-y-8 print:space-y-5 print:pb-8">
+      {/* Print-only header */}
+      <div className="hidden items-baseline justify-between border-b border-border pb-2 text-xs text-muted-foreground print:flex">
+        <span>{businessName} • {date}</span>
+        <span>Security Assessment Report</span>
+      </div>
       {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="hidden text-xs uppercase tracking-wide print:block">SecureCheck</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Security Assessment Report</h1>
+                    <h1 className="text-2xl font-semibold tracking-tight text-foreground">Security Assessment Report</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {businessName} • {date}
           </p>
@@ -155,7 +159,7 @@ function ReportPage() {
       </section>
 
       {/* Findings */}
-      <section className={cn(findings.length > 4 && "print-break")}>
+      <section>
         <SectionHeading title="Findings" intro="Issues identified during the assessment, in priority order." />
         {findings.length === 0 ? (
           <Card><p className="text-sm text-muted-foreground">No findings. Your baseline is strong.</p></Card>

@@ -81,22 +81,26 @@
 }
 
 @media print {
-  @page { margin: 16mm; }
-  html, body { background: #fff !important; color: #000 !important; }
-  .print-report, .print-report * {
-    background: #fff !important;
-    color: #000 !important;
-    border-color: #999 !important;
-    box-shadow: none !important;
-    opacity: 1 !important;
+  @page { margin: 0.5in; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  :root {
+    --background: #ffffff;
+    --foreground: #111111;
+    --card: #ffffff;
+    --surface-raised: #e6e8ec;
+    --border: #cfd4dc;
+    --muted-foreground: #4a5160;
+    --primary: #1f5fd1;
+    --success: #1b8a4c;
+    --warning: #c26a00;
+    --danger: #c62828;
   }
-  .print-report .print-danger, .print-report .print-danger * { color: #c62828 !important; border-color: #c62828 !important; }
-  .print-report .print-warning, .print-report .print-warning * { color: #b26a00 !important; border-color: #b26a00 !important; }
-  .print-report .print-success, .print-report .print-success * { color: #1b7f46 !important; border-color: #1b7f46 !important; }
-  .print-report .print-primary, .print-report .print-primary * { color: #1f5fd1 !important; border-color: #1f5fd1 !important; }
-  .print-report svg circle { stroke: #ddd !important; }
-  .print-report svg circle + circle { stroke: #000 !important; }
-  .print-break { break-before: page; }
+  html { color-scheme: light; }
+  html, body { background: #fff !important; }
+  .print-report { color: var(--foreground); }
+  .print-report * { box-shadow: none !important; }
   .print-avoid { break-inside: avoid; }
-  [data-sonner-toaster] { display: none !important; }
+  [data-sonner-toaster],
+  [class*="lovable"], [id*="lovable"],
+  body > div[style*="position: fixed"], body > iframe { display: none !important; }
 }
