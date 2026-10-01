@@ -8,4 +8,6 @@ export interface ActionItem {
   priority: string;
   completed: boolean;
   created_at: string;
+  /** Category of the finding this item came from, via the finding_id link. */
+  finding: { category: string } | null;
 }
