@@ -30,7 +30,8 @@ export const Route = createFileRoute("/_authenticated/app/reports")({
 const VERDICT: Record<RiskLevel, string> = {
   "Low risk": "Your business has a solid baseline. Address the remaining items to strengthen it.",
   "Moderate risk": "You have important gaps. Prioritize the high severity items first.",
-  "High risk": "Your business has critical gaps that need immediate attention.",
+  "High risk": "Your answers show significant gaps. Address the critical and high items soon.",
+  "Critical risk": "Your answers show critical gaps that need immediate attention.",
 };
 
 const SEV_COLOR: Record<Severity, string> = {
