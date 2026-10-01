@@ -254,3 +254,30 @@ export function scoreAssessment(answers: AssessmentAnswers): AssessmentResult {
 
   return { score, riskLevel: riskLevelFor(score), findings, counts };
 }
+
+/** Short 3–6 word imperative task titles for the action plan, keyed by finding title. */
+const SHORT_ACTIONS: Record<string, string> = {
+  "No written security policy": "Write a one-page security policy",
+  "MFA is not enabled for all important accounts": "Enable MFA on key accounts",
+  "No password manager in use": "Set up a business password manager",
+  "Admin access is not limited to those who need it": "Limit admin access",
+  "Former staff access is not removed promptly": "Create a leaver access checklist",
+  "Not all business devices are locked": "Lock every business device",
+  "Lost devices can't be wiped remotely": "Enable remote device wipe",
+  "Personal devices access business data": "Set personal device rules",
+  "Software is not updated automatically": "Turn on automatic updates",
+  "Unsupported software may be in use": "Replace unsupported software",
+  "Important data is not reliably backed up": "Set up automated daily backups",
+  "Backups are not stored separately": "Store a backup offsite",
+  "Backups have not been tested": "Test restoring from backup",
+  "Email is not protected with MFA": "Enable MFA on all mailboxes",
+  "Staff are not trained to spot phishing": "Run phishing awareness training",
+  "Cloud tool access is not reviewed": "Review cloud tool access quarterly",
+  "Third-party app access has not been checked": "Remove unused connected apps",
+  "Website may not use HTTPS": "Enable HTTPS on your website",
+  "Domain registrar account lacks MFA": "Enable MFA on domain registrar",
+};
+
+export function shortActionFor(finding: { title: string; recommended_action: string }): string {
+  return SHORT_ACTIONS[finding.title] ?? finding.recommended_action;
+}
