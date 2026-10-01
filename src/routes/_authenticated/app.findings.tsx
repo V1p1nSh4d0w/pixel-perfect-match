@@ -201,7 +201,7 @@ function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; in
             <p className="text-sm text-foreground">{f.why_it_matters}</p>
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-muted-foreground">Recommended action</p>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Suggested fix</p>
             <p className="text-sm text-foreground">{f.recommended_action}</p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -225,6 +225,7 @@ function FindingCard({ finding: f, inPlan, highlighted }: { finding: Finding; in
           <Button variant="secondary" onClick={() => setExpanded(true)}>View remediation</Button>
         </>
       )}
-    </Card>
+      </Card>
+    </div>
   );
 }
