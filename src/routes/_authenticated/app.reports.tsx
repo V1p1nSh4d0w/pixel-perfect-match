@@ -7,6 +7,8 @@ import { RiskLabel, ScoreRing, SeverityBadge, SEVERITIES } from "@/components/Re
 import { useLatestResult } from "@/lib/use-latest-result";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useServerFn } from "@tanstack/react-start";
+import { authorizePaidFeature } from "@/lib/billing.functions";
 import { fetchActionItems, fetchLatestAssessmentMeta, setOnboardingFlag } from "@/lib/supabase";
 import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 import { cn } from "@/lib/utils";
@@ -66,6 +68,7 @@ function ReportPage() {
   const { result, isLoading } = useLatestResult();
   const { data: profileData } = useProfile();
   const { isPro } = useSubscription();
+  const authorizePaid = useServerFn(authorizePaidFeature);
   const metaQ = useQuery({ queryKey: ["latest-assessment-meta"], queryFn: fetchLatestAssessmentMeta });
   const actionsQ = useQuery({ queryKey: ["action-items"], queryFn: fetchActionItems });
 
@@ -101,10 +104,21 @@ function ReportPage() {
 
   async function share() {
     try {
+      await authorizePaid();
       await navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard.", { position: "bottom-center" });
     } catch {
       toast.error("Couldn't copy the link.", { position: "bottom-center" });
+    }
+  }
+
+  async function download() {
+    try {
+      await authorizePaid();
+      await setOnboardingFlag("downloaded_report");
+      window.print();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Starter Kit access is required.");
     }
   }
 
@@ -125,7 +139,7 @@ function ReportPage() {
         </div>
         <div className="flex flex-wrap items-start gap-2 print:hidden">
           {isPro ? (
-            <Button onClick={() => { setOnboardingFlag("downloaded_report").catch(() => {}); window.print(); }}>Download PDF</Button>
+            <Button onClick={download}>Download PDF</Button>
           ) : (
             <div className="flex flex-col items-start gap-1.5">
               <span className="group relative inline-flex">
@@ -147,13 +161,13 @@ function ReportPage() {
                   </svg>
                 </button>
                 <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-max max-w-64 -translate-x-1/2 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-foreground opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-                  Available on Pro.
+                  Available with Starter Kit.
                 </span>
               </span>
               <p className="text-xs text-muted-foreground">
                 Unlock PDF downloads and full remediation playbooks.{" "}
                 <Link to="/pricing" className="text-primary hover:underline">
-                  Upgrade to Pro →
+                  Get Starter Kit →
                 </Link>
               </p>
             </div>
@@ -171,7 +185,7 @@ function ReportPage() {
                 Share report
               </button>
               <span className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-max max-w-64 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-foreground opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-                Available on Pro — share a read-only link with your accountant or team.
+                Available with Starter Kit — share a read-only link with your accountant or team.
               </span>
             </span>
           )}
@@ -316,7 +330,7 @@ function ReportPage() {
       <section className="print-avoid">
         <SectionHeading title="Assessment limitations" />
         <p className="text-sm leading-relaxed text-muted-foreground">
-          This assessment is based on the answers you provided and reflects a snapshot in time. It is a self-reported indicator, not a security audit or penetration test. It does not guarantee protection against cyber incidents. For a full technical audit, contact a qualified security professional.
+          This assessment is based on the answers you provided and reflects a snapshot in time. It is a self-reported indicator, not a penetration test or independent technical review. It does not guarantee protection against cyber incidents. For technical testing, contact a qualified security professional.
         </p>
       </section>
 

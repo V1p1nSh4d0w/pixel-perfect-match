@@ -23,11 +23,10 @@ export const Route = createFileRoute("/terms")({
         title="Terms of Service"
         updated="October 1, 2026"
         sections={[
-          { heading: "What SecureCheck does", items: ["Provides a self-reported security assessment based on your answers.", "Provides a score, findings, and recommendations.", "Is not a security audit, penetration test, or compliance certification."] },
+          { heading: "What SecureCheck does", items: ["Provides a self-reported security assessment based on your answers.", "Provides a score, findings, and recommendations.", "Is not a penetration test, independent technical review, or compliance certification."] },
           { heading: "What SecureCheck does not do", items: ["Does not guarantee your business is or will remain secure.", "Does not replace professional security services.", "Does not cover every possible security issue."] },
           { heading: "Your responsibilities", items: ["Provide accurate answers to the assessment questions.", "Take action on findings; the assessment is guidance, not a fix.", "Keep your login credentials secure."] },
-          { heading: "Payments (Pro tier)", items: ["₹999/month, billed monthly via Razorpay.", "Cancel anytime from Settings; access continues until end of the current billing period.", "No refunds for partial months."] },
-          { heading: "Payments (Full Audit)", items: ["₹15,000 one-time payment via Razorpay.", "Refundable within 7 days if no call has been scheduled."] },
+          { heading: "Payments (Starter Kit)", items: ["₹499 one-time payment via Razorpay.", "A verified payment unlocks PDF report downloads and extended remediation playbooks for the purchasing account."] },
           { heading: "Data and privacy", items: [<>See the <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link> for details.</>] },
           { heading: "Limitation of liability", items: ["SecureCheck is provided as-is. We are not liable for security incidents that occur after the assessment."] },
           { heading: "Contact", items: [mail] },

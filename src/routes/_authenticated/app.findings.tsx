@@ -12,8 +12,9 @@ import { addFindingToActionPlan, fetchActionPlanFindingIds, markFindingResolved,
 import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
-import { PLAYBOOKS } from "@/lib/playbooks";
 import { LockIcon } from "@/components/UpgradeButton";
+import { useServerFn } from "@tanstack/react-start";
+import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -228,7 +229,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
 
   const isResolved = f.status === "Resolved";
   const { isPro } = useSubscription();
-  const playbook = PLAYBOOKS[f.title];
+  const fetchPlaybooks = useServerFn(getRemediationPlaybooks);
+  const playbooksQuery = useQuery({ queryKey: ["remediation-playbooks"], queryFn: () => fetchPlaybooks() });
+  const playbook = playbooksQuery.data?.playbooks[f.title];
 
   return (
     <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-1000", highlighted && flash ? "ring-primary" : "ring-transparent")}>
@@ -276,7 +279,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
             <section>
               <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Remediation playbook</h3>
               <ol className="space-y-2">
-                {(isPro ? playbook : playbook.slice(0, 2)).map((step, i) => (
+                {playbook.map((step, i) => (
                   <li key={step} className="flex gap-3 text-sm leading-relaxed text-foreground">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-[11px] text-muted-foreground">{i + 1}</span>
                     <span>{step}</span>
@@ -313,9 +316,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border/60 bg-surface-raised p-4">
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <LockIcon />
-            Full step-by-step playbook available on Pro
+            Full step-by-step playbook available with Starter Kit
           </span>
-          <Link to="/pricing" className="text-sm text-primary hover:underline">Upgrade</Link>
+          <Link to="/pricing" className="text-sm text-primary hover:underline">Get Starter Kit</Link>
         </div>
       ) : null}
       </Card>

@@ -5,7 +5,6 @@ import { SidebarNav, pageTitleForPath } from "@/components/SidebarNav";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
 import { signOut } from "@/lib/supabase";
-import { SUPPORT_EMAIL } from "@/lib/config";
 import { AccountMenu } from "@/components/AccountMenu";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -51,17 +50,14 @@ function AppShell() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-foreground">
-            {isPro ? "Pro plan" : "Free plan"}
+            {isPro ? "Starter Kit" : "Free plan"}
           </span>
           {isPro ? (
             <span className="rounded-full border border-primary px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-primary">
-              Pro
+              Paid
             </span>
           ) : null}
         </div>
-        <Link to="/audit" onClick={() => setDrawerOpen(false)} className="block text-xs text-muted-foreground transition-colors hover:text-foreground">
-          Full Audit — ₹15,000
-        </Link>
         <button
           type="button"
           onClick={handleSignOut}
@@ -108,12 +104,9 @@ function AppShell() {
           </div>
 
           <div className="flex items-center gap-3">
-            {isPro ? (
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="hidden text-xs text-muted-foreground hover:text-foreground lg:block">Support: {SUPPORT_EMAIL}</a>
-            ) : null}
             <span className="hidden truncate text-sm text-muted-foreground sm:block">{businessName}</span>
             {isPro ? (
-              <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PRO</span>
+              <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PAID</span>
             ) : null}
             <AccountMenu initial={initial} email={email} isPro={isPro} />
           </div>

@@ -1,4 +1,4 @@
-export type Plan = "free" | "pro";
+export type Plan = "free" | "pro" | "starter";
 export type SubscriptionStatus = "active" | "inactive" | "cancelled";
 
 export interface Subscription {
@@ -7,25 +7,23 @@ export interface Subscription {
   plan: Plan;
   status: SubscriptionStatus;
   razorpay_subscription_id: string | null;
+  razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
   current_period_end: string | null;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
+  paid_access: boolean;
 }
 
 export interface BillingPayment {
   id: string;
-  amount: number; // in rupees
+  amount: number;
   status: string;
-  date: string; // ISO
+  date: string;
 }
 
-/** Pro features stay unlocked until the paid period ends, even after cancelling. */
-export function isProActive(sub: Subscription | null | undefined): boolean {
-  if (!sub || sub.plan !== "pro") return false;
-  if (sub.status === "active") return true;
-  if (sub.status === "cancelled" && sub.current_period_end) {
-    return new Date(sub.current_period_end).getTime() > Date.now();
-  }
-  return false;
+/** Paid access is decided by the database, never inferred from browser state. */
+export function hasPaidAccess(sub: Subscription | null | undefined): boolean {
+  return sub?.paid_access === true;
 }

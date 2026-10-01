@@ -19,15 +19,12 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as AuditIndexRouteImport } from './routes/audit.index'
-import { Route as AuditConfirmedRouteImport } from './routes/audit.confirmed'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
-import { Route as ApiRazorpayWebhookRouteImport } from './routes/api/razorpay/webhook'
 import { Route as AuthenticatedAppAssessmentIndexRouteImport } from './routes/_authenticated/app.assessment.index'
 import { Route as AuthenticatedAppAssessmentCompleteRouteImport } from './routes/_authenticated/app.assessment.complete'
 
@@ -80,16 +77,6 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuditIndexRoute = AuditIndexRouteImport.update({
-  id: '/audit/',
-  path: '/audit/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditConfirmedRoute = AuditConfirmedRouteImport.update({
-  id: '/audit/confirmed',
-  path: '/audit/confirmed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -123,11 +110,6 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const ApiRazorpayWebhookRoute = ApiRazorpayWebhookRouteImport.update({
-  id: '/api/razorpay/webhook',
-  path: '/api/razorpay/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAppAssessmentIndexRoute =
   AuthenticatedAppAssessmentIndexRouteImport.update({
     id: '/assessment/',
@@ -151,14 +133,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit/': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -172,14 +151,11 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit': typeof AuditIndexRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/app/assessment': typeof AuthenticatedAppAssessmentIndexRoute
@@ -196,14 +172,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/audit/confirmed': typeof AuditConfirmedRoute
-  '/audit/': typeof AuditIndexRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
-  '/api/razorpay/webhook': typeof ApiRazorpayWebhookRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/_authenticated/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -220,14 +193,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app'
-    | '/audit/confirmed'
-    | '/audit/'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
-    | '/api/razorpay/webhook'
     | '/app/'
     | '/app/assessment/complete'
     | '/app/assessment/'
@@ -241,14 +211,11 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
-    | '/audit/confirmed'
-    | '/audit'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
-    | '/api/razorpay/webhook'
     | '/app'
     | '/app/assessment/complete'
     | '/app/assessment'
@@ -264,14 +231,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/_authenticated/app'
-    | '/audit/confirmed'
-    | '/audit/'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
-    | '/api/razorpay/webhook'
     | '/_authenticated/app/'
     | '/_authenticated/app/assessment/complete'
     | '/_authenticated/app/assessment/'
@@ -287,9 +251,6 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
-  AuditConfirmedRoute: typeof AuditConfirmedRoute
-  AuditIndexRoute: typeof AuditIndexRoute
-  ApiRazorpayWebhookRoute: typeof ApiRazorpayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -364,20 +325,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/audit/': {
-      id: '/audit/'
-      path: '/audit'
-      fullPath: '/audit/'
-      preLoaderRoute: typeof AuditIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit/confirmed': {
-      id: '/audit/confirmed'
-      path: '/audit/confirmed'
-      fullPath: '/audit/confirmed'
-      preLoaderRoute: typeof AuditConfirmedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -419,13 +366,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/settings'
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/api/razorpay/webhook': {
-      id: '/api/razorpay/webhook'
-      path: '/api/razorpay/webhook'
-      fullPath: '/api/razorpay/webhook'
-      preLoaderRoute: typeof ApiRazorpayWebhookRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/assessment/': {
       id: '/_authenticated/app/assessment/'
@@ -491,9 +431,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
-  AuditConfirmedRoute: AuditConfirmedRoute,
-  AuditIndexRoute: AuditIndexRoute,
-  ApiRazorpayWebhookRoute: ApiRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

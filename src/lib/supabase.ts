@@ -223,54 +223,16 @@ export async function fetchLatestAssessmentMeta(): Promise<AssessmentMeta | null
   return { id: data.id, created_at: data.created_at, answers: (data.answers ?? {}) as AssessmentAnswers };
 }
 
-// ---- Subscription & history ----
+// ---- Paid access ----
 export async function fetchSubscription(): Promise<import("@/types/subscription").Subscription | null> {
-  const { data, error } = await supabase
-    .from("subscriptions")
-    .select("*")
-    .maybeSingle();
+  const [{ data, error }, { data: paidAccess, error: accessError }] = await Promise.all([
+    supabase.from("subscriptions").select("*").maybeSingle(),
+    supabase.rpc("has_paid_access"),
+  ]);
   if (error) throw error;
-  return data as import("@/types/subscription").Subscription | null;
-}
-
-export interface ScoreHistoryPoint {
-  id: string;
-  created_at: string;
-  score: number;
-  risk_level: RiskLevel;
-}
-
-export interface ScoreHistoryData {
-  points: ScoreHistoryPoint[];
-  total: number;
-}
-
-export async function fetchScoreHistory(): Promise<ScoreHistoryData> {
-  const { data, error, count } = await supabase
-    .from("assessments")
-    .select("id, created_at, score, risk_level", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .limit(10);
-  if (error) throw error;
-  return {
-    points: ((data ?? []) as ScoreHistoryPoint[]).map((p) => ({ ...p, risk_level: riskLevelFor(p.score) })).reverse(),
-    total: count ?? data?.length ?? 0,
-  };
-}
-
-// ---- Audits, quarterly calls, admin ----
-export async function fetchMyAudits(): Promise<{ id: string; paid_at: string }[]> {
-  const { data, error } = await supabase.from("audits").select("id, paid_at").eq("status", "paid").order("paid_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as { id: string; paid_at: string }[];
-}
-
-export async function fetchCallsSince(since: Date, userId?: string): Promise<{ id: string; user_id: string; held_at: string }[]> {
-  let q = supabase.from("quarterly_calls").select("id, user_id, held_at").gte("held_at", since.toISOString());
-  if (userId) q = q.eq("user_id", userId);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
+  if (accessError) throw accessError;
+  if (!data) return null;
+  return { ...data, paid_access: Boolean(paidAccess) } as import("@/types/subscription").Subscription;
 }
 
 export async function isAdmin(userId: string): Promise<boolean> {
@@ -279,29 +241,13 @@ export async function isAdmin(userId: string): Promise<boolean> {
   return Boolean(data);
 }
 
-export async function adminFetchProUsers() {
-  const { data: subs, error } = await supabase.from("subscriptions").select("user_id, plan, status, current_period_end").eq("plan", "pro");
+export async function adminFetchPaidUsers() {
+  const { data: subs, error } = await supabase.from("subscriptions").select("user_id, plan, status, current_period_end, paid_at").in("plan", ["starter", "pro"]);
   if (error) throw error;
   const ids = (subs ?? []).map((s) => s.user_id);
   if (ids.length === 0) return [];
   const { data: profiles } = await supabase.from("profiles").select("id, email, business_name").in("id", ids);
   return (subs ?? []).map((s) => ({ ...s, profile: profiles?.find((p) => p.id === s.user_id) ?? null }));
-}
-
-export async function adminFetchAudits() {
-  const { data, error } = await supabase.from("audits").select("id, email, paid_at, status").eq("status", "paid").order("paid_at", { ascending: false });
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function adminMarkCall(userId: string) {
-  const { error } = await supabase.from("quarterly_calls").insert({ user_id: userId });
-  if (error) throw error;
-}
-
-export async function adminRemoveCall(id: string) {
-  const { error } = await supabase.from("quarterly_calls").delete().eq("id", id);
-  if (error) throw error;
 }
 
 // ---- Onboarding ----

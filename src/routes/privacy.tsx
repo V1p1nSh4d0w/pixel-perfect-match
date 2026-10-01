@@ -25,8 +25,8 @@ export const Route = createFileRoute("/privacy")({
         sections={[
           { heading: "What we collect", items: ["Your email address (when you sign up)", "Your business name (when you sign up)", "Your assessment answers (the questions you answer)", "Basic usage data (pages visited, timestamps)"] },
           { heading: "What we don't collect", items: ["We do not ask for or store passwords, API keys, or credentials of any kind.", "We do not sell your data to third parties.", "We do not run third-party advertising trackers on this site."] },
-          { heading: "How we use it", items: ["To generate your security score and findings", "To send you assessment reports and reminders", "To send you account-related emails (password reset, payment confirmation)"] },
-          { heading: "Who we share it with", items: ["Supabase (database and authentication)", "Razorpay (payment processing)", "Resend (transactional email)", "No one else."] },
+          { heading: "How we use it", items: ["To generate your security score and findings", "To make your assessment report available in your account", "To send you account-related emails (password reset, payment confirmation)"] },
+          { heading: "Who we share it with", items: ["Lovable Cloud (database and authentication)", "Razorpay (payment processing)", "Resend (transactional email)", "No one else."] },
           { heading: "Your rights", items: ["You can delete your account at any time from Settings. This permanently removes all your data.", <>You can email {mail} to request a copy of your data or ask questions.</>] },
           { heading: "Contact", items: [mail] },
         ]}

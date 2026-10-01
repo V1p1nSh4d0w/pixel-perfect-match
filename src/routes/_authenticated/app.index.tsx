@@ -4,7 +4,6 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing } from "@/components/Results";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-import { ScoreHistory } from "@/components/ScoreHistory";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
 import { useQuery } from "@tanstack/react-query";
@@ -134,9 +133,8 @@ function DashboardPage() {
             <StatCard severityParam="resolved" value={resolvedCount} label="Resolved" />
           </div>
 
-          <ScoreHistory />
           <p className="text-xs text-muted-foreground">
-            SecureCheck provides a security self-assessment and practical recommendations. It does not replace a professional penetration test, vulnerability assessment, or security audit.
+            SecureCheck provides a security self-assessment and practical recommendations. It does not replace professional penetration testing, vulnerability testing, or an independent technical review.
           </p>
         </div>
       </>

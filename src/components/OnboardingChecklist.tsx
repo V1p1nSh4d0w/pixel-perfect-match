@@ -3,14 +3,12 @@ import { ASSESSMENT_STEPS } from "@/lib/assessment-questions";
 const QUESTION_COUNT = ASSESSMENT_STEPS.reduce((n, s) => n + s.questions.length, 0);
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOnboarding, setOnboardingFlag } from "@/lib/supabase";
-import { useSubscription } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
 
 export const ONBOARDING_KEY = ["onboarding"] as const;
 
 export function OnboardingChecklist() {
   const qc = useQueryClient();
-  const { isPro } = useSubscription();
   const { data } = useQuery({ queryKey: ONBOARDING_KEY, queryFn: fetchOnboarding, refetchOnMount: "always" });
   if (!data || !data.eligible || data.dismissed_onboarding) return null;
 
@@ -20,7 +18,7 @@ export function OnboardingChecklist() {
     { title: "Build your action plan", desc: "Pick which fixes to tackle first.", done: data.hasActionItem, label: "Open action plan", to: "/app/action-plan" },
     {
       title: "Download your report", desc: "Get a PDF you can share with your team or accountant.", done: data.downloaded_report,
-      label: isPro ? "View report" : "Unlock with Pro", to: isPro ? "/app/reports" : "/pricing",
+      label: "View report", to: "/app/reports",
     },
   ] as const;
   const completed = steps.filter((s) => s.done).length;
