@@ -12,6 +12,14 @@ import type { Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
 
 export const Route = createFileRoute("/_authenticated/app/action-plan")({
+  head: () => ({ meta: [
+    { title: "Action Plan — SecureCheck" },
+    { name: "description", content: "Track and complete actions from your security assessment findings." },
+    { property: "og:title", content: "Action Plan — SecureCheck" },
+    { property: "og:description", content: "Track and complete actions from your security assessment findings." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ActionPlanPage,
 });
 

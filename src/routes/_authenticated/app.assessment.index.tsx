@@ -13,7 +13,14 @@ import { scoreAssessment } from "@/lib/scoring";
 import { LATEST_RESULT_KEY } from "@/lib/use-latest-result";
 
 export const Route = createFileRoute("/_authenticated/app/assessment/")({
-  head: () => ({ meta: [{ title: "Assessment — SecureCheck" }] }),
+  head: () => ({ meta: [
+    { title: "Assessment — SecureCheck" },
+    { name: "description", content: "Complete your SecureCheck security self-assessment." },
+    { property: "og:title", content: "Assessment — SecureCheck" },
+    { property: "og:description", content: "Complete your SecureCheck security self-assessment." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AssessmentPage,
 });
 
@@ -150,7 +157,7 @@ function ReviewStep({ answers, onJump }: { answers: Record<string, string>; onJu
                   className="flex w-full flex-col gap-1 rounded-button px-2 py-2 text-left transition-colors hover:bg-surface-raised sm:flex-row sm:justify-between sm:gap-6"
                 >
                   <span className="text-sm text-muted-foreground">{q.text}</span>
-                  <span className={cn("shrink-0 text-sm font-medium", answers[q.id] ? "text-foreground" : "text-warning")}>
+                  <span className={cn("shrink-0 text-sm font-medium", answers[q.id] ? "text-foreground" : "text-muted-foreground")}>
                     {answers[q.id] ?? "Not answered"}
                   </span>
                 </button>

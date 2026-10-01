@@ -40,6 +40,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-medium: var(--medium);
+  --color-low: var(--low);
   --color-destructive: var(--danger);
 }
 
@@ -52,15 +54,17 @@
   --input: oklch(0.2847 0.0401 261.96);
   --muted: oklch(0.2558 0.0433 268.07);
   --muted-foreground: oklch(0.6645 0.0291 262.29);
-  --primary: oklch(0.6484 0.1888 258.52);
-  --primary-hover: oklch(0.6884 0.1888 258.52);
+  --primary: oklch(0.70 0.16 246);
+  --primary-hover: oklch(0.76 0.14 246);
   --primary-foreground: oklch(0.1721 0.0324 268.88);
   --secondary: oklch(0.2558 0.0433 268.07);
-  --accent: oklch(0.599 0.2299 286.2);
-  --success: oklch(0.7123 0.1644 154.09);
-  --warning: oklch(0.7788 0.1461 67.56);
-  --danger: oklch(0.6256 0.1933 23.03);
-  --ring: oklch(0.6484 0.1888 258.52);
+  --accent: oklch(0.31 0.055 251);
+  --success: oklch(0.73 0.17 152);
+  --warning: oklch(0.77 0.16 56);
+  --danger: oklch(0.67 0.21 24);
+  --medium: oklch(0.78 0.12 215);
+  --low: oklch(0.72 0.025 255);
+  --ring: var(--primary);
 }
 
 @layer base {
@@ -78,6 +82,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
+  a:focus-visible, input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
 }
 
 @media print {
@@ -91,6 +100,8 @@
     --border: #cfd4dc;
     --muted-foreground: #4a5160;
     --primary: #1f5fd1;
+    --medium: #087a9b;
+    --low: #566170;
     --success: #1b8a4c;
     --warning: #c26a00;
     --danger: #c62828;

@@ -37,8 +37,8 @@ const VERDICT: Record<RiskLevel, string> = {
 const SEV_COLOR: Record<Severity, string> = {
   Critical: "text-danger print-danger",
   High: "text-warning print-warning",
-  Medium: "text-primary print-primary",
-  Low: "text-muted-foreground",
+  Medium: "text-medium",
+  Low: "text-low",
 };
 
 const SECTIONS: { name: string; priorities: string[] }[] = [
@@ -182,7 +182,7 @@ function ReportPage() {
       <Card className="print-avoid flex flex-col items-center gap-6 sm:flex-row sm:items-center">
         <ScoreRing score={result.score} risk={result.riskLevel} />
         <div className="text-center sm:text-left">
-          <div className={cn(result.riskLevel === "Low risk" ? "print-success" : result.riskLevel === "Moderate risk" ? "print-warning" : "print-danger")}>
+          <div className={cn(result.riskLevel === "Low risk" ? "print-low" : result.riskLevel === "Moderate risk" ? "print-medium" : result.riskLevel === "High risk" ? "print-warning" : "print-danger")}>
             <RiskLabel risk={result.riskLevel} />
           </div>
           <p className="mt-2 text-sm text-foreground">{VERDICT[result.riskLevel]}</p>
@@ -240,7 +240,7 @@ function ReportPage() {
                 <span
                   className={cn(
                     "inline-flex shrink-0 self-start rounded-full border px-2.5 py-0.5 text-xs font-medium",
-                    f.status === "Resolved" ? "print-success border-success text-success" : "print-warning border-warning text-warning",
+                    f.status === "Resolved" ? "print-success border-success text-success" : f.status === "In progress" ? "border-medium text-medium" : "border-border text-muted-foreground",
                   )}
                 >
                   {f.status}
