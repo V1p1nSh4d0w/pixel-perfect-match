@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { createAuditOrder, verifyAuditPayment } from "@/lib/billing.functions";
 import { openRazorpayOrderCheckout } from "@/lib/razorpay-checkout";
 
-export const Route = createFileRoute("/audit")({
+export const Route = createFileRoute("/audit/")({
   head: () => ({
     meta: [
       { title: "Full Security Audit — SecureCheck" },

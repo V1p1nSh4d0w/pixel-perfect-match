@@ -5,6 +5,7 @@ import { SidebarNav, pageTitleForPath } from "@/components/SidebarNav";
 import { useProfile } from "@/hooks/useProfile";
 import { useSubscription } from "@/hooks/useSubscription";
 import { signOut } from "@/lib/supabase";
+import { SUPPORT_EMAIL } from "@/lib/config";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppShell,
@@ -91,6 +92,9 @@ function AppShell() {
           </div>
 
           <div className="flex items-center gap-3">
+            {isPro ? (
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="hidden text-xs text-muted-foreground hover:text-foreground lg:block">Support: {SUPPORT_EMAIL}</a>
+            ) : null}
             <span className="hidden truncate text-sm text-muted-foreground sm:block">{businessName}</span>
             {isPro ? (
               <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PRO</span>

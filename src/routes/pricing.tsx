@@ -10,9 +10,9 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — SecureCheck" },
-      { name: "description", content: "SecureCheck Free and Pro plans. Pro is ₹999/month with PDF reports, remediation playbooks and score history." },
+      { name: "description", content: "SecureCheck Free, Pro (₹999/month) and a one-time ₹15,000 Full Audit." },
       { property: "og:title", content: "Pricing — SecureCheck" },
-      { property: "og:description", content: "SecureCheck Free and Pro plans. Pro is ₹999/month." },
+      { property: "og:description", content: "Free, Pro ₹999/month, and a ₹15,000 one-time audit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -31,7 +31,16 @@ const PRO = [
   "Download the full PDF report",
   "Step-by-step remediation playbooks on every finding",
   "Score history across all assessments",
-  "Priority support email",
+  "Monthly re-scan reminder email",
+  "Monthly email report: score change and top 3 open findings",
+  "One 30-minute video call per quarter with Aman",
+  "Priority email support (24h on business days)",
+];
+const AUDIT = [
+  "1-hour video call with Aman",
+  "Full manual review of your setup",
+  "Written PDF report with personalized recommendations",
+  "30-day follow-up email check-in",
 ];
 
 function Check() {
@@ -56,7 +65,7 @@ function PricingPage() {
 
   return (
     <div className="min-h-screen bg-background px-5 py-16">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex items-center justify-between">
           <Link to="/" className="text-base font-semibold tracking-tight text-foreground">SecureCheck</Link>
           <Link to={signedIn ? "/app" : "/login"} className="text-sm text-muted-foreground hover:text-foreground">
@@ -66,7 +75,7 @@ function PricingPage() {
         <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">Simple pricing</h1>
         <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you want the full toolkit.</p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
           <PlanCard name="Free" price="₹0" features={FREE}>
             <Link to={signedIn ? "/app" : "/signup"} className="block">
               <Button fullWidth variant="secondary">Get started free</Button>
@@ -77,9 +86,13 @@ function PricingPage() {
               <Link to="/signup" className="block"><Button fullWidth>Upgrade to Pro</Button></Link>
             )}
           </PlanCard>
+          <PlanCard name="Audit" price="₹15,000" suffix=" one-time" features={AUDIT}>
+            <Link to="/audit" className="block"><Button fullWidth variant="secondary">Book Full Audit</Button></Link>
+            <p className="mt-3 text-xs text-muted-foreground">One-time payment. Includes a 1-hour call and a written report.</p>
+          </PlanCard>
         </div>
 
-        <p className="mt-8 text-center text-xs text-muted-foreground">Prices in INR. Cancel anytime. Secure payments via Razorpay.</p>
+        <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure payments via Razorpay.</p>
       </div>
     </div>
   );
