@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -147,6 +148,7 @@ function ActionPlanPage() {
                         aria-label={`Mark "${item.title}" as completed`}
                       />
                       <div className="min-w-0 flex-1">
+                        <span className="inline-flex items-start gap-2">
                         <span
                           className={`text-sm ${
                             item.completed
@@ -155,6 +157,10 @@ function ActionPlanPage() {
                           }`}
                         >
                           {item.title}
+                        </span>
+                        {item.finding?.recommended_action && item.finding.recommended_action !== item.title && (
+                          <FixInfo text={item.finding.recommended_action} />
+                        )}
                         </span>
                         {item.finding?.category && (
                           <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -187,5 +193,28 @@ function ActionPlanPage() {
         })}
       </div>
     </div>
+  );
+}
+
+function FixInfo({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        title={text}
+        aria-label="Show full suggested fix"
+        aria-expanded={open}
+        className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-border text-[10px] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+      >
+        ?
+      </button>
+      {open && (
+        <span className="mt-1 block basis-full rounded-button bg-surface-raised px-3 py-2 text-xs text-muted-foreground">
+          {text}
+        </span>
+      )}
+    </>
   );
 }
