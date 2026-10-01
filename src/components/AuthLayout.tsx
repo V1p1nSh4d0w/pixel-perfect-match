@@ -23,7 +23,7 @@ export function AuthLayout({
       ) : null}
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <span className="text-lg font-semibold tracking-tight text-foreground">SecureCheck</span>
+          <BrandLogo className="block text-lg font-semibold tracking-tight text-foreground" />
           <p className="mt-1 text-sm text-muted-foreground">Know your security. Fix what matters.</p>
         </div>
 

@@ -75,7 +75,7 @@ function AuditPage() {
     <div className="min-h-screen bg-background px-5 py-16">
       <div className="mx-auto max-w-2xl">
         <div className="mb-12 flex items-center justify-between">
-          <Link to="/pricing" className="text-base font-semibold tracking-tight text-foreground">SecureCheck</Link>
+          <BrandLogo className="text-base font-semibold tracking-tight text-foreground" />
           <Link to={signedIn ? "/app" : "/login"} className="text-sm text-muted-foreground hover:text-foreground">
             {signedIn ? "Go to app" : "Log in"}
           </Link>
