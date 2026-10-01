@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import type { AssessmentResult, RiskLevel, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
 
@@ -80,7 +79,9 @@ export function SeverityCounts({ counts }: { counts: AssessmentResult["counts"] 
               <SeverityBadge severity={s} />
             </div>
           </div>
-          <ArrowRight size={16} className="mt-1 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-1 text-muted-foreground transition-transform group-hover:translate-x-0.5">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
         </Link>
       ))}
     </div>
