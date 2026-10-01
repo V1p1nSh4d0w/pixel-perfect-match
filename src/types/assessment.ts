@@ -22,7 +22,7 @@ export interface AssessmentState {
 
 export type Severity = "Critical" | "High" | "Medium" | "Low";
 export type RiskLevel = "Low risk" | "Moderate risk" | "High risk";
-export type FindingStatus = "Open";
+export type FindingStatus = "Open" | "Resolved";
 
 export interface Finding {
   id: string;
