@@ -19,6 +19,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
@@ -77,6 +78,12 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/admin/analytics',
+    path: '/admin/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -172,6 +181,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app'
+    | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
     | '/app/findings'
@@ -231,6 +243,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/_authenticated/app'
+    | '/_authenticated/admin/analytics'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/findings'
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/admin/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -412,10 +432,12 @@ const AuthenticatedAppRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

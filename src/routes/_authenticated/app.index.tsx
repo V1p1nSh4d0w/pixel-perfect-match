@@ -3,6 +3,7 @@ import { Button } from "@/components/Button";
 import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskLabel, ScoreRing } from "@/components/Results";
+import { PremiumRequestButton } from "@/components/PremiumRequestButton";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { assessmentStore } from "@/lib/assessment-store";
 import { useLatestResult } from "@/lib/use-latest-result";
@@ -114,6 +115,7 @@ function DashboardPage() {
                 <Link to="/app/findings" className="inline-block text-sm text-primary hover:underline">
                   View findings →
                 </Link>
+                <div><PremiumRequestButton /></div>
               </div>
             </div>
           </Card>

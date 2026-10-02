@@ -4,6 +4,12 @@ import { Card, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { useProfile } from "@/hooks/useProfile";
 import { adminFetchPaidUsers, isAdmin } from "@/lib/supabase";
+import { Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { usePremiumEnabled } from "@/hooks/useSubscription";
+import { setPremiumEnabled } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/app/admin")({
   head: () => ({ meta: [
@@ -27,6 +33,14 @@ function AdminPage() {
   const userId = me?.userId;
   const admin = useQuery({ queryKey: ["is-admin", userId], queryFn: () => userId ? isAdmin(userId) : false, enabled: Boolean(userId) });
   const enabled = admin.data === true;
+  const { premiumEnabled } = usePremiumEnabled();
+  const qc = useQueryClient();
+  const setFlag = useServerFn(setPremiumEnabled);
+  const toggle = useMutation({
+    mutationFn: (v: boolean) => setFlag({ data: { enabled: v } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["premium-enabled"] }); qc.invalidateQueries({ queryKey: ["subscription"] }); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update."),
+  });
   const users = useQuery({ queryKey: ["admin-paid-users"], queryFn: adminFetchPaidUsers, enabled });
 
   if (admin.isLoading || !me) return <p className="text-sm text-muted-foreground">Loading…</p>;
@@ -35,6 +49,18 @@ function AdminPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Admin" description="Review paid-access customers." />
+      <Card>
+        <CardTitle>Premium features</CardTitle>
+        <div className="mt-3 flex items-center justify-between gap-4 text-sm">
+          <p className="text-muted-foreground">{premiumEnabled ? "On — paid-candidate features are gated and the Starter Kit is offered." : "Off — free beta. Everything is free and checkout is hidden."}</p>
+          <button type="button" role="switch" aria-checked={premiumEnabled} aria-label="premium_enabled" disabled={toggle.isPending}
+            onClick={() => toggle.mutate(!premiumEnabled)}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${premiumEnabled ? "bg-primary" : "bg-border"}`}>
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-foreground transition-transform ${premiumEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+          </button>
+        </div>
+        <Link to="/admin/analytics" className="mt-4 inline-block text-sm text-primary hover:underline">View analytics →</Link>
+      </Card>
       <Card>
         <CardTitle>Paid-access customers</CardTitle>
         <div className="mt-4 divide-y divide-border text-sm">
