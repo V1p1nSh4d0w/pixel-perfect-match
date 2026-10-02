@@ -96,7 +96,7 @@ function DashboardPage() {
           {/* Primary security summary — the score is the strongest element. */}
           <Card className="p-5 sm:p-6">
             <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-8">
-              <ScoreRing score={result.score} risk={result.riskLevel} size={176} />
+              <ScoreRing score={result.score} risk={result.riskLevel} size={176} selfReported={Boolean(result.selfReported)} />
               <div className="w-full min-w-0 space-y-1 sm:border-l sm:border-border/75 sm:pl-8 sm:text-left">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Security posture score</p>
                 <RiskLabel risk={result.riskLevel} />
