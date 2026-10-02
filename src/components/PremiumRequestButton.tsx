@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/Button";
 import { trackEvent } from "@/lib/supabase";
+import { Switch } from "@/components/ui/switch";
 
 /** Demand signal only — records premium_requested. No payment or entitlement logic. */
 export function PremiumRequestButton({ className }: { className?: string }) {
@@ -42,15 +43,7 @@ export function PremiumRequestButton({ className }: { className?: string }) {
                 <h2 className="type-card-title">Interested in advanced features? Let us know.</h2>
                 <label className="mt-4 flex cursor-pointer items-center justify-between gap-3 text-sm text-muted-foreground">
                   You can email me about new features
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={consent}
-                    onClick={() => setConsent((c) => !c)}
-                    className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${consent ? "bg-primary" : "bg-border"}`}
-                  >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-foreground transition-transform ${consent ? "translate-x-4" : "translate-x-0.5"}`} />
-                  </button>
+                  <Switch checked={consent} onCheckedChange={setConsent} />
                 </label>
                 <div className="mt-5 flex gap-2">
                   <Button onClick={send} loading={busy}>Send</Button>
