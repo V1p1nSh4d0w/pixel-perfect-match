@@ -48,4 +48,6 @@ export interface AssessmentResult {
   counts: Record<Severity, number>;
   /** When the assessment was completed (set when loaded from the database). */
   created_at?: string;
+  /** True when any improvement in this assessment is self-reported only (score capped). */
+  selfReported?: boolean;
 }

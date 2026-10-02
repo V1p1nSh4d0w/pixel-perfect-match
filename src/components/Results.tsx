@@ -23,7 +23,7 @@ function riskColor(risk: RiskLevel) {
   return risk === "Low risk" ? "text-low" : risk === "Moderate risk" ? "text-medium" : risk === "High risk" ? "text-warning" : "text-danger";
 }
 
-export function ScoreRing({ score, risk, size = 160 }: { score: number; risk: RiskLevel; size?: number }) {
+export function ScoreRing({ score, risk, size = 160, selfReported = false }: { score: number; risk: RiskLevel; size?: number; selfReported?: boolean }) {
   const stroke = 10;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
@@ -47,7 +47,7 @@ export function ScoreRing({ score, risk, size = 160 }: { score: number; risk: Ri
       <div className="absolute flex flex-col items-center">
         {/* Larger rings get a bigger score number so it stays the strongest element. */}
         <span className={cn(size >= 176 ? "text-5xl" : "text-4xl", "font-semibold tracking-tight text-foreground")}>{score}</span>
-        <span className="text-xs text-muted-foreground">out of 100</span>
+        <span className="text-xs text-muted-foreground">{selfReported ? "(self-reported)" : "out of 100"}</span>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ export const getRemediationPlaybooks = createServerFn({ method: "GET" })
     const { PLAYBOOKS } = await import("@/lib/playbooks.server");
     return {
       hasFullAccess: Boolean(paid),
+      totalSteps: Object.fromEntries(Object.entries(PLAYBOOKS).map(([t, steps]) => [t, steps.length])),
       playbooks: Object.fromEntries(Object.entries(PLAYBOOKS).map(([title, steps]) => [title, paid ? steps : steps.slice(0, 2)])),
     };
   });

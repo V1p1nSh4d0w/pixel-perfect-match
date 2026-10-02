@@ -8,7 +8,7 @@ import { Card, CardBody, CardTitle } from "@/components/Card";
 import { PageHeader } from "@/components/PageHeader";
 import { SEVERITIES, SeverityBadge } from "@/components/Results";
 import { LATEST_RESULT_KEY, useLatestResult } from "@/lib/use-latest-result";
-import { addFindingToActionPlan, fetchActionPlanFindingIds, reassessFinding, setFindingStatus } from "@/lib/supabase";
+import { addFindingToActionPlan, fetchActionPlanFindingIds, fetchControlReferences, fetchPlaybookProgress, reassessFinding, revertReassessment, setFindingStatus, setPlaybookStep } from "@/lib/supabase";
 import { controlForFinding } from "@/lib/scoring";
 import type { AssessmentResult, Finding, Severity } from "@/types/assessment";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,24 @@ const FILTER_TABS: { value: string; label: string }[] = [
 ];
 
 const ACTION_PLAN_KEY = ["action-plan-finding-ids"] as const;
+const PROGRESS_KEY = ["playbook-progress"] as const;
+
+const CONFIDENCE_HELP: Record<string, string> = {
+  Low: "Low: based on your self-assessment answers only.",
+  Medium: "Medium: self-assessment plus every playbook step ticked.",
+  High: "High: reserved for technically verified evidence (not available yet).",
+};
+
+function ConfidenceBadge({ level }: { level: "Low" | "Medium" }) {
+  return (
+    <span className="group relative inline-flex cursor-help items-center gap-1 underline decoration-dotted underline-offset-2" tabIndex={0}>
+      {level}
+      <span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden w-64 rounded-lg border border-border bg-surface p-3 text-xs font-normal leading-relaxed text-muted-foreground no-underline shadow-md group-hover:block group-focus:block">
+        {Object.values(CONFIDENCE_HELP).map((t) => <span key={t} className="block">{t}</span>)}
+      </span>
+    </span>
+  );
+}
 
 function FindingsPage() {
   const { result, isLoading } = useLatestResult();
@@ -242,6 +260,35 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
   const fetchPlaybooks = useServerFn(getRemediationPlaybooks);
   const playbooksQuery = useQuery({ queryKey: ["remediation-playbooks"], queryFn: () => fetchPlaybooks() });
   const playbook = playbooksQuery.data?.playbooks[f.title];
+  const progressQuery = useQuery({ queryKey: PROGRESS_KEY, queryFn: fetchPlaybookProgress });
+  const refsQuery = useQuery({ queryKey: ["control-references"], queryFn: fetchControlReferences });
+  const refs = (refsQuery.data ?? []).filter((r) => r.control_id === control?.id);
+  const done = new Set(progressQuery.data?.[f.id] ?? []);
+  const stepCount = playbook?.length ?? 0;
+  const doneCount = playbook ? playbook.filter((_, i) => done.has(i)).length : 0;
+  const allStepsDone = stepCount > 0 && doneCount === stepCount;
+  // Low = self-assessment only; Medium = self-assessment + every playbook step ticked; High = reserved.
+  const confidence: "Low" | "Medium" = allStepsDone ? "Medium" : "Low";
+  const toggleStep = useMutation({
+    mutationFn: async ({ i, checked }: { i: number; checked: boolean }) => {
+      await setPlaybookStep(f.id, i, checked);
+      if (!checked && (f.status === "Resolved" || f.reassessment)) await revertReassessment(f.id, f.title);
+      else if (checked && f.status === "Open") await setFindingStatus(f.id, "In progress");
+    },
+    onMutate: ({ i, checked }) => {
+      queryClient.setQueryData<Record<string, number[]>>(PROGRESS_KEY, (prev) => {
+        const cur = new Set(prev?.[f.id] ?? []);
+        if (checked) cur.add(i); else cur.delete(i);
+        return { ...(prev ?? {}), [f.id]: [...cur] };
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: PROGRESS_KEY });
+      queryClient.invalidateQueries({ queryKey: LATEST_RESULT_KEY });
+      queryClient.invalidateQueries({ queryKey: ACTION_PLAN_KEY });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save the step."),
+  });
 
   return (
     <div data-finding-id={f.id} className={cn("rounded-card ring-2 transition-shadow duration-1000", highlighted && flash ? "ring-primary" : "ring-transparent")}>
@@ -281,7 +328,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
                 <p className="text-sm text-muted-foreground">“{f.evidence.question}”</p>
                 <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs">
                   <div className="flex gap-1.5"><dt className="text-muted-foreground">Source:</dt><dd className="text-foreground">Self-assessment</dd></div>
-                  <div className="flex gap-1.5"><dt className="text-muted-foreground">Confidence:</dt><dd className="text-foreground">Medium</dd></div>
+                  <div className="flex gap-1.5"><dt className="text-muted-foreground">Confidence:</dt><dd className="text-foreground"><ConfidenceBadge level={confidence} /></dd></div>
                 </dl>
               </div>
             </section>
@@ -292,18 +339,46 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
           </section>
           {playbook ? (
             <section>
-              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Remediation playbook</h3>
-              <ol className="space-y-2">
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Remediation playbook</h3>
+                <span className="text-xs text-muted-foreground">{doneCount} of {stepCount} steps done</span>
+              </div>
+              <div className="mb-3 h-1 overflow-hidden rounded-full bg-surface-raised">
+                <div className="h-full bg-primary transition-all" style={{ width: `${stepCount ? (doneCount / stepCount) * 100 : 0}%` }} />
+              </div>
+              <ol className="space-y-3">
                 {playbook.map((step, i) => (
-                  <li key={step} className="flex gap-3 text-sm leading-relaxed text-foreground">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-[11px] text-muted-foreground">{i + 1}</span>
-                    <span>{step}</span>
+                  <li key={step.text} className="flex gap-3 text-sm leading-relaxed">
+                    <input
+                      type="checkbox"
+                      aria-label={`Step ${i + 1} done`}
+                      checked={done.has(i)}
+                      onChange={(e) => toggleStep.mutate({ i, checked: e.target.checked })}
+                      className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-primary"
+                    />
+                    <div>
+                      <p className={cn(done.has(i) ? "text-muted-foreground line-through" : "text-foreground")}>Step {i + 1}: {step.text}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{step.time}{step.tool ? ` · Use: ${step.tool}` : ""}</p>
+                    </div>
                   </li>
                 ))}
               </ol>
               {TEMPLATE_FOR_FINDING[f.title] ? <div className="mt-4"><TemplateButton findingId={f.id} /></div> : null}
             </section>
           ) : TEMPLATE_FOR_FINDING[f.title] ? <TemplateButton findingId={f.id} /> : null}
+          {refs.length > 0 && (
+            <section>
+              <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Reference</h3>
+              <ul className="space-y-1 text-sm text-foreground">
+                {refs.map((r) => (
+                  <li key={r.id}>
+                    {r.framework}: {r.reference}
+                    {!r.verified && <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">to verify</span>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           {isResolved && f.reassessment ? (
             <section className="rounded-lg border border-success/30 bg-success/5 px-4 py-3">
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-success">Control improved</h3>
@@ -351,7 +426,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
               {inPlan ? "In action plan" : "Add to action plan"}
             </Button>
             {!isResolved && control && !reassessing && (
-              <Button onClick={() => setReassessing(true)}>I've fixed this → Reassess</Button>
+              <span title={allStepsDone ? undefined : "Tick every playbook step to mark this as fixed."}>
+                <Button onClick={() => setReassessing(true)} disabled={!allStepsDone}>I've fixed this → Reassess</Button>
+              </span>
             )}
             {f.status === "Open" && (
               <Button variant="ghost" onClick={() => startProgress.mutate()} loading={startProgress.isPending}>Mark in progress</Button>
@@ -383,8 +460,8 @@ function ScoreDelta({ from, to }: { from: number; to: number }) {
   const d = to - from;
   return (
     <div className="mt-3 flex items-baseline gap-3">
-      <span className="text-xs text-muted-foreground">Security score</span>
-      <span className="text-lg font-semibold text-foreground">{from} → {to}</span>
+      <span className="text-xs text-muted-foreground">Security score (self-reported)</span>
+      <span className="text-lg font-semibold text-foreground">{from} → {to} <span className="text-xs font-normal text-muted-foreground">(self-reported)</span></span>
       <span className={cn("text-sm", d > 0 ? "text-success" : "text-muted-foreground")}>{d > 0 ? `+${d}` : d} points</span>
     </div>
   );

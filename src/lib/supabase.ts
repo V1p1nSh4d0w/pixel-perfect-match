@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { controlForFinding, enrichFindings, riskLevelFor, scoreAssessment } from "@/lib/scoring";
+import { SELF_REPORTED_SCORE_CAP, controlForFinding, enrichFindings, riskLevelFor, scoreAssessment } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
 import type { ActionItem } from "@/types/action-item";
@@ -114,7 +114,8 @@ export async function fetchLatestResult(): Promise<AssessmentResult | null> {
   findings.sort((x, y) => SEVERITY_ORDER.indexOf(x.severity) - SEVERITY_ORDER.indexOf(y.severity));
   const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 } as Record<Severity, number>;
   findings.forEach((f) => { if (f.severity in counts) counts[f.severity]++; });
-  return { score: a.score, riskLevel: riskLevelFor(a.score), findings, counts, created_at: a.created_at };
+  const selfReported = findings.some((f) => f.reassessment);
+  return { score: a.score, riskLevel: riskLevelFor(a.score), findings, counts, created_at: a.created_at, selfReported };
 }
 
 // ---- Findings & action items ----
@@ -134,15 +135,71 @@ export async function reassessFinding(findingId: string, title: string) {
   const previousAnswer = answers[control.id] ?? null;
   answers[control.id] = control.best;
   const next = scoreAssessment(answers);
-  const { error: ue } = await supabase.from("assessments").update({ answers, score: next.score, risk_level: next.riskLevel }).eq("id", a.id);
+  // Self-reported fixes are unverified: cap the score so it never reaches 100 on self-report alone.
+  const capped = Math.min(next.score, SELF_REPORTED_SCORE_CAP);
+  const { error: ue } = await supabase.from("assessments").update({ answers, score: capped, risk_level: riskLevelFor(capped) }).eq("id", a.id);
   if (ue) throw ue;
   const { error: re } = await supabase.from("findings").update({
     status: "Resolved", reassessed_at: new Date().toISOString(), previous_answer: previousAnswer,
-    reassessed_answer: control.best, previous_score: a.score, new_score: next.score,
+    reassessed_answer: control.best, previous_score: a.score, new_score: capped,
   }).eq("id", findingId);
   if (re) throw re;
   await supabase.from("action_items").update({ completed: true }).eq("finding_id", findingId);
-  return { previousScore: a.score, newScore: next.score };
+  return { previousScore: a.score, newScore: capped };
+}
+
+/** Undo a self-reported fix (a playbook step was unticked): restore the answer, rescore, set "In progress". */
+export async function revertReassessment(findingId: string, title: string) {
+  const control = controlForFinding(title);
+  const { data: f, error: fe } = await supabase.from("findings").select("assessment_id, previous_answer, reassessed_at").eq("id", findingId).single();
+  if (fe) throw fe;
+  if (control && f.reassessed_at) {
+    const { data: a, error: ae } = await supabase.from("assessments").select("id, answers").eq("id", f.assessment_id).single();
+    if (ae) throw ae;
+    const answers = { ...((a.answers ?? {}) as AssessmentAnswers) };
+    if (f.previous_answer) answers[control.id] = f.previous_answer; else delete answers[control.id];
+    const { count } = await supabase.from("findings").select("id", { count: "exact", head: true })
+      .eq("assessment_id", f.assessment_id).not("reassessed_at", "is", null).neq("id", findingId);
+    const raw = scoreAssessment(answers).score;
+    const score = count ? Math.min(raw, SELF_REPORTED_SCORE_CAP) : raw;
+    const { error: ue } = await supabase.from("assessments").update({ answers, score, risk_level: riskLevelFor(score) }).eq("id", a.id);
+    if (ue) throw ue;
+  }
+  const { error } = await supabase.from("findings").update({
+    status: "In progress", reassessed_at: null, previous_answer: null, reassessed_answer: null, previous_score: null, new_score: null,
+  }).eq("id", findingId);
+  if (error) throw error;
+  await supabase.from("action_items").update({ completed: false }).eq("finding_id", findingId);
+}
+
+export async function fetchPlaybookProgress(): Promise<Record<string, number[]>> {
+  const { data, error } = await supabase.from("playbook_progress").select("finding_id, step_index");
+  if (error) throw error;
+  const out: Record<string, number[]> = {};
+  for (const r of data ?? []) (out[r.finding_id] ??= []).push(r.step_index);
+  return out;
+}
+
+export async function setPlaybookStep(findingId: string, stepIndex: number, done: boolean) {
+  if (done) {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) throw new Error("You need to be signed in.");
+    const { error } = await supabase.from("playbook_progress").upsert(
+      { user_id: u.user.id, finding_id: findingId, step_index: stepIndex },
+      { onConflict: "finding_id,step_index", ignoreDuplicates: true },
+    );
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from("playbook_progress").delete().eq("finding_id", findingId).eq("step_index", stepIndex);
+    if (error) throw error;
+  }
+}
+
+export interface ControlReference { id: string; control_id: string; framework: string; reference: string; verified: boolean }
+export async function fetchControlReferences(): Promise<ControlReference[]> {
+  const { data, error } = await supabase.from("control_references").select("id, control_id, framework, reference, verified");
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function markFindingResolved(findingId: string) {

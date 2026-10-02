@@ -54,7 +54,8 @@ export const ASSESSMENT_STEPS: readonly AssessmentStep[] = [
       {
         id: "personal_devices",
         text: "Do you allow personal devices to access business accounts and data?",
-        options: YNS,
+        // Nuanced options: credit/severity per option is configured on the control in scoring.ts.
+        options: ["Yes, no controls", "Yes, with rules or a work profile", "No", "Not sure"],
       },
     ],
   },

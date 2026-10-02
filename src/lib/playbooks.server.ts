@@ -1,5 +1,5 @@
 /** Extended step-by-step remediation playbooks (Starter Kit), keyed by finding title. */
-export const PLAYBOOKS: Record<string, string[]> = {
+const STEP_TEXT: Record<string, string[]> = {
   "No written security policy": [
     "Write a one-page policy covering passwords, MFA, device locks, backups and who to tell about a problem.",
     "Name one person who owns security decisions and reviews the policy every 6 months.",
@@ -115,3 +115,35 @@ export const PLAYBOOKS: Record<string, string[]> = {
     "Turn on auto-renew so the domain can't lapse.",
   ],
 };
+
+/** Per-step [time estimate, tool or setting], same order as STEP_TEXT. */
+const STEP_META: Record<string, [string, string][]> = {
+  "No written security policy": [["~45 min", "SecureCheck Security Policy Template or a shared doc"], ["~10 min", "Calendar reminder"], ["~15 min", "Email or team chat read-confirmation"], ["~5 min", "Google Drive / SharePoint shared folder"]],
+  "MFA is not enabled for all important accounts": [["~15 min", "Spreadsheet or password manager list"], ["~10 min per account", "Account security settings + Google/Microsoft Authenticator"], ["~5 min", "Password manager secure note"], ["~15 min", "Google Admin / Microsoft Entra admin center"], ["~10 min monthly", "Admin console user list"]],
+  "No password manager in use": [["~20 min", "1Password Business or Bitwarden Teams"], ["~10 min", "Password manager account settings"], ["~30 min", "Shared vaults / collections"], ["~1 hr", "Password health report (Watchtower / Vault Health)"]],
+  "Admin access is not limited to those who need it": [["~15 min", "Admin console user roles page"], ["~15 min", "Google Admin roles / Microsoft Entra roles"], ["~20 min", "Separate standard user account"], ["~15 min quarterly", "Calendar reminder + admin role report"]],
+  "Former staff access is not removed promptly": [["~30 min", "Offboarding checklist document"], ["~20 min per leaver", "Admin console suspend user + password manager"], ["~15 min", "Device management console or factory reset"], ["~30 min", "Admin console active users list"]],
+  "Not all business devices are locked": [["~5 min per device", "Device settings → Lock screen / Touch ID / Face ID"], ["~2 min per device", "Display / screen lock settings"], ["~10 min per device", "BitLocker (Windows) / FileVault (Mac)"], ["~15 min quarterly", "Quick device walk-through"]],
+  "Lost devices can't be wiped remotely": [["~5 min per device", "Find My (Apple) / Find My Device (Google, Microsoft)"], ["~1–2 hr", "Microsoft Intune / Google endpoint management"], ["~15 min", "Lost-device procedure document"], ["~10 min", "Find My / Intune remote lock"]],
+  "Personal devices access business data": [["~20 min", "List of approved business apps"], ["~10 min per device", "Phone settings: screen lock + software update"], ["~30 min", "Android Work Profile / Microsoft Intune app protection / Google endpoint management"], ["~15 min", "Signed personal-device (BYOD) rules"]],
+  "Software is not updated automatically": [["~5 min per device", "Windows Update / macOS Software Update"], ["~5 min per device", "Browser & app store auto-update settings"], ["~5 min", "Scheduled restart / active hours"], ["~15 min monthly", "Settings → About / device management report"]],
+  "Unsupported software may be in use": [["~30 min", "Spreadsheet inventory"], ["~20 min", "Vendor lifecycle / end-of-support pages"], ["~30 min", "Upgrade plan document"], ["~15 min", "Network / Wi-Fi settings"]],
+  "Important data is not reliably backed up": [["~20 min", "List of critical data"], ["~30 min", "Cloud backup service or external backup drive"], ["~30 min", "Second storage type + offsite/cloud copy"], ["~10 min", "Backup service email alerts"]],
+  "Backups are not stored separately": [["~30 min", "Separate cloud account or offsite drive"], ["~15 min", "Separate backup login with MFA"], ["~10 min", "Versioning / immutable backup setting"]],
+  "Backups have not been tested": [["~20 min", "Backup service restore function"], ["~5 min", "Restore log"], ["~10 min", "Quarterly calendar reminder"], ["~20 min", "Restore steps document"]],
+  "Email is not protected with MFA": [["~10 min per user", "Google Workspace / Microsoft 365 security settings"], ["~10 min", "Google Admin 2-Step Verification / Microsoft Entra Security defaults"], ["~10 min", "Admin console: disable IMAP/POP / legacy auth"], ["~10 min weekly", "Admin console sign-in alerts"]],
+  "Staff are not trained to spot phishing": [["~20 min", "Team meeting or short video session"], ["~5 min", "Written payment-verification rule"], ["~10 min", "'Report phishing' button or shared inbox"], ["~30 min twice a year", "Google / Microsoft phishing simulation or free trainer"]],
+  "Cloud tool access is not reviewed": [["~20 min", "Spreadsheet of cloud tools"], ["~10 min per tool", "Each tool's users / members page"], ["~15 min", "Drive / SharePoint sharing report"], ["~30 min quarterly", "Calendar reminder"]],
+  "Third-party app access has not been checked": [["~10 min", "Google Admin → Security → API controls / Microsoft Entra Enterprise apps"], ["~15 min", "Same connected-apps page"], ["~10 min", "App access control / user consent settings"], ["~15 min quarterly", "Calendar reminder"]],
+  "Website may not use HTTPS": [["~2 min", "Web browser address bar"], ["~15 min", "Hosting dashboard SSL / Let's Encrypt"], ["~10 min", "Hosting redirect setting or .htaccess"], ["~5 min", "Calendar reminder + certificate expiry date"]],
+  "Domain registrar account lacks MFA": [["~10 min", "Registrar account security settings"], ["~5 min", "Registrar domain lock setting"], ["~5 min", "Registrar account contact email"], ["~5 min", "Registrar auto-renew setting"]],
+};
+
+export interface PlaybookStep { text: string; time: string; tool: string }
+
+export const PLAYBOOKS: Record<string, PlaybookStep[]> = Object.fromEntries(
+  Object.entries(STEP_TEXT).map(([title, steps]) => [
+    title,
+    steps.map((text, i) => ({ text, time: STEP_META[title]?.[i]?.[0] ?? "~15 min", tool: STEP_META[title]?.[i]?.[1] ?? "" })),
+  ]),
+);

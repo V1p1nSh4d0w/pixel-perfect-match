@@ -127,6 +127,36 @@ export type Database = {
         }
         Relationships: []
       }
+      control_references: {
+        Row: {
+          control_id: string
+          created_at: string
+          framework: string
+          id: string
+          reference: string
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          control_id: string
+          created_at?: string
+          framework: string
+          id?: string
+          reference: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          control_id?: string
+          created_at?: string
+          framework?: string
+          id?: string
+          reference?: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       findings: {
         Row: {
           assessment_id: string
@@ -185,6 +215,38 @@ export type Database = {
             columns: ["assessment_id"]
             isOneToOne: false
             referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playbook_progress: {
+        Row: {
+          created_at: string
+          finding_id: string
+          id: string
+          step_index: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          finding_id: string
+          id?: string
+          step_index: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          finding_id?: string
+          id?: string
+          step_index?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbook_progress_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "findings"
             referencedColumns: ["id"]
           },
         ]
