@@ -19,6 +19,7 @@
 - Reusable UI primitives (`Button`, `Card`, `Input`, `PageHeader`, `SidebarNav`) live in `src/components/` — built on design tokens in `src/styles.css`, never ad hoc colors.
 - Assessment results are read from the database via `useLatestResult()` (React Query, key `latest-assessment`); the in-memory assessment store only holds in-progress answers — keeps one source of truth for results.
 - Billing: the Starter Kit uses a one-time Razorpay Order; signatures and ownership are verified in server functions before server-only writes — keeps payment state tamper-proof.
-- Paid gating reads the database `has_paid_access()` result through `useSubscription()`; paid content is also filtered by authenticated server functions — UI state never grants access.
+- Paid gating: server functions call `has_feature_access()` (true when the DB flag `feature_flags.premium_enabled` is off, else `has_paid_access()`); UI mirrors it via `useSubscription().hasAccess` but never grants access — keeps a free beta switchable without code changes.
 - Admin access uses `user_roles` + `has_role()`; admin page is `/app/admin` — roles never live on profiles.
 - Shared support contact copy lives in `src/lib/config.ts` — one place to edit it.
+- Demand events go to the `events` table via `trackEvent()` (own-row inserts, admin-only reads); templates are rows in `templates` linked by finding key — one source for analytics and template mapping.
