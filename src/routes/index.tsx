@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { RiskLabel, ScoreRing, SeverityBadge } from "@/components/Results";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/config";
+import { usePremiumEnabled } from "@/hooks/useSubscription";
 
 const TITLE = "SecureCheck — Know your security. Fix what matters.";
 const DESC =
@@ -74,6 +75,7 @@ function Tick({ ok }: { ok: boolean }) {
 }
 
 function LandingPage() {
+  const { premiumEnabled } = usePremiumEnabled();
   const navigate = useNavigate();
   const score = useCountUp(72, 1200);
 
