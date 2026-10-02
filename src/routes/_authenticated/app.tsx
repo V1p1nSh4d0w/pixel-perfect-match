@@ -24,6 +24,15 @@ function AppShell() {
     setDrawerOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerOpen]);
+
   const email = data?.email ?? "";
   const businessName = data?.profile?.business_name ?? "";
   const initial = (businessName || email || "?").trim().charAt(0).toUpperCase();
@@ -75,14 +84,14 @@ function AppShell() {
       <aside className="fixed inset-y-0 left-0 hidden w-60 md:block print:hidden">{sidebar}</aside>
 
       {drawerOpen ? (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 h-[100dvh] overscroll-contain md:hidden">
           <button
             type="button"
             aria-label="Close menu"
             onClick={() => setDrawerOpen(false)}
             className="absolute inset-0 bg-background/80"
           />
-          <div className="absolute inset-y-0 left-0 w-60">{sidebar}</div>
+          <div className="fixed left-0 top-0 h-[100dvh] w-60 overflow-y-auto overscroll-contain">{sidebar}</div>
         </div>
       ) : null}
 

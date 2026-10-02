@@ -55,8 +55,8 @@ function AdminPage() {
           <p className="text-muted-foreground">{premiumEnabled ? "On — paid-candidate features are gated and the Starter Kit is offered." : "Off — free beta. Everything is free and checkout is hidden."}</p>
           <button type="button" role="switch" aria-checked={premiumEnabled} aria-label="premium_enabled" disabled={toggle.isPending}
             onClick={() => toggle.mutate(!premiumEnabled)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${premiumEnabled ? "bg-primary" : "bg-border"}`}>
-            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-foreground transition-transform ${premiumEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+            className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors disabled:opacity-60 ${premiumEnabled ? "border-primary bg-primary" : "border-border bg-muted"}`}>
+            <span className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full transition-transform ${premiumEnabled ? "translate-x-5 bg-primary-foreground" : "translate-x-0 bg-muted-foreground"}`} />
           </button>
         </div>
         <Link to="/admin/analytics" className="mt-4 inline-block text-sm text-primary hover:underline">View analytics →</Link>
