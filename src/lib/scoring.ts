@@ -137,9 +137,12 @@ const RULES: Rule[] = [
     weight: 4,
     category: "Devices",
     best: ["No"],
+    // Nuanced answer: rules or a work profile reduce risk and earn partial credit.
+    partial: ["Yes, with rules or a work profile"],
     severity: "Medium",
+    partialSeverity: "Low",
     title: "Personal devices access business data",
-    why: "You can't control the security of personal devices, so business data on them is harder to protect.",
+    why: "Personal devices you don't manage can expose business data. Rules or a work profile reduce the risk; without them, a lost or infected phone can leak business accounts.",
     action: "Set basic rules for personal devices — screen lock, up-to-date software — or limit what they can access.",
   },
   {
@@ -416,6 +419,9 @@ export function compareActions(
 }
 
 /** Control + question text for a finding title (used by reassessment). */
+/** Self-reported improvements can never push the score above this cap. */
+export const SELF_REPORTED_SCORE_CAP = 90;
+
 export function controlForFinding(title: string) {
   const c = RULES.find((r) => r.title === title);
   if (!c) return null;
