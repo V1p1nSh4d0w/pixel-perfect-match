@@ -16,7 +16,8 @@ function AppShell() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data } = useProfile();
-  const { isPro } = useSubscription();
+  const { isPro: paid, premiumEnabled } = useSubscription();
+  const isPro = paid && premiumEnabled;
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ function AppShell() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-foreground">
-            {isPro ? "Starter Kit" : "Free plan"}
+            {isPro ? "Starter Kit" : premiumEnabled ? "Free plan" : "Free beta"}
           </span>
           {isPro ? (
             <span className="rounded-full border border-primary px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-primary">

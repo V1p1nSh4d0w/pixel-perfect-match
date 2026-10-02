@@ -256,7 +256,7 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
   });
 
   const isResolved = f.status === "Resolved";
-  const { isPro } = useSubscription();
+  const { hasAccess: isPro } = useSubscription();
   const fetchPlaybooks = useServerFn(getRemediationPlaybooks);
   const playbooksQuery = useQuery({ queryKey: ["remediation-playbooks"], queryFn: () => fetchPlaybooks() });
   const playbook = playbooksQuery.data?.playbooks[f.title];

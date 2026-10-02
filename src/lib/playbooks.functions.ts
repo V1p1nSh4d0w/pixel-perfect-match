@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const getRemediationPlaybooks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: paid, error } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
+    const { data: paid, error } = await context.supabase.rpc("has_feature_access", { _user_id: context.userId });
     if (error) throw new Error("Could not verify paid access.");
     const { PLAYBOOKS } = await import("@/lib/playbooks.server");
     return {

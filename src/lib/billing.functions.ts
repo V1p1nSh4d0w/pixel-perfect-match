@@ -43,6 +43,8 @@ function safeEqual(a: string, b: string) {
 export const createStarterKitOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { data: premiumOn } = await context.supabase.rpc("premium_enabled");
+    if (!premiumOn) throw new Error("SecureCheck is free during the beta — no purchase needed.");
     const { data: alreadyPaid, error: accessError } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
     if (accessError) throw new Error("Could not verify your current access.");
     if (alreadyPaid) throw new Error("Starter Kit is already active on this account.");
@@ -135,7 +137,7 @@ export const getPaymentHistory = createServerFn({ method: "GET" })
 export const authorizePaidFeature = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: allowed, error } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
+    const { data: allowed, error } = await context.supabase.rpc("has_feature_access", { _user_id: context.userId });
     if (error || !allowed) throw new Error("Starter Kit access is required.");
     return { allowed: true };
   });

@@ -10,11 +10,17 @@ function fmt(iso: string) {
 }
 
 export function BillingPanel() {
-  const { subscription, isPro, isLoading } = useSubscription();
+  const { subscription, isPro, isLoading, premiumEnabled } = useSubscription();
   const historyFn = useServerFn(getPaymentHistory);
   const history = useQuery({ queryKey: ["payment-history"], queryFn: () => historyFn(), enabled: isPro });
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (!premiumEnabled && !isPro) return (
+    <Card>
+      <CardTitle>Billing</CardTitle>
+      <p className="mt-4 text-sm text-muted-foreground">SecureCheck is free during the beta. Every feature is available on your account — no payment needed.</p>
+    </Card>
+  );
   const isLegacy = subscription?.plan === "pro";
 
   return (

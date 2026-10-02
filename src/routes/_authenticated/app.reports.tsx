@@ -67,7 +67,7 @@ function SectionHeading({ title, intro }: { title: string; intro?: string | unde
 function ReportPage() {
   const { result, isLoading } = useLatestResult();
   const { data: profileData } = useProfile();
-  const { isPro } = useSubscription();
+  const { hasAccess: isPro } = useSubscription();
   const authorizePaid = useServerFn(authorizePaidFeature);
   const metaQ = useQuery({ queryKey: ["latest-assessment-meta"], queryFn: fetchLatestAssessmentMeta });
   const actionsQ = useQuery({ queryKey: ["action-items"], queryFn: fetchActionItems });
