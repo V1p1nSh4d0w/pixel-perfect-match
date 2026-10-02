@@ -111,7 +111,7 @@ function PricingPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div> : null}
 
         <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure one-time payment via Razorpay.</p>
       </div>

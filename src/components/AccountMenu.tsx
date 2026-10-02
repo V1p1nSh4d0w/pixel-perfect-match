@@ -104,7 +104,7 @@ export function AccountMenu({ initial, email, isPro }: { initial: string; email:
           <div className="px-3 py-2">
             <p className="truncate text-xs text-muted-foreground">{email}</p>
             <p className="mt-1 flex items-center gap-2 text-sm text-foreground">
-              {isPro ? "Starter Kit" : "Free plan"}
+              {isPro ? "Starter Kit" : "Free beta"}
               {isPro ? (
                 <span className="rounded-full border border-primary px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-primary">PAID</span>
               ) : null}
