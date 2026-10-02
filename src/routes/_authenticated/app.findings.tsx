@@ -16,7 +16,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { LockIcon } from "@/components/UpgradeButton";
 import { useServerFn } from "@tanstack/react-start";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
-import { TEMPLATE_FOR_FINDING } from "@/lib/templates.functions";
+import { FINDING_KEY_FOR_TITLE } from "@/lib/templates.functions";
+import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
@@ -256,10 +257,12 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
   });
 
   const isResolved = f.status === "Resolved";
-  const { isPro } = useSubscription();
+  const { hasAccess: isPro } = useSubscription();
   const fetchPlaybooks = useServerFn(getRemediationPlaybooks);
   const playbooksQuery = useQuery({ queryKey: ["remediation-playbooks"], queryFn: () => fetchPlaybooks() });
   const playbook = playbooksQuery.data?.playbooks[f.title];
+  const templatesQuery = useQuery({ queryKey: ["published-templates"], queryFn: fetchPublishedTemplates });
+  const template = (templatesQuery.data ?? []).find((t) => t.linked_finding_key === FINDING_KEY_FOR_TITLE[f.title]);
   const progressQuery = useQuery({ queryKey: PROGRESS_KEY, queryFn: fetchPlaybookProgress });
   const refsQuery = useQuery({ queryKey: ["control-references"], queryFn: fetchControlReferences });
   const refs = (refsQuery.data ?? []).filter((r) => r.control_id === control?.id);
@@ -363,9 +366,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
                   </li>
                 ))}
               </ol>
-              {TEMPLATE_FOR_FINDING[f.title] ? <div className="mt-4"><TemplateButton findingId={f.id} /></div> : null}
+              {template ? <div className="mt-4"><TemplateButton templateId={template.id} findingId={f.id} /></div> : null}
             </section>
-          ) : TEMPLATE_FOR_FINDING[f.title] ? <TemplateButton findingId={f.id} /> : null}
+          ) : template ? <TemplateButton templateId={template.id} findingId={f.id} /> : null}
           {refs.length > 0 && (
             <section>
               <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Reference</h3>

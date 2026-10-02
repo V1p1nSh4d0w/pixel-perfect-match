@@ -2,69 +2,38 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const STARTER_KIT_PRICE_PAISE = 49900;
-
-/** Client-safe finding-title → template-name map (names only, no content). */
-export const TEMPLATE_FOR_FINDING: Record<string, string> = {
-  "No written security policy": "Security Policy Template",
-  "MFA is not enabled for all important accounts": "MFA Rollout Guide",
-  "Important data is not reliably backed up": "Backup & Restore Checklist",
-  "Backups have not been tested": "Backup & Restore Checklist",
+/** Client-safe finding-title → linked_finding_key map. Templates themselves live in the database. */
+export const FINDING_KEY_FOR_TITLE: Record<string, string> = {
+  "No written security policy": "no_written_security_policy",
+  "MFA is not enabled for all important accounts": "mfa_not_enabled",
+  "Backups have not been tested": "backups_not_tested",
 };
 
-const input = z.object({ findingId: z.string().uuid() });
+const input = z.object({ templateId: z.string().uuid(), findingId: z.string().uuid().optional() });
 
-async function loadFindingTemplate(supabase: any, findingId: string) {
-  // RLS ensures the finding belongs to the caller.
-  const { data: finding } = await supabase.from("findings").select("id, title").eq("id", findingId).maybeSingle();
-  if (!finding) throw new Error("Finding not found.");
-  const { FINDING_TEMPLATE, TEMPLATES } = await import("@/lib/templates.server");
-  const key = FINDING_TEMPLATE[finding.title as string];
-  if (!key) throw new Error("No template for this finding.");
-  return TEMPLATES[key]!;
-}
-
-async function logEvent(row: { user_id: string; event: string; template_name: string; finding_id: string; price_paise?: number }) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  await supabaseAdmin.from("template_events").insert(row);
-}
-
-/** Records the click and returns either a preview (free) or a flag to download (paid). */
-export const openTemplate = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => input.parse(d))
-  .handler(async ({ data, context }) => {
-    const def = await loadFindingTemplate(context.supabase, data.findingId);
-    await logEvent({ user_id: context.userId, event: "template_button_clicked", template_name: def.name, finding_id: data.findingId });
-    const { data: paid, error } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
-    if (error) throw new Error("Could not verify access.");
-    if (paid) return { paid: true as const, name: def.name };
-    const { templatePreview } = await import("@/lib/templates.server");
-    return { paid: false as const, preview: templatePreview(def) };
-  });
-
-export const trackUnlockClicked = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => input.parse(d))
-  .handler(async ({ data, context }) => {
-    const def = await loadFindingTemplate(context.supabase, data.findingId);
-    await logEvent({ user_id: context.userId, event: "unlock_clicked", template_name: def.name, finding_id: data.findingId, price_paise: STARTER_KIT_PRICE_PAISE });
-    return { ok: true };
-  });
-
-/** Issues a 60-second signed URL only after a database-verified Starter Kit entitlement. */
+/**
+ * Issues a 60-second signed URL. Server checks: signed in, template published (RLS),
+ * and — only when premium_enabled is on — a database-verified entitlement.
+ */
 export const getTemplateDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => input.parse(d))
   .handler(async ({ data, context }) => {
-    const def = await loadFindingTemplate(context.supabase, data.findingId);
-    const { data: paid, error } = await context.supabase.rpc("has_paid_access", { _user_id: context.userId });
-    if (error || !paid) throw new Error("Starter Kit required.");
+    const { data: tpl } = await context.supabase
+      .from("templates").select("id, title, file_path, preview_text, published")
+      .eq("id", data.templateId).eq("published", true).maybeSingle();
+    if (!tpl) throw new Error("Template not found.");
+    const { data: allowed, error } = await context.supabase.rpc("has_feature_access", { _user_id: context.userId });
+    if (error) throw new Error("Could not verify access.");
+    if (!allowed) return { ok: false as const, title: tpl.title, preview: tpl.preview_text ?? "" };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error: signError } = await supabaseAdmin.storage
       .from("templates")
-      .createSignedUrl(def.file, 60, { download: def.file });
+      .createSignedUrl(tpl.file_path, 60, { download: tpl.file_path });
     if (signError || !signed) throw new Error("Template is not available yet.");
-    await logEvent({ user_id: context.userId, event: "template_downloaded", template_name: def.name, finding_id: data.findingId });
-    return { url: signed.signedUrl };
+    await context.supabase.from("events").insert({
+      user_id: context.userId, event_name: "template_downloaded", object_id: tpl.id,
+      metadata: data.findingId ? { finding_id: data.findingId } : null,
+    });
+    return { ok: true as const, url: signed.signedUrl };
   });

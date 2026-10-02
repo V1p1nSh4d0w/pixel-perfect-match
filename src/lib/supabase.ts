@@ -376,3 +376,31 @@ export async function setOnboardingFlag(flag: OnboardingFlag) {
   const { error } = await supabase.from("profiles").update({ [flag]: true } as Partial<Record<OnboardingFlag, boolean>>).eq("id", u.user.id);
   if (error) throw error;
 }
+
+/** Database-stored premium flag. Off = free beta: nothing is gated. */
+export async function fetchPremiumEnabled(): Promise<boolean> {
+  const { data } = await supabase.from("feature_flags").select("enabled").eq("key", "premium_enabled").maybeSingle();
+  return data?.enabled === true;
+}
+
+/** True when premium is off, or the user holds a database-verified entitlement. */
+export async function fetchFeatureAccess(): Promise<boolean> {
+  const { data, error } = await supabase.rpc("has_feature_access");
+  if (error) return false;
+  return Boolean(data);
+}
+
+export type AppEventName = "template_button_clicked" | "template_downloaded" | "domain_check_run" | "report_shared" | "help_requested" | "premium_requested";
+
+/** Records a demand-tracking event for the signed-in user (RLS: own rows only). */
+export async function trackEvent(event_name: AppEventName, object_id?: string | null, metadata?: Record<string, string | number | boolean | null>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("events").insert({ user_id: user.id, event_name, object_id: object_id ?? null, metadata: metadata ?? null });
+}
+
+export async function fetchPublishedTemplates() {
+  const { data, error } = await supabase.from("templates").select("id, title, description, linked_finding_key, preview_text").eq("published", true);
+  if (error) throw error;
+  return data ?? [];
+}

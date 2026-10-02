@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { BrandLogo } from "@/components/BrandLogo";
+import { usePremiumEnabled } from "@/hooks/useSubscription";
 import { UpgradeButton } from "@/components/UpgradeButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -57,6 +58,7 @@ function StarterKitCta() {
 }
 
 function PricingPage() {
+  const { premiumEnabled } = usePremiumEnabled();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSignedIn(Boolean(data.user)));
@@ -74,20 +76,20 @@ function PricingPage() {
         <h1 className="text-center type-page-title text-3xl">Simple pricing</h1>
         <p className="mt-3 text-center text-sm text-muted-foreground">Start free. Upgrade when you're ready.</p>
 
-        <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
-          <PlanCard name="Free" price="₹0" note="Forever free" features={FREE}>
+        <div className={`mx-auto mt-10 grid gap-6 ${premiumEnabled ? "max-w-3xl md:grid-cols-2" : "max-w-md"}`}>
+          <PlanCard name="Free" price="₹0" note={premiumEnabled ? "Forever free" : "Free beta — every feature included"} features={premiumEnabled ? FREE : [...FREE, ...STARTER_KIT.filter((f) => f !== "Everything in Free")]}>
             <Link to={signedIn ? "/app" : "/signup"} className="block">
               <Button fullWidth variant="secondary">Get started free</Button>
             </Link>
           </PlanCard>
-          <PlanCard name="Starter Kit" price="₹499" note="One-time payment" features={STARTER_KIT} highlighted>
+          {premiumEnabled ? <PlanCard name="Starter Kit" price="₹499" note="One-time payment" features={STARTER_KIT} highlighted>
             {signedIn ? <StarterKitCta /> : (
               <Link to="/signup" className="block"><Button fullWidth>Get Starter Kit</Button></Link>
             )}
-          </PlanCard>
+          </PlanCard> : null}
         </div>
 
-        <div className="mt-12 overflow-x-auto rounded-card border border-border/75 bg-card shadow-sm shadow-background/10">
+        {premiumEnabled ? <div className="mt-12 overflow-x-auto rounded-card border border-border/75 bg-card shadow-sm shadow-background/10">
           <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-border text-left">
@@ -109,7 +111,7 @@ function PricingPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div> : null}
 
         <p className="mt-8 text-center text-xs text-muted-foreground">All prices in INR. Secure one-time payment via Razorpay.</p>
       </div>

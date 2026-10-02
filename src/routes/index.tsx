@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { RiskLabel, ScoreRing, SeverityBadge } from "@/components/Results";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/config";
+import { usePremiumEnabled } from "@/hooks/useSubscription";
 
 const TITLE = "SecureCheck — Know your security. Fix what matters.";
 const DESC =
@@ -74,6 +75,7 @@ function Tick({ ok }: { ok: boolean }) {
 }
 
 function LandingPage() {
+  const { premiumEnabled } = usePremiumEnabled();
   const navigate = useNavigate();
   const score = useCountUp(72, 1200);
 
@@ -221,8 +223,8 @@ function LandingPage() {
       {/* Pricing teaser */}
       <section className="mx-auto max-w-6xl px-5 py-20">
         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Start free. Upgrade when you're ready.</h2>
-        <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
-          {PLANS.map((p) => (
+        <div className={`mx-auto mt-10 grid gap-4 ${premiumEnabled ? "max-w-3xl md:grid-cols-2" : "max-w-md"}`}>
+          {PLANS.filter((p) => premiumEnabled || p.name !== "Starter Kit").map((p) => (
             <div key={p.name} className={`flex flex-col rounded-card border bg-card p-5 ${p.name === "Starter Kit" ? "border-primary" : "border-border"}`}>
               <p className="font-semibold">{p.name}</p>
               <p className="mt-2 text-2xl font-semibold">{p.price}</p>

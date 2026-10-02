@@ -157,6 +157,51 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          metadata: Json | null
+          object_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          object_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          object_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      feature_flags: {
+        Row: {
+          enabled: boolean
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       findings: {
         Row: {
           assessment_id: string
@@ -377,6 +422,42 @@ export type Database = {
         }
         Relationships: []
       }
+      templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_path: string
+          id: string
+          linked_finding_key: string
+          preview_text: string | null
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_path: string
+          id?: string
+          linked_finding_key: string
+          preview_text?: string | null
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          id?: string
+          linked_finding_key?: string
+          preview_text?: string | null
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -400,6 +481,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_feature_access: { Args: { _user_id?: string }; Returns: boolean }
       has_paid_access: { Args: { _user_id?: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -408,6 +490,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      premium_enabled: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
