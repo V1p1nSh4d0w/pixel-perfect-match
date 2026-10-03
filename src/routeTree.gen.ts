@@ -19,6 +19,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as CheckupIndexRouteImport } from './routes/checkup.index'
+import { Route as CheckupBusinessRouteImport } from './routes/checkup.business'
+import { Route as CheckupPersonalRouteImport } from './routes/checkup.personal'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
@@ -77,6 +80,21 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CheckupIndexRoute = CheckupIndexRouteImport.update({
+  id: '/checkup/',
+  path: '/checkup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckupBusinessRoute = CheckupBusinessRouteImport.update({
+  id: '/checkup/business',
+  path: '/checkup/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckupPersonalRoute = CheckupPersonalRouteImport.update({
+  id: '/checkup/personal',
+  path: '/checkup/personal',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
@@ -140,6 +158,9 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/checkup/business': typeof CheckupBusinessRoute
+  '/checkup/personal': typeof CheckupPersonalRoute
+  '/checkup/': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
@@ -159,6 +180,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/checkup/business': typeof CheckupBusinessRoute
+  '/checkup/personal': typeof CheckupPersonalRoute
+  '/checkup': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
@@ -181,6 +205,9 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/checkup/business': typeof CheckupBusinessRoute
+  '/checkup/personal': typeof CheckupPersonalRoute
+  '/checkup/': typeof CheckupIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
@@ -203,6 +230,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/app'
+    | '/checkup/business'
+    | '/checkup/personal'
+    | '/checkup/'
     | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
@@ -222,6 +252,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/checkup/business'
+    | '/checkup/personal'
+    | '/checkup'
     | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
@@ -243,6 +276,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/_authenticated/app'
+    | '/checkup/business'
+    | '/checkup/personal'
+    | '/checkup/'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/admin'
@@ -264,6 +300,9 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
+  CheckupBusinessRoute: typeof CheckupBusinessRoute
+  CheckupPersonalRoute: typeof CheckupPersonalRoute
+  CheckupIndexRoute: typeof CheckupIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -337,6 +376,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/checkup/': {
+      id: '/checkup/'
+      path: '/checkup'
+      fullPath: '/checkup/'
+      preLoaderRoute: typeof CheckupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkup/business': {
+      id: '/checkup/business'
+      path: '/checkup/business'
+      fullPath: '/checkup/business'
+      preLoaderRoute: typeof CheckupBusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkup/personal': {
+      id: '/checkup/personal'
+      path: '/checkup/personal'
+      fullPath: '/checkup/personal'
+      preLoaderRoute: typeof CheckupPersonalRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/analytics': {
       id: '/_authenticated/admin/analytics'
@@ -453,6 +513,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
+  CheckupBusinessRoute: CheckupBusinessRoute,
+  CheckupPersonalRoute: CheckupPersonalRoute,
+  CheckupIndexRoute: CheckupIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
