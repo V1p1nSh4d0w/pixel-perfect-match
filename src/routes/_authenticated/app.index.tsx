@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 const PATHS = [
   { icon: "👤", title: "Personal Security", text: "Review your phone, computer, accounts, web activity, scams, and data.", to: "/checkup/personal" },
   { icon: "🏢", title: "Business Security", text: "Review accounts, devices, email, website, data, backups, and business security practices.", to: "/checkup/business" },
-  { icon: "📋", title: "Findings", text: "See what needs attention and what to do next.", to: "/app/findings" },
+
 ] as const;
 
 function SecurityHome() {
