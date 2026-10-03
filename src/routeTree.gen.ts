@@ -35,6 +35,8 @@ import { Route as AuthenticatedAppAssessmentIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedAppAssessmentCompleteRouteImport } from './routes/_authenticated/app.assessment.complete'
 import { Route as CheckupPersonalComputerDeepRouteImport } from './routes/checkup.personal.computer.deep'
 import { Route as CheckupPersonalComputerQuickRouteImport } from './routes/checkup.personal.computer.quick'
+import { Route as CheckupPersonalOnlineDeepRouteImport } from './routes/checkup.personal.online.deep'
+import { Route as CheckupPersonalOnlineQuickRouteImport } from './routes/checkup.personal.online.quick'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -173,6 +175,18 @@ const CheckupPersonalComputerQuickRoute =
     path: '/checkup/personal/computer/quick',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CheckupPersonalOnlineDeepRoute =
+  CheckupPersonalOnlineDeepRouteImport.update({
+    id: '/checkup/personal/online/deep',
+    path: '/checkup/personal/online/deep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CheckupPersonalOnlineQuickRoute =
+  CheckupPersonalOnlineQuickRouteImport.update({
+    id: '/checkup/personal/online/quick',
+    path: '/checkup/personal/online/quick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -199,6 +213,8 @@ export interface FileRoutesByFullPath {
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/online/deep': typeof CheckupPersonalOnlineDeepRoute
+  '/checkup/personal/online/quick': typeof CheckupPersonalOnlineQuickRoute
   '/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRoutesByTo {
@@ -225,6 +241,8 @@ export interface FileRoutesByTo {
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/online/deep': typeof CheckupPersonalOnlineDeepRoute
+  '/checkup/personal/online/quick': typeof CheckupPersonalOnlineQuickRoute
   '/app/assessment': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRoutesById {
@@ -254,6 +272,8 @@ export interface FileRoutesById {
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/online/deep': typeof CheckupPersonalOnlineDeepRoute
+  '/checkup/personal/online/quick': typeof CheckupPersonalOnlineQuickRoute
   '/_authenticated/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
 }
 export interface FileRouteTypes {
@@ -283,6 +303,8 @@ export interface FileRouteTypes {
     | '/app/assessment/complete'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/online/deep'
+    | '/checkup/personal/online/quick'
     | '/app/assessment/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -309,6 +331,8 @@ export interface FileRouteTypes {
     | '/app/assessment/complete'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/online/deep'
+    | '/checkup/personal/online/quick'
     | '/app/assessment'
   id:
     | '__root__'
@@ -337,6 +361,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/assessment/complete'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/online/deep'
+    | '/checkup/personal/online/quick'
     | '/_authenticated/app/assessment/'
   fileRoutesById: FileRoutesById
 }
@@ -357,6 +383,8 @@ export interface RootRouteChildren {
   CheckupPersonalIndexRoute: typeof CheckupPersonalIndexRoute
   CheckupPersonalComputerDeepRoute: typeof CheckupPersonalComputerDeepRoute
   CheckupPersonalComputerQuickRoute: typeof CheckupPersonalComputerQuickRoute
+  CheckupPersonalOnlineDeepRoute: typeof CheckupPersonalOnlineDeepRoute
+  CheckupPersonalOnlineQuickRoute: typeof CheckupPersonalOnlineQuickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -543,6 +571,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckupPersonalComputerQuickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkup/personal/online/deep': {
+      id: '/checkup/personal/online/deep'
+      path: '/checkup/personal/online/deep'
+      fullPath: '/checkup/personal/online/deep'
+      preLoaderRoute: typeof CheckupPersonalOnlineDeepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkup/personal/online/quick': {
+      id: '/checkup/personal/online/quick'
+      path: '/checkup/personal/online/quick'
+      fullPath: '/checkup/personal/online/quick'
+      preLoaderRoute: typeof CheckupPersonalOnlineQuickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -602,6 +644,8 @@ const rootRouteChildren: RootRouteChildren = {
   CheckupPersonalIndexRoute: CheckupPersonalIndexRoute,
   CheckupPersonalComputerDeepRoute: CheckupPersonalComputerDeepRoute,
   CheckupPersonalComputerQuickRoute: CheckupPersonalComputerQuickRoute,
+  CheckupPersonalOnlineDeepRoute: CheckupPersonalOnlineDeepRoute,
+  CheckupPersonalOnlineQuickRoute: CheckupPersonalOnlineQuickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
