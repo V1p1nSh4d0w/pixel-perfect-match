@@ -28,8 +28,8 @@ const GROUPS = [
 ];
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel,
-}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel,
+}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
@@ -94,11 +94,11 @@ export function GuidedCheckFlow({
 
       <div className="mt-6 rounded-card border border-border bg-card p-6">
         <h1 className="text-xl font-semibold">{c.title}</h1>
-        <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">What to check</p>
+        <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">{whatLabel ?? "What to check"}</p>
         <p className="mt-1 text-sm">{c.what}</p>
         <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">Why it matters</p>
         <p className="mt-1 text-sm">{c.why}</p>
-        <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">Where to look</p>
+        <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">{whereLabel ?? "Where to look"}</p>
         <p className="mt-1 break-words text-sm">{c.where}</p>
 
         <div role="radiogroup" className="mt-6 grid gap-2 sm:grid-cols-3">
