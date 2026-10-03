@@ -39,7 +39,7 @@ const PATHS = [
 const FLOW = ["Your answers", "Finding", "What to do", "Template"] as const;
 
 const PLANS = [
-  { name: "Free", price: "₹0", note: "Forever free", bullets: ["Complete security assessment", "Security score", "Findings and action plan"], to: "/signup", cta: "Start free" },
+  { name: "Free", price: "₹0", note: "Forever free", bullets: ["Personal and business security checks", "Findings and practical fixes", "Templates and checklists"], to: "/signup", cta: "Start free" },
   { name: "Starter Kit", price: "₹499", note: "One-time payment", bullets: ["Everything in Free", "PDF report download", "Extended remediation playbooks"], to: "/pricing", cta: "See Starter Kit" },
 ] as const;
 
