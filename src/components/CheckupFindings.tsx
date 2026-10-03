@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
+import { getFindingDefinitionForCheck } from "@/lib/finding-definitions";
 import { getFindingDefinition } from "@/lib/finding-definitions";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
 import { fetchPublishedTemplates } from "@/lib/supabase";
