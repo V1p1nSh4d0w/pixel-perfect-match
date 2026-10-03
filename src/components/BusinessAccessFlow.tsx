@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { persistBusinessCheckupFindings } from "@/lib/supabase";
 import { GuidedCheckFlow, answerLabelFor, type GuidedAnswer } from "@/components/GuidedCheckFlow";
 import { loadOnboarding } from "@/lib/business-onboarding";
 import { accessChecksFor } from "@/lib/business-access-checks";
@@ -11,11 +13,21 @@ export function BusinessAccessFlow({ mode }: { mode: "quick" | "deep" }) {
   const [teamSize, setTeamSize] = useState<string | null>(null);
   useEffect(() => setTeamSize(loadOnboarding().teamSize), []);
   const checks = useMemo(() => (teamSize === null ? [] : accessChecksFor(teamSize, mode)), [teamSize, mode]);
+  const savedFor = useRef<string | null>(null);
   const onResults = useCallback((answers: Record<string, GuidedAnswer>) => {
     const findings = findingsFromCheckup(checks, answers, (id, a) =>
       answerLabelFor(checks.find((c) => c.id === id)?.style, a as GuidedAnswer));
     try { sessionStorage.setItem(ACCESS_FINDINGS_KEY, JSON.stringify(findings)); } catch { /* storage unavailable */ }
-  }, [checks]);
+    // Save each completed run once (results re-render must not create a second record).
+    const signature = JSON.stringify(answers);
+    if (savedFor.current === signature) return;
+    savedFor.current = signature;
+    persistBusinessCheckupFindings({ category: "Accounts & Access", mode, answers, findings })
+      .catch((e: unknown) => {
+        savedFor.current = null;
+        toast.error(`Your results couldn't be saved to your account: ${e instanceof Error ? e.message : "unknown error"}`);
+      });
+  }, [checks, mode]);
   if (teamSize === null) return null;
   const label = mode === "quick" ? "Quick Check" : "Deep Check";
   return (
