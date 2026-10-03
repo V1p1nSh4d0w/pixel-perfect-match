@@ -28,6 +28,8 @@ import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as CheckupBusinessIndexRouteImport } from './routes/checkup.business.index'
+import { Route as CheckupBusinessStartRouteImport } from './routes/checkup.business.start'
 import { Route as CheckupPersonalIndexRouteImport } from './routes/checkup.personal.index'
 import { Route as CheckupPersonalDeepRouteImport } from './routes/checkup.personal.deep'
 import { Route as CheckupPersonalQuickRouteImport } from './routes/checkup.personal.quick'
@@ -142,6 +144,16 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const CheckupBusinessIndexRoute = CheckupBusinessIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CheckupBusinessRoute,
+} as any)
+const CheckupBusinessStartRoute = CheckupBusinessStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => CheckupBusinessRoute,
+} as any)
 const CheckupPersonalIndexRoute = CheckupPersonalIndexRouteImport.update({
   id: '/checkup/personal/',
   path: '/checkup/personal/',
@@ -237,7 +249,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/checkup/business': typeof CheckupBusinessRoute
+  '/checkup/business': typeof CheckupBusinessRouteWithChildren
   '/checkup/': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
@@ -245,9 +257,11 @@ export interface FileRoutesByFullPath {
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
@@ -271,7 +285,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
-  '/checkup/business': typeof CheckupBusinessRoute
   '/checkup': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
@@ -279,9 +292,11 @@ export interface FileRoutesByTo {
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/checkup/business': typeof CheckupBusinessIndexRoute
   '/checkup/personal': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
@@ -308,7 +323,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/checkup/business': typeof CheckupBusinessRoute
+  '/checkup/business': typeof CheckupBusinessRouteWithChildren
   '/checkup/': typeof CheckupIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
@@ -316,9 +331,11 @@ export interface FileRoutesById {
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
@@ -353,9 +370,11 @@ export interface FileRouteTypes {
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
+    | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
     | '/app/'
+    | '/checkup/business/'
     | '/checkup/personal/'
     | '/app/assessment/complete'
     | '/checkup/personal/accounts/deep'
@@ -379,7 +398,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
-    | '/checkup/business'
     | '/checkup'
     | '/admin/analytics'
     | '/app/action-plan'
@@ -387,9 +405,11 @@ export interface FileRouteTypes {
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
+    | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
     | '/app'
+    | '/checkup/business'
     | '/checkup/personal'
     | '/app/assessment/complete'
     | '/checkup/personal/accounts/deep'
@@ -423,9 +443,11 @@ export interface FileRouteTypes {
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
+    | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
     | '/_authenticated/app/'
+    | '/checkup/business/'
     | '/checkup/personal/'
     | '/_authenticated/app/assessment/complete'
     | '/checkup/personal/accounts/deep'
@@ -451,7 +473,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
-  CheckupBusinessRoute: typeof CheckupBusinessRoute
+  CheckupBusinessRoute: typeof CheckupBusinessRouteWithChildren
   CheckupIndexRoute: typeof CheckupIndexRoute
   CheckupPersonalDeepRoute: typeof CheckupPersonalDeepRoute
   CheckupPersonalQuickRoute: typeof CheckupPersonalQuickRoute
@@ -603,6 +625,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/checkup/business/': {
+      id: '/checkup/business/'
+      path: '/'
+      fullPath: '/checkup/business/'
+      preLoaderRoute: typeof CheckupBusinessIndexRouteImport
+      parentRoute: typeof CheckupBusinessRoute
+    }
+    '/checkup/business/start': {
+      id: '/checkup/business/start'
+      path: '/start'
+      fullPath: '/checkup/business/start'
+      preLoaderRoute: typeof CheckupBusinessStartRouteImport
+      parentRoute: typeof CheckupBusinessRoute
+    }
     '/checkup/personal/': {
       id: '/checkup/personal/'
       path: '/checkup/personal'
@@ -750,6 +786,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface CheckupBusinessRouteChildren {
+  CheckupBusinessStartRoute: typeof CheckupBusinessStartRoute
+  CheckupBusinessIndexRoute: typeof CheckupBusinessIndexRoute
+}
+
+const CheckupBusinessRouteChildren: CheckupBusinessRouteChildren = {
+  CheckupBusinessStartRoute: CheckupBusinessStartRoute,
+  CheckupBusinessIndexRoute: CheckupBusinessIndexRoute,
+}
+
+const CheckupBusinessRouteWithChildren = CheckupBusinessRoute._addFileChildren(
+  CheckupBusinessRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -760,7 +810,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
-  CheckupBusinessRoute: CheckupBusinessRoute,
+  CheckupBusinessRoute: CheckupBusinessRouteWithChildren,
   CheckupIndexRoute: CheckupIndexRoute,
   CheckupPersonalDeepRoute: CheckupPersonalDeepRoute,
   CheckupPersonalQuickRoute: CheckupPersonalQuickRoute,

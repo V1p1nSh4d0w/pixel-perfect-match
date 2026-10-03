@@ -26,7 +26,7 @@ function CheckupChooser() {
       <p className="mt-3 text-muted-foreground">Who is this checkup for?</p>
       <div className="mt-10 grid gap-4 md:grid-cols-2">
         <div className="flex flex-col rounded-card border border-border bg-card p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Personal</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Personal Security</p>
           <p className="mt-2 text-lg font-semibold">For individuals, students, and families.</p>
           <p className="mt-2 flex-1 text-sm text-muted-foreground">
             Check your phone, computer, online accounts, web safety, and privacy.
@@ -36,7 +36,7 @@ function CheckupChooser() {
           </Link>
         </div>
         <div className="flex flex-col rounded-card border border-border bg-card p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Business</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Business Security</p>
           <p className="mt-2 text-lg font-semibold">For small and growing businesses.</p>
           <p className="mt-2 flex-1 text-sm text-muted-foreground">
             Security checks for businesses that don't have a dedicated security team.
