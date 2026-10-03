@@ -26,7 +26,7 @@ function Page() {
     <CheckupShell back personal>
       <GuidedCheckFlow
         checks={WINDOWS_CHECKS}
-        flowName="Windows Computer Security Check · Deep Check"
+        flowName="💻 Computer Security · Deep Check"
         intro="We'll guide you through a few security settings on your Windows PC. You will check each setting and tell us what you find."
         resultsTitle="Your Computer Security Checkup results"
         deviceNoun="computer"

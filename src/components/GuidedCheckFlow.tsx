@@ -102,7 +102,7 @@ export function GuidedCheckFlow({
         })}
         <div className="mt-10 flex flex-wrap gap-3">
           <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
-          <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Checkup</Button></Link>
+          <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Security</Button></Link>
         </div>
       </div>
     );

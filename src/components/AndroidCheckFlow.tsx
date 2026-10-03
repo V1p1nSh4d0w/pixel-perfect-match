@@ -63,7 +63,7 @@ export function AndroidCheckFlow({ checks, mode }: { checks: AndroidCheck[]; mod
         })}
         <div className="mt-10 flex flex-wrap gap-3">
           <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
-          <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Checkup</Button></Link>
+          <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Security</Button></Link>
         </div>
       </div>
     );
@@ -77,7 +77,7 @@ export function AndroidCheckFlow({ checks, mode }: { checks: AndroidCheck[]; mod
       {reviewing ? (
         <button className="mb-4 text-sm font-medium text-primary hover:underline" onClick={() => setDone(true)}>← Back to Results</button>
       ) : null}
-      <p className="text-sm text-muted-foreground">Android Phone Security Check · {mode} Check</p>
+      <p className="text-sm text-muted-foreground">Android Phone Security · {mode} Check</p>
       {i === 0 && !reviewing ? (
         <p className="mt-3 max-w-2xl rounded-card border border-border bg-card p-4 text-sm text-muted-foreground">
           We'll guide you through a few settings on your Android phone. We can't directly inspect your phone from this website, so you'll check each setting and tell us what you find.
