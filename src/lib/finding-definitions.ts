@@ -111,6 +111,39 @@ const DEFINITIONS: FindingDefinition[] = [
     effort: "Low",
   },
 ];
+  {
+    finding_key: "business_admin_access_review",
+    category: "Accounts & Access",
+    title: "Administrator access needs review",
+    severity: "High",
+    why_it_matters:
+      "Administrator accounts can change important settings and access sensitive business information. Too many admins or an unexpected admin account can increase the impact of an account compromise.",
+    recommended_action:
+      "Review administrator accounts on important business services and keep admin access limited to people who actually need it.",
+    effort: "Low",
+  },
+  {
+    finding_key: "business_recovery_methods",
+    category: "Accounts & Access",
+    title: "Business account recovery methods need review",
+    severity: "Medium",
+    why_it_matters:
+      "Out-of-date recovery email addresses or phone numbers can make account recovery difficult, while recovery details controlled by someone else may create additional risk.",
+    recommended_action:
+      "Review recovery email addresses, phone numbers and backup options on important business accounts and remove outdated details.",
+    effort: "Low",
+  },
+  {
+    finding_key: "business_third_party_access",
+    category: "Accounts & Access",
+    title: "Connected business apps and services need review",
+    severity: "Medium",
+    why_it_matters:
+      "Connected apps and services may have permission to access business information. Unused or unnecessary connections can retain access longer than needed.",
+    recommended_action:
+      "Review connected apps and third-party services on important business accounts and remove access that is no longer needed.",
+    effort: "Low",
+  },
 
 export const FINDING_DEFINITIONS: Readonly<Record<string, FindingDefinition>> = Object.freeze(
   Object.fromEntries(DEFINITIONS.map((d) => [d.finding_key, d])),
