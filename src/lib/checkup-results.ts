@@ -9,7 +9,7 @@ export interface CheckupItem {
   category: string;
   status: CheckupItemStatus;
   /** Answer the user picked, as displayed. */
-  answer?: string;
+  answer?: string | undefined;
   review?: string;
   where?: string;
 }
