@@ -110,8 +110,7 @@ const DEFINITIONS: FindingDefinition[] = [
       "Turn on MFA (two-step verification) for your important accounts, such as email, banking and cloud storage, preferring an authenticator app or passkey where available.",
     effort: "Low",
   },
-];
-{
+  {
     finding_key: "business_admin_access_review",
     category: "Accounts & Access",
     title: "Administrator access needs review",
@@ -144,6 +143,8 @@ const DEFINITIONS: FindingDefinition[] = [
       "Review connected apps and third-party services on important business accounts and remove access that is no longer needed.",
     effort: "Low",
   },
+
+];
 
 export const FINDING_DEFINITIONS: Readonly<Record<string, FindingDefinition>> = Object.freeze(
   Object.fromEntries(DEFINITIONS.map((d) => [d.finding_key, d])),
