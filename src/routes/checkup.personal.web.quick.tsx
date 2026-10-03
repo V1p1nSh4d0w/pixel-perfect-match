@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/web/quick")({
 function Page() {
   const checks = WEB_PRIVACY_CHECKS.filter((c) => c.quick);
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={checks}
         sectionLabel="Web & Privacy"

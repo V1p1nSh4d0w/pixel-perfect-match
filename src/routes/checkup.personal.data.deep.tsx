@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/data/deep")({
 function Page() {
   const checks = DATA_CHECKS;
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={checks}
         sectionLabel="Data Protection"

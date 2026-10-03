@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/scams/deep")({
 function Page() {
   const checks = SCAM_CHECKS;
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={checks}
         sectionLabel="Scam & Phishing"

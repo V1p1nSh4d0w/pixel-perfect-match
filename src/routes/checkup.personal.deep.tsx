@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/deep")({
 function Page() {
   void ANDROID_CHECKS; void quickChecks;
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <AndroidCheckFlow mode="Deep" checks={ANDROID_CHECKS} />
     </CheckupShell>
   );

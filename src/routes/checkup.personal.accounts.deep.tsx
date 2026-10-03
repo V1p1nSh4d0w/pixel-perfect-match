@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/accounts/deep")({
 function Page() {
   const checks = ACCOUNT_CHECKS;
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={checks}
         sectionLabel="Account Security"

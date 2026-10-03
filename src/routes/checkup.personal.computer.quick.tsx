@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/computer/quick")({
 function Page() {
   void WINDOWS_CHECKS; void windowsQuickChecks;
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={windowsQuickChecks()}
         flowName="Windows Computer Security Check · Quick Check"
