@@ -5,7 +5,7 @@ import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
 
 /** Findings from the new Personal/Business checkups (never mixed with the old Assessment). */
-export function CheckupFindings({ results, from }: { results: SavedCheckupResult[]; from?: string }) {
+export function CheckupFindings({ results, from }: { results: SavedCheckupResult[]; from?: string | undefined }) {
   const scopes = (["personal", "business"] as const).filter((s) => results.some((r) => r.scope === s));
   const initial = from ? scopeForPath(from) : scopes[0]!;
   const [scope, setScope] = useState<"personal" | "business">(scopes.includes(initial) ? initial : scopes[0]!);
