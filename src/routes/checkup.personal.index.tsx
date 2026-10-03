@@ -91,6 +91,16 @@ function PersonalCheckup() {
             <Link to="/checkup/personal/scams/deep"><Button fullWidth variant="secondary">Deep Check</Button></Link>
           </div>
         </div>
+        <div className="flex flex-col rounded-card border border-border bg-card p-6 md:col-span-2">
+          <p className="text-lg font-semibold">💾 Data Protection</p>
+          <p className="mt-2 flex-1 text-sm text-muted-foreground">
+            Backups you can recover from, file sharing, recovery options and device encryption. We never ask you to upload documents.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Link to="/checkup/personal/data/quick"><Button fullWidth>Quick Check</Button></Link>
+            <Link to="/checkup/personal/data/deep"><Button fullWidth variant="secondary">Deep Check</Button></Link>
+          </div>
+        </div>
       </div>
 
 
