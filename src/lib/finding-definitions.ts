@@ -151,3 +151,23 @@ export function findingsFromCheckup(
   }
   return [...out.values()];
 }
+const LEGACY_CHECK_ID_TO_FINDING_KEY: Record<string, FindingKey> = {
+  mfa: "business_mfa_not_enabled",
+  shared: "business_shared_accounts",
+  former: "business_former_staff_access",
+  coverage: "business_data_not_backed_up",
+  separation: "business_backups_not_separate",
+  "restore-test": "business_backups_not_tested",
+};
+
+export function getFindingDefinitionForCheck(
+  findingKey: string | undefined,
+  checkId: string,
+) {
+  if (findingKey) {
+    return getFindingDefinition(findingKey);
+  }
+
+  const fallbackKey = LEGACY_CHECK_ID_TO_FINDING_KEY[checkId];
+  return fallbackKey ? getFindingDefinition(fallbackKey) : undefined;
+}
