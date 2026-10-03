@@ -8,6 +8,10 @@ export interface CheckupItem {
   title: string;
   category: string;
   status: CheckupItemStatus;
+
+  /** Stable internal key connecting this check to a Finding definition. */
+  findingKey?: string;
+
   /** Answer the user picked, as displayed. */
   answer?: string | undefined;
   review?: string;
