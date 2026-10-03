@@ -256,3 +256,7 @@ export const ONLINE_CHECKS: GuidedCheck[] = [
 ];
 
 export const onlineQuickChecks = () => ONLINE_CHECKS.filter((c) => c.quick);
+
+// Split into two separate checkups (Step 5A). Same questions, no duplicates.
+export const ACCOUNT_CHECKS = ONLINE_CHECKS.filter((c) => c.category === ACC);
+export const WEB_PRIVACY_CHECKS = ONLINE_CHECKS.filter((c) => c.category !== ACC);
