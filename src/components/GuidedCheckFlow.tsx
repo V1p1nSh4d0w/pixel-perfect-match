@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useCheckupPersistence } from "@/hooks/useCheckupPersistence";
+import type { CheckupItem } from "@/lib/checkup-results";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
@@ -59,8 +61,8 @@ function groupFor(c: GuidedCheck, a: GuidedAnswer | undefined): ResultKey {
 }
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security", onResults, resultsActions,
-}: { resultsActions?: import("react").ReactNode; onResults?: (answers: Record<string, GuidedAnswer>) => void; checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security", onResults,
+}: { onResults?: (answers: Record<string, GuidedAnswer>) => void; checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
@@ -68,6 +70,11 @@ export function GuidedCheckFlow({
   const total = checks.length;
   const keyOf = (c: GuidedCheck): ResultKey => groupFor(c, answers[c.id]);
   useEffect(() => { if (done) onResults?.(answers); }, [done, answers, onResults]);
+  const items = useMemo<CheckupItem[]>(() => checks.map((c) => ({
+    id: c.id, title: c.title, category: c.category, status: groupFor(c, answers[c.id]),
+    answer: answers[c.id] ? answerLabelFor(c.style, answers[c.id]!) : undefined, review: c.review, where: c.where,
+  })), [checks, answers]);
+  const { path } = useCheckupPersistence({ done, answers, items, name: flowName, restore: (a) => { setAnswers(a); setDone(true); } });
 
   if (done) {
     const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
@@ -76,6 +83,7 @@ export function GuidedCheckFlow({
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">{resultsTitle}</h1>
         <ResultsSummary counts={counts} />
+        <div className="mt-4"><Link to="/app/findings" search={{ from: path }}><Button>View Findings</Button></Link></div>
         <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}. None of these results mean you've been hacked — they're settings, habits and tips worth a look.
         </p>
@@ -115,7 +123,6 @@ export function GuidedCheckFlow({
         <div className="mt-10 flex flex-wrap gap-3">
           <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
           <Link to={backTo}><Button variant="ghost">{backLabel}</Button></Link>
-          {resultsActions}
         </div>
       </div>
     );

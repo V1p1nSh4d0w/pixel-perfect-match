@@ -19,12 +19,15 @@ import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
 import { FINDING_KEY_FOR_TITLE } from "@/lib/templates.functions";
 import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
+import { fetchLatestCheckupResults } from "@/lib/checkup-results";
+import { CheckupFindings } from "@/components/CheckupFindings";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
     const severity = typeof search["severity"] === "string" && search["severity"] ? { severity: search["severity"] } : {};
     const finding = typeof search["finding"] === "string" && search["finding"] ? { finding: search["finding"] } : {};
-    return { ...severity, ...finding };
+    const from = typeof search["from"] === "string" && search["from"].startsWith("/checkup/") ? { from: search["from"] as string } : {};
+    return { ...severity, ...finding, ...from } as { severity?: string; finding?: string; from?: string };
   },
   head: () => ({ meta: [
     { title: "Findings — SecureCheck" },
@@ -74,6 +77,15 @@ function ConfidenceBadge({ level }: { level: "Low" | "Medium" }) {
 }
 
 function FindingsPage() {
+  const { from } = Route.useSearch();
+  const q = useQuery({ queryKey: ["checkup-results"], queryFn: fetchLatestCheckupResults });
+  if (q.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (q.error) return <p className="text-sm text-destructive">Couldn't load your checkup results. Please refresh the page.</p>;
+  if ((q.data ?? []).length > 0) return <CheckupFindings results={q.data!} from={from} />;
+  return <LegacyFindingsPage />;
+}
+
+function LegacyFindingsPage() {
   const { result, isLoading } = useLatestResult();
   const { severity, finding } = Route.useSearch();
   const planQuery = useQuery({ queryKey: ACTION_PLAN_KEY, queryFn: fetchActionPlanFindingIds });
