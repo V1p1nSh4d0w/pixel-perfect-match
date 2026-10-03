@@ -28,7 +28,7 @@ const GROUPS = [
 ];
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel,
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel,
 }: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
