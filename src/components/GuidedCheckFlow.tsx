@@ -71,8 +71,14 @@ export function GuidedCheckFlow({
   const keyOf = (c: GuidedCheck): ResultKey => groupFor(c, answers[c.id]);
   useEffect(() => { if (done) onResults?.(answers); }, [done, answers, onResults]);
   const items = useMemo<CheckupItem[]>(() => checks.map((c) => ({
-    id: c.id, title: c.title, category: c.category, status: groupFor(c, answers[c.id]),
-    answer: answers[c.id] ? answerLabelFor(c.style, answers[c.id]!) : undefined, review: c.review, where: c.where,
+  id: c.id,
+  title: c.title,
+  category: c.category,
+  status: groupFor(c, answers[c.id]),
+  findingKey: c.findingKey,
+  answer: answers[c.id] ? answerLabelFor(c.style, answers[c.id]!) : undefined,
+  review: c.review,
+  where: c.where,
   })), [checks, answers]);
   const { path } = useCheckupPersistence({ done, answers, items, name: flowName, restore: (a) => { setAnswers(a); setDone(true); } });
 
