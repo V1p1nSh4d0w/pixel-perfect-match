@@ -47,6 +47,14 @@ function Page() {
             <Link to="/checkup/business/accounts/deep"><Button fullWidth variant={v.mode === "deep" ? "primary" : "secondary"}>Deep Check</Button></Link>
           </div>
         </div>
+        <div className="flex flex-col rounded-card border border-border bg-card p-6">
+          <p className="text-lg font-semibold"><span aria-hidden="true">💻</span> Devices & Software</p>
+          <p className="mt-2 flex-1 text-sm text-muted-foreground">Review security protection, firewall, encryption, admin rights, remote access and installed software.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Link to="/checkup/business/devices/quick"><Button fullWidth variant={v.mode === "deep" ? "secondary" : "primary"}>Quick Check</Button></Link>
+            <Link to="/checkup/business/devices/deep"><Button fullWidth variant={v.mode === "deep" ? "primary" : "secondary"}>Deep Check</Button></Link>
+          </div>
+        </div>
       </div>
       <p className="mt-4 text-sm text-muted-foreground">More business security areas are coming soon. Your choices are saved for this visit.</p>
       <div className="mt-6">
