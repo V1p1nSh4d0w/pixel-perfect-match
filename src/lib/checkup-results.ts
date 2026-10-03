@@ -45,16 +45,18 @@ export function loadLocalAnswers(path: string): Record<string, string> | null {
 export async function saveCheckupResult(input: { path: string; name: string; answers: Record<string, string>; items: CheckupItem[] }): Promise<boolean> {
   try { sessionStorage.setItem(localKey(input.path), JSON.stringify(input.answers)); } catch { /* storage unavailable */ }
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return false;
+  if (!session) return false; // guests: session-only, no account save attempted
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) { console.error("Checkup save: could not verify the signed-in user", userError); throw userError ?? new Error("Not signed in"); }
   const { error } = await supabase.from("checkup_results").insert({
-    user_id: session.user.id,
+    user_id: user.id,
     scope: scopeForPath(input.path),
     checkup_path: input.path,
     checkup_name: input.name,
     answers: input.answers,
     items: input.items as unknown as never,
   });
-  if (error) throw error;
+  if (error) { console.error("Checkup save failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); throw error; }
   return true;
 }
 
@@ -72,7 +74,7 @@ export async function fetchLatestCheckupResults(): Promise<SavedCheckupResult[]>
   const { data, error } = await supabase.from("checkup_results")
     .select("id, scope, checkup_path, checkup_name, answers, items, created_at")
     .order("created_at", { ascending: false }).limit(200);
-  if (error) throw error;
+  if (error) { console.error("Loading checkup results failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); throw error; }
   const seen = new Set<string>();
   const out: SavedCheckupResult[] = [];
   for (const r of data ?? []) {

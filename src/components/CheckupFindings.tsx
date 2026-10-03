@@ -54,3 +54,12 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
     </div>
   );
 }
+
+export function CheckupFindingsEmpty() {
+  return (
+    <div>
+      <PageHeader title="Findings" description="Findings appear here after you complete a Personal or Business checkup while signed in." />
+      <a href="/app" className="mt-6 inline-block"><Button>Choose a checkup</Button></a>
+    </div>
+  );
+}

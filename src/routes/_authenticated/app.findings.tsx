@@ -20,7 +20,7 @@ import { FINDING_KEY_FOR_TITLE } from "@/lib/templates.functions";
 import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
 import { fetchLatestCheckupResults } from "@/lib/checkup-results";
-import { CheckupFindings } from "@/components/CheckupFindings";
+import { CheckupFindings, CheckupFindingsEmpty } from "@/components/CheckupFindings";
 
 export const Route = createFileRoute("/_authenticated/app/findings")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -78,11 +78,14 @@ function ConfidenceBadge({ level }: { level: "Low" | "Medium" }) {
 
 function FindingsPage() {
   const { from } = Route.useSearch();
-  const q = useQuery({ queryKey: ["checkup-results"], queryFn: fetchLatestCheckupResults });
+  const q = useQuery({ queryKey: ["checkup-results"], queryFn: fetchLatestCheckupResults, retry: 1 });
+  const legacy = useLatestResult();
   if (q.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (q.error) return <p className="text-sm text-destructive">Couldn't load your checkup results. Please refresh the page.</p>;
   if ((q.data ?? []).length > 0) return <CheckupFindings results={q.data!} from={from} />;
-  return <LegacyFindingsPage />;
+  if (legacy.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (legacy.result) return <LegacyFindingsPage />;
+  return <CheckupFindingsEmpty />;
 }
 
 function LegacyFindingsPage() {
