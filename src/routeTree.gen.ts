@@ -22,9 +22,9 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as CheckupIndexRouteImport } from './routes/checkup.index'
 import { Route as CheckupBusinessRouteImport } from './routes/checkup.business'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
-import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app.dashboard'
 import { Route as AuthenticatedAppFindingsRouteImport } from './routes/_authenticated/app.findings'
 import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -119,11 +119,6 @@ const AuthenticatedAdminAnalyticsRoute =
     path: '/admin/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
 const AuthenticatedAppActionPlanRoute =
   AuthenticatedAppActionPlanRouteImport.update({
     id: '/action-plan',
@@ -135,6 +130,12 @@ const AuthenticatedAppAdminRoute = AuthenticatedAppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppDashboardRoute =
+  AuthenticatedAppDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppFindingsRoute =
   AuthenticatedAppFindingsRouteImport.update({
     id: '/findings',
@@ -309,13 +310,13 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
+  '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
-  '/app/': typeof AuthenticatedAppIndexRoute
   '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -348,17 +349,18 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
   '/checkup': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
+  '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/findings': typeof AuthenticatedAppFindingsRoute
   '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
-  '/app': typeof AuthenticatedAppIndexRoute
   '/checkup/business': typeof CheckupBusinessIndexRoute
   '/checkup/personal': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -399,13 +401,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/app/action-plan': typeof AuthenticatedAppActionPlanRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
+  '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/findings': typeof AuthenticatedAppFindingsRoute
   '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
-  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -446,13 +448,13 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
+    | '/app/dashboard'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
-    | '/app/'
     | '/checkup/business/'
     | '/checkup/personal/'
     | '/app/assessment/complete'
@@ -485,17 +487,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/app'
     | '/checkup'
     | '/admin/analytics'
     | '/app/action-plan'
     | '/app/admin'
+    | '/app/dashboard'
     | '/app/findings'
     | '/app/reports'
     | '/app/settings'
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
-    | '/app'
     | '/checkup/business'
     | '/checkup/personal'
     | '/app/assessment/complete'
@@ -535,13 +538,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/analytics'
     | '/_authenticated/app/action-plan'
     | '/_authenticated/app/admin'
+    | '/_authenticated/app/dashboard'
     | '/_authenticated/app/findings'
     | '/_authenticated/app/reports'
     | '/_authenticated/app/settings'
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
-    | '/_authenticated/app/'
     | '/checkup/business/'
     | '/checkup/personal/'
     | '/_authenticated/app/assessment/complete'
@@ -686,13 +689,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/app/': {
-      id: '/_authenticated/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
     '/_authenticated/app/action-plan': {
       id: '/_authenticated/app/action-plan'
       path: '/action-plan'
@@ -705,6 +701,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/app/admin'
       preLoaderRoute: typeof AuthenticatedAppAdminRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/dashboard': {
+      id: '/_authenticated/app/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/dashboard'
+      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/findings': {
@@ -909,10 +912,10 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppActionPlanRoute: typeof AuthenticatedAppActionPlanRoute
   AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRoute
+  AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppFindingsRoute: typeof AuthenticatedAppFindingsRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
-  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAssessmentCompleteRoute: typeof AuthenticatedAppAssessmentCompleteRoute
   AuthenticatedAppAssessmentIndexRoute: typeof AuthenticatedAppAssessmentIndexRoute
 }
@@ -920,10 +923,10 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppActionPlanRoute: AuthenticatedAppActionPlanRoute,
   AuthenticatedAppAdminRoute: AuthenticatedAppAdminRoute,
+  AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppFindingsRoute: AuthenticatedAppFindingsRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
-  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppAssessmentCompleteRoute:
     AuthenticatedAppAssessmentCompleteRoute,
   AuthenticatedAppAssessmentIndexRoute: AuthenticatedAppAssessmentIndexRoute,
