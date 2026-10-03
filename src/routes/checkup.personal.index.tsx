@@ -49,6 +49,18 @@ function PersonalCheckup() {
         </div>
       </div>
 
+      <div className="mt-6 rounded-card border border-border bg-card p-6">
+        <p className="text-lg font-semibold">Computer Security Checkup (Windows)</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          A guided self-check of Windows Security, system protection, remote access, accounts, apps and your browser.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <Link to="/checkup/personal/computer/quick"><Button fullWidth>Start Quick Check</Button></Link>
+          <Link to="/checkup/personal/computer/deep"><Button fullWidth variant="secondary">Start Deep Check</Button></Link>
+        </div>
+      </div>
+
+
       <h2 className="mt-14 text-xl font-semibold tracking-tight">What the checkup covers</h2>
       <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map(([icon, label]) => (
