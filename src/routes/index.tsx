@@ -2,14 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { BrandLogo } from "@/components/BrandLogo";
-import { RiskLabel, ScoreRing, SeverityBadge } from "@/components/Results";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/config";
 import { usePremiumEnabled } from "@/hooks/useSubscription";
 
-const TITLE = "SecureCheck — Know your security. Fix what matters.";
+const TITLE = "SecureCheck — Know what needs attention. Fix what matters.";
 const DESC =
-  "A 60-second security assessment for small businesses in India: get a security score, a list of what's wrong, and a clear plan to fix it.";
+  "Simple security checkups for your personal digital life and your business — with clear findings, practical fixes, and useful templates.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,58 +25,27 @@ export const Route = createFileRoute("/")({
 });
 
 const STEPS = [
-  ["01", "Assess", "Answer 10 plain-English questions about your business."],
-  ["02", "Analyze", "SecureCheck scores your answers against security best practices."],
-  ["03", "Prioritize", "Findings are ranked by severity so you know what matters."],
-  ["04", "Improve", "Follow a concrete action plan, not vague advice."],
+  ["01", "Check", "Answer practical security questions about the things that matter."],
+  ["02", "Find", "See what needs attention, what's worth reviewing, and what already looks good."],
+  ["03", "Fix", "Get clear steps to fix things, instead of a confusing technical report."],
+  ["04", "Improve", "Track your progress and use practical templates when they help."],
 ] as const;
 
-const CHECKS = [
-  ["Password security", "Are business passwords strong, unique, and managed?"],
-  ["Multi-factor authentication", "Is MFA enabled on email, banking, and admin accounts?"],
-  ["Access control", "Do only the right people have admin or owner access?"],
-  ["Software updates", "Is software kept current and supported?"],
-  ["Device security", "Are laptops and phones locked and encrypted?"],
-  ["Backups", "Is business data backed up and tested for recovery?"],
-  ["Email security", "Is email protected and are staff trained on phishing?"],
-  ["Cloud & SaaS", "Is access to cloud tools reviewed and limited?"],
-  ["Website & domain", "Is the site HTTPS and the domain registrar locked down?"],
-  ["Incident readiness", "Do you have a plan if a device is lost or an account is breached?"],
+const PATHS = [
+  { icon: "👤", title: "Personal Security", desc: "Review your phone, computer, online accounts, web activity, scams, and important data.", areas: ["Android Phone Security", "Computer Security", "Account Security", "Web & Privacy", "Scam & Phishing Protection", "Data Protection"], to: "/checkup/personal", cta: "Check personal security" },
+  { icon: "🏢", title: "Business Security", desc: "Review business accounts, devices, email, website, data, backups, and security practices.", areas: ["Accounts & Access", "Devices & Software", "Email, Website & Online Presence", "Data & Backups"], to: "/checkup/business", cta: "Check business security" },
 ] as const;
+
+const FLOW = ["Your answers", "Finding", "What to do", "Template"] as const;
 
 const PLANS = [
   { name: "Free", price: "₹0", note: "Forever free", bullets: ["Complete security assessment", "Security score", "Findings and action plan"], to: "/signup", cta: "Start free" },
   { name: "Starter Kit", price: "₹499", note: "One-time payment", bullets: ["Everything in Free", "PDF report download", "Extended remediation playbooks"], to: "/pricing", cta: "See Starter Kit" },
 ] as const;
 
-function useCountUp(target: number, ms: number) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / ms);
-      setV(Math.round(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, ms]);
-  return v;
-}
-
-function Tick({ ok }: { ok: boolean }) {
-  return ok ? (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="shrink-0 text-success" aria-label="Yes"><path d="M5 12l5 5L20 7" /></svg>
-  ) : (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="shrink-0 text-danger" aria-label="No"><path d="M6 6l12 12M18 6L6 18" /></svg>
-  );
-}
-
 function LandingPage() {
   const { premiumEnabled } = usePremiumEnabled();
   const navigate = useNavigate();
-  const score = useCountUp(72, 1200);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -92,13 +60,13 @@ function LandingPage() {
           <BrandLogo className="shrink-0 text-base font-semibold tracking-tight" />
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#how-it-works" className="hover:text-foreground">How it works</a>
-            <a href="#security-checks" className="hover:text-foreground">Security checks</a>
+            <a href="#answers-to-action" className="hover:text-foreground">Findings & fixes</a>
             <Link to="/checkup" className="hover:text-foreground">Security Checkup</Link>
             <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <Link to="/login"><Button variant="ghost">Sign in</Button></Link>
-            <Link to="/signup" className="hidden sm:block"><Button>Start free check</Button></Link>
+            <Link to="/checkup" className="hidden sm:block"><Button>Start a free check</Button></Link>
           </div>
         </div>
       </header>
@@ -113,55 +81,56 @@ function LandingPage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 md:grid-cols-2 md:py-28">
           <div className="min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> For small businesses in India
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Guided security self-checks
             </span>
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">Know your security. Fix what matters.</h1>
-            <p className="mt-5 max-w-lg text-base text-muted-foreground">
-              A 60-second assessment that gives your business a security score, a list of what's wrong, and a clear plan to fix it.
-            </p>
+            <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">Know what needs attention. Fix what matters.</h1>
+            <p className="mt-5 max-w-lg text-base text-muted-foreground">{DESC}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/signup"><Button>Start free check</Button></Link>
-              <Link to="/pricing"><Button variant="secondary">See pricing</Button></Link>
+              <Link to="/checkup"><Button>Start a free security check</Button></Link>
+              <a href="#how-it-works"><Button variant="secondary">See how it works</Button></a>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">No credit card. 10 questions. Results in under a minute.</p>
           </div>
 
-          <div className="rounded-card border border-border bg-card p-6 md:justify-self-end md:w-[380px]">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-              Sample self-assessment
-            </div>
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <ScoreRing score={score} risk="Moderate risk" />
-              <RiskLabel risk="Moderate risk" />
-            </div>
-            <ul className="mt-6 space-y-2">
-              {([["MFA", true], ["Backups", true], ["Password manager", false]] as const).map(([label, ok], i) => (
+          <div className="rounded-card border border-border bg-card p-6 md:w-[380px] md:justify-self-end">
+            <p className="text-xs text-muted-foreground">Example results · Account Security</p>
+            <ul className="mt-4 space-y-2">
+              {([["🔴 Needs attention", "Two-step sign-in is off on email"], ["🟡 Worth reviewing", "Old devices still signed in"], ["🟢 Looks good", "Recovery phone is up to date"]] as const).map(([label, item], i) => (
                 <li
                   key={label}
-                  className="animate-rise flex items-center justify-between rounded-button border border-border bg-surface-raised px-3 py-2 text-sm"
-                  style={{ animationDelay: `${400 + i * 150}ms` }}
+                  className="animate-rise rounded-button border border-border bg-surface-raised px-3 py-2.5 text-sm"
+                  style={{ animationDelay: `${300 + i * 150}ms` }}
                 >
-                  {label} <Tick ok={ok} />
+                  <span className="block text-xs text-muted-foreground">{label}</span>
+                  <span className="mt-0.5 block">{item}</span>
                 </li>
               ))}
             </ul>
+            <p className="mt-4 text-xs text-muted-foreground">Based on what you tell us — SecureCheck doesn't scan your devices or accounts.</p>
           </div>
         </div>
       </section>
 
-      <div className="border-y border-border">
-        <p className="mx-auto max-w-6xl px-5 py-4 text-center text-sm text-muted-foreground">
-          Built for Indian SMBs, clinics, coaching centers, CA firms, and D2C brands
-        </p>
-      </div>
+      {/* Product paths */}
+      <section className="mx-auto max-w-6xl px-5 pb-8">
+        <div className="grid gap-4 md:grid-cols-2">
+          {PATHS.map((p) => (
+            <div key={p.title} className="flex flex-col rounded-card border border-border bg-card p-6">
+              <p className="text-xl font-semibold"><span aria-hidden="true">{p.icon}</span> {p.title}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{p.desc}</p>
+              <ul className="mt-4 flex flex-1 flex-wrap content-start gap-2">
+                {p.areas.map((a) => (
+                  <li key={a} className="rounded-full border border-border bg-surface-raised px-3 py-1 text-xs text-muted-foreground">{a}</li>
+                ))}
+              </ul>
+              <Link to={p.to} className="mt-6"><Button fullWidth>{p.cta}</Button></Link>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* How it works */}
       <section id="how-it-works" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">One assessment. A clear action plan.</h2>
+        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">How it works</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(([n, t, d]) => (
             <div key={n}>
@@ -173,57 +142,43 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* What we check */}
-      <section id="security-checks" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">What does SecureCheck look for?</h2>
-        <p className="mt-3 text-muted-foreground">Ten controls that matter most for a small business.</p>
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
-          {CHECKS.map(([t, d]) => (
-            <div key={t} className="rounded-card border border-border bg-card p-5">
-              <p className="font-medium">{t}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-            </div>
+      {/* From answers to action */}
+      <section id="answers-to-action" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">
+        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">From answers to action</h2>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Your answers can surface specific security findings. Each finding explains why it matters and what you can do next. Where useful, SecureCheck also provides a ready-to-use template or checklist.
+        </p>
+        <ol className="mt-8 flex flex-wrap items-center gap-2 text-sm">
+          {FLOW.map((f, i) => (
+            <li key={f} className="flex items-center gap-2">
+              <span className="rounded-button border border-border bg-card px-3 py-2">{f}</span>
+              {i < FLOW.length - 1 ? <span aria-hidden="true" className="text-muted-foreground">→</span> : null}
+            </li>
           ))}
-        </div>
-      </section>
-
-      {/* Score preview */}
-      <section className="mx-auto max-w-6xl px-5 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">See exactly where you stand.</h2>
-        <div className="mt-10 grid items-center gap-10 md:grid-cols-[auto_1fr]">
-          <div className="flex flex-col items-center gap-2 rounded-card border border-border bg-card p-8">
-            <ScoreRing score={72} risk="Moderate risk" />
-            <p className="text-lg font-semibold text-medium">Moderate</p>
-          </div>
-          <div className="space-y-4 text-muted-foreground">
-            <p>The score is a snapshot of your current security baseline.</p>
-            <p>Every finding comes with a plain-English explanation of why it matters and what to do.</p>
-            <p>The score is an assessment indicator, not a guarantee of security.</p>
-            <Link to="/signup" className="inline-block pt-2"><Button>Get your free score</Button></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Sample finding */}
-      <section className="mx-auto max-w-3xl px-5 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Your report tells you exactly what to do next.</h2>
-        <div className="mt-10 rounded-card border border-border bg-card p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <SeverityBadge severity="High" />
-            <span className="text-xs text-muted-foreground">Email</span>
-          </div>
-          <p className="mt-3 font-medium">Email is not protected with MFA</p>
+        </ol>
+        <div className="mt-8 max-w-3xl rounded-card border border-border bg-card p-5">
+          <p className="text-xs text-muted-foreground">Example finding · Email</p>
+          <p className="mt-2 font-medium">Business email isn't protected with two-step sign-in</p>
           <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">Why it matters</p>
-          <p className="mt-1 text-sm">Your email resets every other password, so a hijacked inbox can lead to everything else.</p>
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">Suggested fix</p>
-          <p className="mt-1 text-sm">Turn on MFA for every mailbox in your email provider's admin settings.</p>
+          <p className="mt-1 text-sm">Email is often used to reset other passwords, so protecting it can significantly reduce the risk of a wider account takeover.</p>
+          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">What to do next</p>
+          <p className="mt-1 text-sm">Turn on two-step sign-in for every important mailbox, starting with the ones used for banking and your website.</p>
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">12 more findings, ranked by severity, waiting after your assessment.</p>
+      </section>
+
+      {/* Honesty */}
+      <section className="mx-auto max-w-3xl px-5 py-12">
+        <div className="rounded-card border border-border bg-card p-6">
+          <h2 className="text-lg font-semibold">Clear about what SecureCheck does</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            SecureCheck provides guided security self-assessments and practical recommendations. It does not replace professional penetration testing, vulnerability testing, or an independent technical security review.
+          </p>
+        </div>
       </section>
 
       {/* Pricing teaser */}
       <section className="mx-auto max-w-6xl px-5 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Start free. Upgrade when you're ready.</h2>
+        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Free to start.</h2>
         <div className={`mx-auto mt-10 grid gap-4 ${premiumEnabled ? "max-w-3xl md:grid-cols-2" : "max-w-md"}`}>
           {PLANS.filter((p) => premiumEnabled || p.name !== "Starter Kit").map((p) => (
             <div key={p.name} className={`flex flex-col rounded-card border bg-card p-5 ${p.name === "Starter Kit" ? "border-primary" : "border-border"}`}>
@@ -242,9 +197,9 @@ function LandingPage() {
 
       {/* Final CTA */}
       <section className="mx-auto max-w-3xl px-5 py-24 text-center">
-        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Find out where your business stands.</h2>
-        <p className="mt-4 text-muted-foreground">Ten questions. Under a minute. A score, findings, and a plan.</p>
-        <Link to="/signup" className="mt-8 inline-block"><Button>Start free check</Button></Link>
+        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">See what needs attention — then fix what matters.</h2>
+        <p className="mt-4 text-muted-foreground">Choose personal or business security and start with a Quick Check.</p>
+        <Link to="/checkup" className="mt-8 inline-block"><Button>Start a free security check</Button></Link>
       </section>
 
       <footer className="border-t border-border">
@@ -252,7 +207,7 @@ function LandingPage() {
           <p className="font-semibold">SecureCheck</p>
           <FooterCol title="Product">
             <a href="#how-it-works">How it works</a>
-            <a href="#security-checks">Security checks</a>
+            <Link to="/checkup">Security Checkup</Link>
             <Link to="/pricing">Pricing</Link>
           </FooterCol>
           <FooterCol title="Account">
