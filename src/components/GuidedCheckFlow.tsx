@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
@@ -18,6 +18,13 @@ export interface GuidedCheck {
   quick: boolean;
   /** How the answers are worded. Defaults to "setting" (inspecting a device/account setting). */
   style?: AnswerStyle;
+  /** Optional internal finding_key (see finding-definitions.ts) raised by a negative answer. Never displayed. */
+  findingKey?: string;
+}
+
+/** Display label for an answer in a given style (e.g. "No, we don't"). */
+export function answerLabelFor(style: AnswerStyle | undefined, a: GuidedAnswer): string {
+  return STYLE_OPTIONS[style ?? "setting"].find(([v]) => v === a)?.[1] ?? a;
 }
 
 export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario" | "business" | "businessKnow";
@@ -52,14 +59,15 @@ function groupFor(c: GuidedCheck, a: GuidedAnswer | undefined): ResultKey {
 }
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security",
-}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security", onResults,
+}: { onResults?: (answers: Record<string, GuidedAnswer>) => void; checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const total = checks.length;
   const keyOf = (c: GuidedCheck): ResultKey => groupFor(c, answers[c.id]);
+  useEffect(() => { if (done) onResults?.(answers); }, [done, answers, onResults]);
 
   if (done) {
     const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;

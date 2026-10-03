@@ -125,3 +125,29 @@ export function getFindingDefinition(key: string): FindingDefinition | undefined
 export function listFindingDefinitions(category?: string): FindingDefinition[] {
   return category ? DEFINITIONS.filter((d) => d.category === category) : [...DEFINITIONS];
 }
+
+/** A finding raised from a guided self-check answer (self-reported, never technically detected). */
+export interface CheckupFinding extends FindingDefinition {
+  evidence: { question: string; answer: string; source: "Self-assessment" };
+}
+
+/**
+ * Maps checkup answers to finding definitions. Only a negative ("found") answer
+ * raises a finding; "good", "unsure" and skipped answers never do.
+ * One finding per finding_key, so revisiting/reviewing never duplicates.
+ */
+export function findingsFromCheckup(
+  checks: { id: string; title: string; findingKey?: string }[],
+  answers: Record<string, string | undefined>,
+  answerLabel: (checkId: string, answer: string) => string,
+): CheckupFinding[] {
+  const out = new Map<string, CheckupFinding>();
+  for (const c of checks) {
+    const a = answers[c.id];
+    if (!c.findingKey || a !== "found" || out.has(c.findingKey)) continue;
+    const def = FINDING_DEFINITIONS[c.findingKey];
+    if (!def) continue;
+    out.set(c.findingKey, { ...def, evidence: { question: c.title, answer: answerLabel(c.id, a), source: "Self-assessment" } });
+  }
+  return [...out.values()];
+}

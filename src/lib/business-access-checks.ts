@@ -8,7 +8,7 @@ const C = "Accounts & Access";
 
 export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
   {
-    id: "mfa", category: C, quick: true, minTeam: 0, style: "setting",
+    id: "mfa", findingKey: "business_mfa_not_enabled", category: C, quick: true, minTeam: 0, style: "setting",
     title: "Two-step sign-in (MFA) on important business accounts",
     what: "Whether your most important business accounts ask for a second step (an app code, prompt or security key) when signing in — for example email, banking, accounting, website/domain and social media accounts.",
     why: "MFA can significantly reduce the risk of someone taking over an account, even if a password is leaked or guessed.",
@@ -17,7 +17,7 @@ export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
     review: "Recommended improvement: turn on MFA for the most important accounts first, and prefer an authenticator app or security key over SMS codes where available.",
   },
   {
-    id: "shared", category: C, quick: true, minTeam: 1, style: "business",
+    id: "shared", findingKey: "business_shared_accounts", category: C, quick: true, minTeam: 1, style: "business",
     title: "Avoiding shared accounts and shared passwords",
     what: "Whether people on your team sign in with their own login rather than sharing one username and password.",
     why: "When a login is shared, it's hard to tell who did what, and removing one person's access means changing the password for everyone.",
@@ -34,7 +34,7 @@ export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
     review: "Access should be reviewed: keep admin rights to the few people who actually need them, and remove admin rights from accounts that don't. An unfamiliar admin account deserves a closer look, but isn't automatically a sign of a break-in.",
   },
   {
-    id: "former", category: C, quick: true, minTeam: 1, style: "business",
+    id: "former", findingKey: "business_former_staff_access", category: C, quick: true, minTeam: 1, style: "business",
     title: "Removing access for people who have left",
     what: "Whether former staff, freelancers or contractors still have working logins to your business accounts.",
     why: "Accounts belonging to people who have left are easy to forget, and can be misused or taken over without anyone noticing.",
