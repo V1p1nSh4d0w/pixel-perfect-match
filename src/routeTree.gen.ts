@@ -37,6 +37,8 @@ import { Route as CheckupPersonalAccountsDeepRouteImport } from './routes/checku
 import { Route as CheckupPersonalAccountsQuickRouteImport } from './routes/checkup.personal.accounts.quick'
 import { Route as CheckupPersonalComputerDeepRouteImport } from './routes/checkup.personal.computer.deep'
 import { Route as CheckupPersonalComputerQuickRouteImport } from './routes/checkup.personal.computer.quick'
+import { Route as CheckupPersonalScamsDeepRouteImport } from './routes/checkup.personal.scams.deep'
+import { Route as CheckupPersonalScamsQuickRouteImport } from './routes/checkup.personal.scams.quick'
 import { Route as CheckupPersonalWebDeepRouteImport } from './routes/checkup.personal.web.deep'
 import { Route as CheckupPersonalWebQuickRouteImport } from './routes/checkup.personal.web.quick'
 
@@ -189,6 +191,18 @@ const CheckupPersonalComputerQuickRoute =
     path: '/checkup/personal/computer/quick',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CheckupPersonalScamsDeepRoute =
+  CheckupPersonalScamsDeepRouteImport.update({
+    id: '/checkup/personal/scams/deep',
+    path: '/checkup/personal/scams/deep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CheckupPersonalScamsQuickRoute =
+  CheckupPersonalScamsQuickRouteImport.update({
+    id: '/checkup/personal/scams/quick',
+    path: '/checkup/personal/scams/quick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CheckupPersonalWebDeepRoute = CheckupPersonalWebDeepRouteImport.update({
   id: '/checkup/personal/web/deep',
   path: '/checkup/personal/web/deep',
@@ -227,6 +241,8 @@ export interface FileRoutesByFullPath {
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/scams/deep': typeof CheckupPersonalScamsDeepRoute
+  '/checkup/personal/scams/quick': typeof CheckupPersonalScamsQuickRoute
   '/checkup/personal/web/deep': typeof CheckupPersonalWebDeepRoute
   '/checkup/personal/web/quick': typeof CheckupPersonalWebQuickRoute
   '/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -257,6 +273,8 @@ export interface FileRoutesByTo {
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/scams/deep': typeof CheckupPersonalScamsDeepRoute
+  '/checkup/personal/scams/quick': typeof CheckupPersonalScamsQuickRoute
   '/checkup/personal/web/deep': typeof CheckupPersonalWebDeepRoute
   '/checkup/personal/web/quick': typeof CheckupPersonalWebQuickRoute
   '/app/assessment': typeof AuthenticatedAppAssessmentIndexRoute
@@ -290,6 +308,8 @@ export interface FileRoutesById {
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
   '/checkup/personal/computer/quick': typeof CheckupPersonalComputerQuickRoute
+  '/checkup/personal/scams/deep': typeof CheckupPersonalScamsDeepRoute
+  '/checkup/personal/scams/quick': typeof CheckupPersonalScamsQuickRoute
   '/checkup/personal/web/deep': typeof CheckupPersonalWebDeepRoute
   '/checkup/personal/web/quick': typeof CheckupPersonalWebQuickRoute
   '/_authenticated/app/assessment/': typeof AuthenticatedAppAssessmentIndexRoute
@@ -323,6 +343,8 @@ export interface FileRouteTypes {
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/scams/deep'
+    | '/checkup/personal/scams/quick'
     | '/checkup/personal/web/deep'
     | '/checkup/personal/web/quick'
     | '/app/assessment/'
@@ -353,6 +375,8 @@ export interface FileRouteTypes {
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/scams/deep'
+    | '/checkup/personal/scams/quick'
     | '/checkup/personal/web/deep'
     | '/checkup/personal/web/quick'
     | '/app/assessment'
@@ -385,6 +409,8 @@ export interface FileRouteTypes {
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
     | '/checkup/personal/computer/quick'
+    | '/checkup/personal/scams/deep'
+    | '/checkup/personal/scams/quick'
     | '/checkup/personal/web/deep'
     | '/checkup/personal/web/quick'
     | '/_authenticated/app/assessment/'
@@ -409,6 +435,8 @@ export interface RootRouteChildren {
   CheckupPersonalAccountsQuickRoute: typeof CheckupPersonalAccountsQuickRoute
   CheckupPersonalComputerDeepRoute: typeof CheckupPersonalComputerDeepRoute
   CheckupPersonalComputerQuickRoute: typeof CheckupPersonalComputerQuickRoute
+  CheckupPersonalScamsDeepRoute: typeof CheckupPersonalScamsDeepRoute
+  CheckupPersonalScamsQuickRoute: typeof CheckupPersonalScamsQuickRoute
   CheckupPersonalWebDeepRoute: typeof CheckupPersonalWebDeepRoute
   CheckupPersonalWebQuickRoute: typeof CheckupPersonalWebQuickRoute
 }
@@ -611,6 +639,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckupPersonalComputerQuickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkup/personal/scams/deep': {
+      id: '/checkup/personal/scams/deep'
+      path: '/checkup/personal/scams/deep'
+      fullPath: '/checkup/personal/scams/deep'
+      preLoaderRoute: typeof CheckupPersonalScamsDeepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkup/personal/scams/quick': {
+      id: '/checkup/personal/scams/quick'
+      path: '/checkup/personal/scams/quick'
+      fullPath: '/checkup/personal/scams/quick'
+      preLoaderRoute: typeof CheckupPersonalScamsQuickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkup/personal/web/deep': {
       id: '/checkup/personal/web/deep'
       path: '/checkup/personal/web/deep'
@@ -686,6 +728,8 @@ const rootRouteChildren: RootRouteChildren = {
   CheckupPersonalAccountsQuickRoute: CheckupPersonalAccountsQuickRoute,
   CheckupPersonalComputerDeepRoute: CheckupPersonalComputerDeepRoute,
   CheckupPersonalComputerQuickRoute: CheckupPersonalComputerQuickRoute,
+  CheckupPersonalScamsDeepRoute: CheckupPersonalScamsDeepRoute,
+  CheckupPersonalScamsQuickRoute: CheckupPersonalScamsQuickRoute,
   CheckupPersonalWebDeepRoute: CheckupPersonalWebDeepRoute,
   CheckupPersonalWebQuickRoute: CheckupPersonalWebQuickRoute,
 }
