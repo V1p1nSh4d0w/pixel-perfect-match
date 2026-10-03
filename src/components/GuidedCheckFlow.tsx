@@ -14,13 +14,36 @@ export interface GuidedCheck {
   where: string;
   review: string;
   quick: boolean;
+  /** How the answers are worded. Defaults to "setting" (inspecting a device/account setting). */
+  style?: AnswerStyle;
 }
 
-const OPTIONS: [GuidedAnswer, string][] = [
-  ["good", "Looks good"],
-  ["found", "I found something"],
-  ["unsure", "I'm not sure"],
-];
+export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario";
+
+// Same three underlying answers for every style; only the wording changes.
+const STYLE_OPTIONS: Record<AnswerStyle, [GuidedAnswer, string][]> = {
+  setting: [["good", "Looks good"], ["found", "I found something"], ["unsure", "I'm not sure"]],
+  practice: [["good", "Yes, I do this"], ["found", "I don't usually do this"], ["unsure", "I'm not sure"]],
+  knowledge: [["good", "I already knew this"], ["found", "This is new to me"], ["unsure", "I'm not sure"]],
+  scenario: [["good", "I would avoid it"], ["found", "I might go along with it"], ["unsure", "I'm not sure"]],
+};
+
+/** Plain-language label describing what kind of result this is (never implies being hacked). */
+function resultKind(c: GuidedCheck): string {
+  switch (c.style ?? "setting") {
+    case "practice": return c.category.toLowerCase().includes("privacy") ? "Privacy practice worth reviewing" : "Security practice to consider";
+    case "knowledge": return "Awareness tip";
+    case "scenario": return "Scam awareness";
+    default: return "Setting to review";
+  }
+}
+
+/** Where a "found" answer lands. Knowledge gaps and privacy practices are "Worth reviewing", not "Needs attention". */
+function groupFor(c: GuidedCheck, a: GuidedAnswer | undefined): ResultKey {
+  if (!a) return "skipped";
+  if (a === "found" && (c.style === "knowledge" || (c.style === "practice" && c.category.toLowerCase().includes("privacy")))) return "unsure";
+  return a;
+}
 
 export function GuidedCheckFlow({
   checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel,
@@ -30,20 +53,20 @@ export function GuidedCheckFlow({
   const [done, setDone] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const total = checks.length;
-  const keyOf = (id: string): ResultKey => answers[id] ?? "skipped";
+  const keyOf = (c: GuidedCheck): ResultKey => groupFor(c, answers[c.id]);
 
   if (done) {
     const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
-    checks.forEach((c) => counts[keyOf(c.id)]++);
+    checks.forEach((c) => counts[keyOf(c)]++);
     return (
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">{resultsTitle}</h1>
         <ResultsSummary counts={counts} />
         <p className="mt-4 text-sm text-muted-foreground">
-          Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}.
+          Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}. None of these results mean you've been hacked — they're settings, habits and tips worth a look.
         </p>
         {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
-          const items = checks.filter((c) => keyOf(c.id) === g.key);
+          const items = checks.filter((c) => keyOf(c) === g.key);
           return (
             <ResultSection key={g.key} anchor={g.anchor} title={`${g.label} (${items.length})`}>
               {g.key === "skipped" ? (
@@ -55,9 +78,9 @@ export function GuidedCheckFlow({
                 <ul className="mt-3 space-y-3">
                   {items.map((c) => (
                     <li key={c.id} className="rounded-card border border-border bg-card p-4">
-                      <p className="text-xs text-muted-foreground">{c.category}</p>
+                      <p className="text-xs text-muted-foreground">{c.category}{g.key === "found" || g.key === "unsure" ? ` · ${answers[c.id] === "unsure" ? "Not sure yet" : resultKind(c)}` : ""}</p>
                       <p className="mt-1 font-medium">{c.title}</p>
-                      {g.key === "unsure" ? (
+                      {answers[c.id] === "unsure" ? (
                         <p className="mt-2 text-sm text-muted-foreground">
                           You weren't sure, so we haven't assumed anything. {c.why} When you have a moment, look here: {c.where}
                         </p>
@@ -113,7 +136,7 @@ export function GuidedCheckFlow({
         <p className="mt-1 break-words text-sm">{c.where}</p>
 
         <div role="radiogroup" className="mt-6 grid gap-2 sm:grid-cols-3">
-          {OPTIONS.map(([v, label]) => (
+          {STYLE_OPTIONS[c.style ?? "setting"].map(([v, label]) => (
             <button
               key={v}
               role="radio"

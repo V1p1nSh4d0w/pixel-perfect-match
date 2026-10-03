@@ -23,7 +23,7 @@ export const Route = createFileRoute("/checkup/personal/accounts/quick")({
 function Page() {
   const checks = ACCOUNT_CHECKS.filter((c) => c.quick);
   return (
-    <CheckupShell back>
+    <CheckupShell back personal>
       <GuidedCheckFlow
         checks={checks}
         sectionLabel="Account Security"
