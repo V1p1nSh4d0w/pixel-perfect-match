@@ -23,3 +23,4 @@
 - Admin access uses `user_roles` + `has_role()`; admin page is `/app/admin` — roles never live on profiles.
 - Shared support contact copy lives in `src/lib/config.ts` — one place to edit it.
 - Demand events go to the `events` table via `trackEvent()` (own-row inserts, admin-only reads); templates are rows in `templates` linked by finding key — one source for analytics and template mapping.
+- Finding definitions live in `src/lib/finding-definitions.ts`, keyed by an internal `finding_key` (never shown to users); playbooks/templates are referenced, not duplicated — titles can change without breaking links.
