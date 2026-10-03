@@ -22,6 +22,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as CheckupIndexRouteImport } from './routes/checkup.index'
 import { Route as CheckupBusinessRouteImport } from './routes/checkup.business'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionPlanRouteImport } from './routes/_authenticated/app.action-plan'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app.dashboard'
@@ -119,6 +120,11 @@ const AuthenticatedAdminAnalyticsRoute =
     path: '/admin/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppActionPlanRoute =
   AuthenticatedAppActionPlanRouteImport.update({
     id: '/action-plan',
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
   '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -349,7 +356,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/checkup': typeof CheckupIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/app/action-plan': typeof AuthenticatedAppActionPlanRoute
@@ -361,6 +367,7 @@ export interface FileRoutesByTo {
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
+  '/app': typeof AuthenticatedAppIndexRoute
   '/checkup/business': typeof CheckupBusinessIndexRoute
   '/checkup/personal': typeof CheckupPersonalIndexRoute
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -408,6 +415,7 @@ export interface FileRoutesById {
   '/checkup/business/start': typeof CheckupBusinessStartRoute
   '/checkup/personal/deep': typeof CheckupPersonalDeepRoute
   '/checkup/personal/quick': typeof CheckupPersonalQuickRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/checkup/business/': typeof CheckupBusinessIndexRoute
   '/checkup/personal/': typeof CheckupPersonalIndexRoute
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
@@ -455,6 +463,7 @@ export interface FileRouteTypes {
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
+    | '/app/'
     | '/checkup/business/'
     | '/checkup/personal/'
     | '/app/assessment/complete'
@@ -487,7 +496,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
-    | '/app'
     | '/checkup'
     | '/admin/analytics'
     | '/app/action-plan'
@@ -499,6 +507,7 @@ export interface FileRouteTypes {
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
+    | '/app'
     | '/checkup/business'
     | '/checkup/personal'
     | '/app/assessment/complete'
@@ -545,6 +554,7 @@ export interface FileRouteTypes {
     | '/checkup/business/start'
     | '/checkup/personal/deep'
     | '/checkup/personal/quick'
+    | '/_authenticated/app/'
     | '/checkup/business/'
     | '/checkup/personal/'
     | '/_authenticated/app/assessment/complete'
@@ -688,6 +698,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/analytics'
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/action-plan': {
       id: '/_authenticated/app/action-plan'
@@ -916,6 +933,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppFindingsRoute: typeof AuthenticatedAppFindingsRoute
   AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAssessmentCompleteRoute: typeof AuthenticatedAppAssessmentCompleteRoute
   AuthenticatedAppAssessmentIndexRoute: typeof AuthenticatedAppAssessmentIndexRoute
 }
@@ -927,6 +945,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppFindingsRoute: AuthenticatedAppFindingsRoute,
   AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppAssessmentCompleteRoute:
     AuthenticatedAppAssessmentCompleteRoute,
   AuthenticatedAppAssessmentIndexRoute: AuthenticatedAppAssessmentIndexRoute,
