@@ -106,7 +106,7 @@ function CheckupFindingCard({
   playbooks: Record<string, { text: string; time: string; tool: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
 }) {
-  const def = item.findingKey ? getFindingDefinition(item.findingKey) : undefined;
+  const def = getFindingDefinitionForCheck(item.findingKey, item.id);
   const playbook = def?.playbook_title ? playbooks[def.playbook_title] : undefined;
   const template = def?.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
