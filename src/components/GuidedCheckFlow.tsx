@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
@@ -20,6 +20,11 @@ export interface GuidedCheck {
   style?: AnswerStyle;
   /** Optional internal finding_key (see finding-definitions.ts) raised by a negative answer. Never displayed. */
   findingKey?: string;
+}
+
+/** Display label for an answer in a given style (e.g. "No, we don't"). */
+export function answerLabelFor(style: AnswerStyle | undefined, a: GuidedAnswer): string {
+  return STYLE_OPTIONS[style ?? "setting"].find(([v]) => v === a)?.[1] ?? a;
 }
 
 export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario" | "business" | "businessKnow";
