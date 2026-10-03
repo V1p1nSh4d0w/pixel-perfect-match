@@ -17,7 +17,7 @@ export const BUSINESS_DATA_CHECKS: BusinessDataCheck[] = [
     solo: { what: "Whether you know which files and information would seriously disrupt your work if lost — for example client records, invoices, accounts, contracts and key documents." },
   },
   {
-    id: "coverage", category: C, quick: true, minTeam: 0, style: "businessKnow",
+    id: "coverage", findingKey: "business_data_not_backed_up", category: C, quick: true, minTeam: 0, style: "businessKnow",
     title: "Important data is backed up",
     what: "Whether each kind of important data has a backup — a separate copy you could restore from.",
     why: "Sync is not the same as a backup. Files in Google Drive, OneDrive or Dropbox are synced, so a deletion, overwrite or ransomware change can sync too. A backup (or version history you can roll back) lets you recover an earlier copy.",
@@ -34,7 +34,7 @@ export const BUSINESS_DATA_CHECKS: BusinessDataCheck[] = [
     solo: { what: "Whether you know the steps to get your important data back from your backups." },
   },
   {
-    id: "separation", category: C, quick: true, minTeam: 0, style: "businessKnow",
+    id: "separation", findingKey: "business_backups_not_separate", category: C, quick: true, minTeam: 0, style: "businessKnow",
     title: "Backups kept apart from the original data",
     what: "Whether backups are reasonably separated from the original — for example on a different service, account or device, or an external drive that isn't always connected.",
     why: "If the backup sits on the same computer or account as the original, one incident (theft, failure, ransomware, a compromised account) can affect both.",
@@ -76,7 +76,7 @@ export const BUSINESS_DATA_CHECKS: BusinessDataCheck[] = [
     review: "Recommended improvement: for the most important data, keep more than one backup in different places. Not every file needs this — focus on what's irreplaceable.",
   },
   {
-    id: "restore-test", category: C, quick: false, minTeam: 0, style: "business",
+    id: "restore-test", findingKey: "business_backups_not_tested", category: C, quick: false, minTeam: 0, style: "business",
     title: "Testing a restore",
     what: "Whether the business has actually tried restoring some important data from a backup.",
     why: "Backups can be incomplete, out of date or unreadable without anyone noticing. A test restore is the only way to know it works — and shows how long recovery takes.",
