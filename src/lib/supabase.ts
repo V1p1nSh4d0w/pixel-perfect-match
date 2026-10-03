@@ -405,37 +405,3 @@ export async function fetchPublishedTemplates() {
   return data ?? [];
 }
 
-// ---- New Business checkup → existing findings ----
-/**
- * Saves one completed Business checkup as an assessments row (answers tagged
- * source "business_checkup") plus its findings. score/risk_level are storage
- * compatibility values only and are never shown for these checkups.
- * Throws on failure so the UI can report that saving failed.
- */
-export async function persistBusinessCheckupFindings({ category, mode, answers, findings }: {
-  category: string;
-  mode: "quick" | "deep";
-  answers: Record<string, string | undefined>;
-  findings: import("@/lib/finding-definitions").CheckupFinding[];
-}): Promise<string> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error("You need to be signed in.");
-  const userId = userData.user.id;
-  const { data: row, error } = await supabase
-    .from("assessments")
-    .insert({ user_id: userId, answers: { source: "business_checkup", category, mode, answers }, score: 0, risk_level: "Critical risk" })
-    .select("id")
-    .single();
-  if (error) throw error;
-  const unique = new Map(findings.map((f) => [f.finding_key, f]));
-  if (unique.size > 0) {
-    const { error: fErr } = await supabase.from("findings").insert(
-      [...unique.values()].map((f) => ({
-        assessment_id: row.id, user_id: userId, severity: f.severity, category: f.category,
-        title: f.title, why_it_matters: f.why_it_matters, recommended_action: f.recommended_action, status: "Open",
-      })),
-    );
-    if (fErr) throw fErr;
-  }
-  return row.id;
-}
