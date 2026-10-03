@@ -20,13 +20,14 @@ export interface GuidedCheck {
   style?: AnswerStyle;
 }
 
-export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario";
+export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario" | "business";
 
 // Same three underlying answers for every style; only the wording changes.
 const STYLE_OPTIONS: Record<AnswerStyle, [GuidedAnswer, string][]> = {
   setting: [["good", "Looks good"], ["found", "I found something"], ["unsure", "I'm not sure"]],
   practice: [["good", "Yes, I do this"], ["found", "I don't usually do this"], ["unsure", "I'm not sure"]],
   knowledge: [["good", "I already knew this"], ["found", "This is new to me"], ["unsure", "I'm not sure"]],
+  business: [["good", "Yes, we do this"], ["found", "No, we don't"], ["unsure", "I'm not sure"]],
   scenario: [["good", "I would avoid it"], ["found", "I might go along with it"], ["unsure", "I'm not sure"]],
 };
 
@@ -36,6 +37,7 @@ function resultKind(c: GuidedCheck): string {
     case "practice": return c.category.toLowerCase().includes("privacy") ? "Privacy practice worth reviewing" : "Security practice to consider";
     case "knowledge": return "Awareness tip";
     case "scenario": return "Scam awareness";
+    case "business": return "Recommended improvement";
     default: return "Setting to review";
   }
 }
@@ -48,8 +50,8 @@ function groupFor(c: GuidedCheck, a: GuidedAnswer | undefined): ResultKey {
 }
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel,
-}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security",
+}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
@@ -102,7 +104,7 @@ export function GuidedCheckFlow({
         })}
         <div className="mt-10 flex flex-wrap gap-3">
           <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
-          <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Security</Button></Link>
+          <Link to={backTo}><Button variant="ghost">{backLabel}</Button></Link>
         </div>
       </div>
     );
