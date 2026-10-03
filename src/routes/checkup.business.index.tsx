@@ -47,7 +47,7 @@ function BusinessOnboardingPage() {
   const ready = typeDone && v.teamSize !== "" && v.mode !== "";
 
   return (
-    <CheckupShell back>
+    <CheckupShell back backTo="/app" backLabel="← Back to Security">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">For business owners and teams</p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Business Security</h1>
       <p className="mt-3 text-muted-foreground">{DESC}</p>
