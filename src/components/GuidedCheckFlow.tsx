@@ -59,8 +59,8 @@ function groupFor(c: GuidedCheck, a: GuidedAnswer | undefined): ResultKey {
 }
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security", onResults,
-}: { onResults?: (answers: Record<string, GuidedAnswer>) => void; checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel, backTo = "/checkup/personal", backLabel = "Back to Personal Security", onResults, resultsActions,
+}: { resultsActions?: import("react").ReactNode; onResults?: (answers: Record<string, GuidedAnswer>) => void; checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string; backTo?: "/checkup/personal" | "/checkup/business/start"; backLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
@@ -115,6 +115,7 @@ export function GuidedCheckFlow({
         <div className="mt-10 flex flex-wrap gap-3">
           <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
           <Link to={backTo}><Button variant="ghost">{backLabel}</Button></Link>
+          {resultsActions}
         </div>
       </div>
     );
