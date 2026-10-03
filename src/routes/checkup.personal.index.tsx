@@ -39,7 +39,7 @@ const CARDS = [
 
 function PersonalCheckup() {
   return (
-    <CheckupShell back>
+    <CheckupShell back backTo="/app" backLabel="← Back to Security">
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Personal Security</h1>
       <p className="mt-3 text-muted-foreground">{DESC}</p>
 

@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/BrandLogo";
 
-export function CheckupShell({ children, back, personal, business }: { children: ReactNode; back?: boolean; personal?: boolean; business?: boolean }) {
+export function CheckupShell({ children, back, backTo = "/checkup", backLabel = "All checkups", personal, business }: { children: ReactNode; back?: boolean; backTo?: string; backLabel?: string; personal?: boolean; business?: boolean }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
           <BrandLogo className="text-base font-semibold tracking-tight" />
           {back ? (
-            <Link to="/checkup" className="text-sm text-muted-foreground hover:text-foreground">
-              All checkups
+            <Link to={backTo} className="text-sm text-muted-foreground hover:text-foreground">
+              {backLabel}
             </Link>
           ) : null}
         </div>
