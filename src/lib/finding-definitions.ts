@@ -111,7 +111,7 @@ const DEFINITIONS: FindingDefinition[] = [
     effort: "Low",
   },
 ];
-  {
+{
     finding_key: "business_admin_access_review",
     category: "Accounts & Access",
     title: "Administrator access needs review",
