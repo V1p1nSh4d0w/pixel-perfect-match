@@ -132,6 +132,12 @@ export function GuidedCheckFlow({
         <p className="mt-1 text-sm">{c.what}</p>
         <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">Why it matters</p>
         <p className="mt-1 text-sm">{c.why}</p>
+        {c.lookFor ? (
+          <>
+            <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">What to look for</p>
+            <p className="mt-1 text-sm">{c.lookFor}</p>
+          </>
+        ) : null}
         <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">{whereLabel ?? "Where to look"}</p>
         <p className="mt-1 break-words text-sm">{c.where}</p>
 
@@ -150,6 +156,11 @@ export function GuidedCheckFlow({
             </button>
           ))}
         </div>
+        {answer === "found" && (c.style ?? "setting") === "setting" ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Next step: first check what it is and why it has this access. Something unfamiliar doesn't automatically mean your device or account is compromised.
+          </p>
+        ) : null}
         {answer === "unsure" ? (
           <p className="mt-3 text-sm text-muted-foreground">
             That's fine. In short: {c.why} We won't guess — this will be listed as "Worth reviewing" so you can come back to it.

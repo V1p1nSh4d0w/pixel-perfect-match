@@ -9,6 +9,8 @@ export interface AndroidCheck {
   title: string;
   what: string;
   why: string;
+  /** Short hint on what specifically deserves attention. */
+  lookFor?: string;
   where: string;
   /** Guidance shown on the results page when the user reports something or is unsure. */
   review: string;
