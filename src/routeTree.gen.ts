@@ -37,6 +37,8 @@ import { Route as AuthenticatedAppAssessmentIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedAppAssessmentCompleteRouteImport } from './routes/_authenticated/app.assessment.complete'
 import { Route as CheckupBusinessAccountsDeepRouteImport } from './routes/checkup.business.accounts.deep'
 import { Route as CheckupBusinessAccountsQuickRouteImport } from './routes/checkup.business.accounts.quick'
+import { Route as CheckupBusinessDevicesDeepRouteImport } from './routes/checkup.business.devices.deep'
+import { Route as CheckupBusinessDevicesQuickRouteImport } from './routes/checkup.business.devices.quick'
 import { Route as CheckupPersonalAccountsDeepRouteImport } from './routes/checkup.personal.accounts.deep'
 import { Route as CheckupPersonalAccountsQuickRouteImport } from './routes/checkup.personal.accounts.quick'
 import { Route as CheckupPersonalComputerDeepRouteImport } from './routes/checkup.personal.computer.deep'
@@ -195,6 +197,18 @@ const CheckupBusinessAccountsQuickRoute =
     path: '/accounts/quick',
     getParentRoute: () => CheckupBusinessRoute,
   } as any)
+const CheckupBusinessDevicesDeepRoute =
+  CheckupBusinessDevicesDeepRouteImport.update({
+    id: '/devices/deep',
+    path: '/devices/deep',
+    getParentRoute: () => CheckupBusinessRoute,
+  } as any)
+const CheckupBusinessDevicesQuickRoute =
+  CheckupBusinessDevicesQuickRouteImport.update({
+    id: '/devices/quick',
+    path: '/devices/quick',
+    getParentRoute: () => CheckupBusinessRoute,
+  } as any)
 const CheckupPersonalAccountsDeepRoute =
   CheckupPersonalAccountsDeepRouteImport.update({
     id: '/checkup/personal/accounts/deep',
@@ -280,6 +294,8 @@ export interface FileRoutesByFullPath {
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/business/accounts/deep': typeof CheckupBusinessAccountsDeepRoute
   '/checkup/business/accounts/quick': typeof CheckupBusinessAccountsQuickRoute
+  '/checkup/business/devices/deep': typeof CheckupBusinessDevicesDeepRoute
+  '/checkup/business/devices/quick': typeof CheckupBusinessDevicesQuickRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
@@ -317,6 +333,8 @@ export interface FileRoutesByTo {
   '/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/business/accounts/deep': typeof CheckupBusinessAccountsDeepRoute
   '/checkup/business/accounts/quick': typeof CheckupBusinessAccountsQuickRoute
+  '/checkup/business/devices/deep': typeof CheckupBusinessDevicesDeepRoute
+  '/checkup/business/devices/quick': typeof CheckupBusinessDevicesQuickRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
@@ -358,6 +376,8 @@ export interface FileRoutesById {
   '/_authenticated/app/assessment/complete': typeof AuthenticatedAppAssessmentCompleteRoute
   '/checkup/business/accounts/deep': typeof CheckupBusinessAccountsDeepRoute
   '/checkup/business/accounts/quick': typeof CheckupBusinessAccountsQuickRoute
+  '/checkup/business/devices/deep': typeof CheckupBusinessDevicesDeepRoute
+  '/checkup/business/devices/quick': typeof CheckupBusinessDevicesQuickRoute
   '/checkup/personal/accounts/deep': typeof CheckupPersonalAccountsDeepRoute
   '/checkup/personal/accounts/quick': typeof CheckupPersonalAccountsQuickRoute
   '/checkup/personal/computer/deep': typeof CheckupPersonalComputerDeepRoute
@@ -399,6 +419,8 @@ export interface FileRouteTypes {
     | '/app/assessment/complete'
     | '/checkup/business/accounts/deep'
     | '/checkup/business/accounts/quick'
+    | '/checkup/business/devices/deep'
+    | '/checkup/business/devices/quick'
     | '/checkup/personal/accounts/deep'
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
@@ -436,6 +458,8 @@ export interface FileRouteTypes {
     | '/app/assessment/complete'
     | '/checkup/business/accounts/deep'
     | '/checkup/business/accounts/quick'
+    | '/checkup/business/devices/deep'
+    | '/checkup/business/devices/quick'
     | '/checkup/personal/accounts/deep'
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
@@ -476,6 +500,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/assessment/complete'
     | '/checkup/business/accounts/deep'
     | '/checkup/business/accounts/quick'
+    | '/checkup/business/devices/deep'
+    | '/checkup/business/devices/quick'
     | '/checkup/personal/accounts/deep'
     | '/checkup/personal/accounts/quick'
     | '/checkup/personal/computer/deep'
@@ -714,6 +740,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckupBusinessAccountsQuickRouteImport
       parentRoute: typeof CheckupBusinessRoute
     }
+    '/checkup/business/devices/deep': {
+      id: '/checkup/business/devices/deep'
+      path: '/devices/deep'
+      fullPath: '/checkup/business/devices/deep'
+      preLoaderRoute: typeof CheckupBusinessDevicesDeepRouteImport
+      parentRoute: typeof CheckupBusinessRoute
+    }
+    '/checkup/business/devices/quick': {
+      id: '/checkup/business/devices/quick'
+      path: '/devices/quick'
+      fullPath: '/checkup/business/devices/quick'
+      preLoaderRoute: typeof CheckupBusinessDevicesQuickRouteImport
+      parentRoute: typeof CheckupBusinessRoute
+    }
     '/checkup/personal/accounts/deep': {
       id: '/checkup/personal/accounts/deep'
       path: '/checkup/personal/accounts/deep'
@@ -831,6 +871,8 @@ interface CheckupBusinessRouteChildren {
   CheckupBusinessIndexRoute: typeof CheckupBusinessIndexRoute
   CheckupBusinessAccountsDeepRoute: typeof CheckupBusinessAccountsDeepRoute
   CheckupBusinessAccountsQuickRoute: typeof CheckupBusinessAccountsQuickRoute
+  CheckupBusinessDevicesDeepRoute: typeof CheckupBusinessDevicesDeepRoute
+  CheckupBusinessDevicesQuickRoute: typeof CheckupBusinessDevicesQuickRoute
 }
 
 const CheckupBusinessRouteChildren: CheckupBusinessRouteChildren = {
@@ -838,6 +880,8 @@ const CheckupBusinessRouteChildren: CheckupBusinessRouteChildren = {
   CheckupBusinessIndexRoute: CheckupBusinessIndexRoute,
   CheckupBusinessAccountsDeepRoute: CheckupBusinessAccountsDeepRoute,
   CheckupBusinessAccountsQuickRoute: CheckupBusinessAccountsQuickRoute,
+  CheckupBusinessDevicesDeepRoute: CheckupBusinessDevicesDeepRoute,
+  CheckupBusinessDevicesQuickRoute: CheckupBusinessDevicesQuickRoute,
 }
 
 const CheckupBusinessRouteWithChildren = CheckupBusinessRoute._addFileChildren(
