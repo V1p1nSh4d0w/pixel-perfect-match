@@ -11,6 +11,8 @@ export interface GuidedCheck {
   title: string;
   what: string;
   why: string;
+  /** Short hint on what specifically deserves attention (setting checks). */
+  lookFor?: string;
   where: string;
   review: string;
   quick: boolean;
