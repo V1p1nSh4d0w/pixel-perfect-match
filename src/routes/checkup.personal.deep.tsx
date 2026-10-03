@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "@/components/Button";
+import { createFileRoute } from "@tanstack/react-router";
 import { CheckupShell } from "@/components/CheckupShell";
+import { AndroidCheckFlow } from "@/components/AndroidCheckFlow";
+import { ANDROID_CHECKS, quickChecks } from "@/lib/android-checks";
 
-const TITLE = "Personal Deep Check | SecureCheck";
-const DESC = "The Personal Deep Check is being prepared.";
+const TITLE = "Android Phone Security Check (Deep) | SecureCheck";
+const DESC = "A guided self-check of the security settings on your Android phone.";
 
 export const Route = createFileRoute("/checkup/personal/deep")({
   head: () => ({
@@ -16,17 +17,14 @@ export const Route = createFileRoute("/checkup/personal/deep")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Placeholder,
+  component: Page,
 });
 
-function Placeholder() {
+function Page() {
+  void ANDROID_CHECKS; void quickChecks;
   return (
     <CheckupShell back>
-      <h1 className="text-3xl font-semibold tracking-tight">Personal Deep Check</h1>
-      <div className="mt-8 rounded-card border border-border bg-card p-6">
-        <p className="text-sm text-muted-foreground">The Deep Check isn't available yet. No checks have been run.</p>
-        <Link to="/checkup/personal" className="mt-5 inline-block"><Button variant="secondary">Back to Personal Checkup</Button></Link>
-      </div>
+      <AndroidCheckFlow mode="Deep" checks={ANDROID_CHECKS} />
     </CheckupShell>
   );
 }
