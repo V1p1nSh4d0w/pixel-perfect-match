@@ -25,7 +25,7 @@ export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
     review: "Recommended improvement: where a service supports it, give each person their own login. If an account truly must be shared, store it in a password manager's shared vault rather than in chats or notes.",
   },
   {
-    id: "admin", category: C, quick: true, minTeam: 0, style: "setting",
+    id: "admin", findingKey: "business_admin_access_review", category: C, quick: true, minTeam: 0, style: "setting",
     title: "Who has administrator access",
     what: "Which people (or accounts) have administrator rights on your key business services — people who can add users, change settings or see everything.",
     why: "Administrator accounts can change almost anything, so if one is misused or taken over, the impact is much larger.",
@@ -42,7 +42,7 @@ export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
     review: "Access should be reviewed: remove or disable accounts for people who have left, and change any shared passwords they knew.",
   },
   {
-    id: "recovery", category: C, quick: true, minTeam: 0, style: "setting",
+    id: "recovery", findingKey: "business_recovery_methods", category: C, quick: true, minTeam: 0, style: "setting",
     title: "Account recovery methods",
     what: "The backup email address and phone number used to recover your important business accounts if you lose access.",
     why: "Out-of-date recovery details can lock you out of your own account — and recovery details controlled by someone else could let them reset your password.",
@@ -51,7 +51,7 @@ export const BUSINESS_ACCESS_CHECKS: BusinessCheck[] = [
     review: "Recommended improvement: update recovery details so they point to email addresses and numbers the business still controls.",
   },
   {
-    id: "third-party", category: C, quick: true, minTeam: 0, style: "setting",
+    id: "third-party", findingKey: "business_third_party_access", category: C, quick: true, minTeam: 0, style: "setting",
     title: "Third-party apps and services with access to your accounts",
     what: "Outside apps and services — such as invoicing, scheduling, marketing or website tools — that have been allowed to connect to your important business accounts.",
     why: "Each connected service can read or change some of your data. Apps you no longer use still keep that access until it's removed.",
