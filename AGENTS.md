@@ -13,7 +13,7 @@
 
 ## Architecture rules
 
-- Signed-in pages live under `src/routes/_authenticated/` with the `/app` shell layout in `app.tsx` — one gate protects the whole subtree.
+- Signed-in pages live under `src/routes/_authenticated/` with the `/app` shell layout in `app.tsx` — one gate protects the whole subtree. `/app` is the Security Home (Personal/Business entry); the old dashboard lives at `/app/dashboard`.
 - All Supabase access for the app goes through `src/lib/supabase.ts` helpers — keeps auth/profile calls in one place.
 - Shared types live in `src/types/` — reused across routes and components.
 - Reusable UI primitives (`Button`, `Card`, `Input`, `PageHeader`, `SidebarNav`) live in `src/components/` — built on design tokens in `src/styles.css`, never ad hoc colors.
