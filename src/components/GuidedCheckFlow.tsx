@@ -28,8 +28,8 @@ const GROUPS = [
 ];
 
 export function GuidedCheckFlow({
-  checks, flowName, intro, resultsTitle, deviceNoun,
-}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string }) {
+  checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel,
+}: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
@@ -85,7 +85,7 @@ export function GuidedCheckFlow({
         <p className="mt-3 max-w-2xl rounded-card border border-border bg-card p-4 text-sm text-muted-foreground">{intro}</p>
       ) : null}
       <div className="mt-6 flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium">Check {i + 1} of {total}</span>
+        <span className="font-medium">{sectionLabel ? `${sectionLabel} — ` : ""}Check {i + 1} of {total}</span>
         <span className="text-right text-muted-foreground">{c.category}</span>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-raised">
