@@ -60,14 +60,26 @@ function PersonalCheckup() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-card border border-border bg-card p-6">
-        <p className="text-lg font-semibold">Online Account, Web & Privacy Checkup</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A guided self-check of your online accounts, browser, privacy settings, website safety and fake warnings. We never ask for passwords or codes.
-        </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <Link to="/checkup/personal/online/quick"><Button fullWidth>Start Quick Check</Button></Link>
-          <Link to="/checkup/personal/online/deep"><Button fullWidth variant="secondary">Start Deep Check</Button></Link>
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="flex flex-col rounded-card border border-border bg-card p-6">
+          <p className="text-lg font-semibold">🔐 Account Security</p>
+          <p className="mt-2 flex-1 text-sm text-muted-foreground">
+            MFA, passwords, recovery details, sessions, devices and connected apps. We never ask for passwords or codes.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Link to="/checkup/personal/accounts/quick"><Button fullWidth>Quick Check</Button></Link>
+            <Link to="/checkup/personal/accounts/deep"><Button fullWidth variant="secondary">Deep Check</Button></Link>
+          </div>
+        </div>
+        <div className="flex flex-col rounded-card border border-border bg-card p-6">
+          <p className="text-lg font-semibold">🌐 Web & Privacy</p>
+          <p className="mt-2 flex-1 text-sm text-muted-foreground">
+            Browser security, privacy and tracking, website safety, and fake pop-ups or warnings.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Link to="/checkup/personal/web/quick"><Button fullWidth>Quick Check</Button></Link>
+            <Link to="/checkup/personal/web/deep"><Button fullWidth variant="secondary">Deep Check</Button></Link>
+          </div>
         </div>
       </div>
 
