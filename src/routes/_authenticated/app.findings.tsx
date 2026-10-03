@@ -79,9 +79,9 @@ function ConfidenceBadge({ level }: { level: "Low" | "Medium" }) {
 function FindingsPage() {
   const { from } = Route.useSearch();
   const q = useQuery({ queryKey: ["checkup-results"], queryFn: fetchLatestCheckupResults, retry: 1 });
+  const legacy = useLatestResult();
   if (q.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (q.error) return <p className="text-sm text-destructive">Couldn't load your checkup results. Please refresh the page.</p>;
-  const legacy = useLatestResult();
   if ((q.data ?? []).length > 0) return <CheckupFindings results={q.data!} from={from} />;
   if (legacy.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (legacy.result) return <LegacyFindingsPage />;
