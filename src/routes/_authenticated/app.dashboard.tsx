@@ -12,7 +12,7 @@ import { fetchActionItems } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { Severity } from "@/types/assessment";
 
-export const Route = createFileRoute("/_authenticated/app/")({
+export const Route = createFileRoute("/_authenticated/app/dashboard")({
   head: () => ({ meta: [
     { title: "Security Dashboard — SecureCheck" },
     { name: "description", content: "Review your security posture score, findings, and action-plan progress." },

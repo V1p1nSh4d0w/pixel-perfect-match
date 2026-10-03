@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 
 // Kept flat for pageTitleForPath / top-bar lookups; rendering uses NAV_GROUPS.
 export const NAV_ITEMS = [
-  { label: "Dashboard", to: "/app" },
+  { label: "Security", to: "/app" },
+  { label: "Dashboard", to: "/app/dashboard" },
   { label: "Assessment", to: "/app/assessment" },
   { label: "Findings", to: "/app/findings" },
   { label: "Action Plan", to: "/app/action-plan" },
@@ -31,6 +32,11 @@ function Icon({ className, children }: IconProps & { children: React.ReactNode }
 }
 
 const ICONS: Record<string, React.ReactNode> = {
+  security: (
+    <>
+      <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z" />
+    </>
+  ),
   dashboard: (
     <>
       <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -94,7 +100,7 @@ type NavGroup = {
 };
 
 export const NAV_GROUPS: NavGroup[] = [
-  { label: "Main", items: [{ label: "Dashboard", to: "/app", icon: "dashboard" }] },
+  { label: "Main", items: [{ label: "Security", to: "/app", icon: "security" }, { label: "Dashboard", to: "/app/dashboard", icon: "dashboard" }] },
   {
     label: "Assessment",
     items: [
@@ -122,7 +128,7 @@ function activePath(pathname: string): string {
 
 export function pageTitleForPath(pathname: string): string {
   const to = activePath(pathname);
-  return NAV_ITEMS.find((item) => item.to === to)?.label ?? "Dashboard";
+  return NAV_ITEMS.find((item) => item.to === to)?.label ?? "Security";
 }
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
