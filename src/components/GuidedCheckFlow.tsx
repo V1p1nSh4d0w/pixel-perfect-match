@@ -20,7 +20,7 @@ export interface GuidedCheck {
   style?: AnswerStyle;
 }
 
-export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario" | "business";
+export type AnswerStyle = "setting" | "practice" | "knowledge" | "scenario" | "business" | "businessKnow";
 
 // Same three underlying answers for every style; only the wording changes.
 const STYLE_OPTIONS: Record<AnswerStyle, [GuidedAnswer, string][]> = {
@@ -28,6 +28,7 @@ const STYLE_OPTIONS: Record<AnswerStyle, [GuidedAnswer, string][]> = {
   practice: [["good", "Yes, I do this"], ["found", "I don't usually do this"], ["unsure", "I'm not sure"]],
   knowledge: [["good", "I already knew this"], ["found", "This is new to me"], ["unsure", "I'm not sure"]],
   business: [["good", "Yes, we do this"], ["found", "No, we don't"], ["unsure", "I'm not sure"]],
+  businessKnow: [["good", "Yes, we know"], ["found", "No, we don't"], ["unsure", "I'm not sure"]],
   scenario: [["good", "I would avoid it"], ["found", "I might go along with it"], ["unsure", "I'm not sure"]],
 };
 
@@ -37,7 +38,8 @@ function resultKind(c: GuidedCheck): string {
     case "practice": return c.category.toLowerCase().includes("privacy") ? "Privacy practice worth reviewing" : "Security practice to consider";
     case "knowledge": return "Awareness tip";
     case "scenario": return "Scam awareness";
-    case "business": return "Recommended improvement";
+    case "business":
+    case "businessKnow": return "Recommended improvement";
     default: return "Setting to review";
   }
 }
