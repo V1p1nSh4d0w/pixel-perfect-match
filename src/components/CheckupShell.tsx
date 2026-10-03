@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/BrandLogo";
 
-export function CheckupShell({ children, back, personal }: { children: ReactNode; back?: boolean; personal?: boolean }) {
+export function CheckupShell({ children, back, personal, business }: { children: ReactNode; back?: boolean; personal?: boolean; business?: boolean }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
@@ -19,6 +19,11 @@ export function CheckupShell({ children, back, personal }: { children: ReactNode
         {personal ? (
           <Link to="/checkup/personal" className="-mt-8 mb-8 inline-flex min-h-11 items-center rounded-button border border-border bg-card px-4 text-sm font-medium hover:border-primary md:-mt-10">
             ← Personal Security
+          </Link>
+        ) : null}
+        {business ? (
+          <Link to="/checkup/business/start" className="-mt-8 mb-8 inline-flex min-h-11 items-center rounded-button border border-border bg-card px-4 text-sm font-medium hover:border-primary md:-mt-10">
+            ← Business Security
           </Link>
         ) : null}
         {children}
