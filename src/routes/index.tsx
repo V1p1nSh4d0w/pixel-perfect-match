@@ -93,6 +93,7 @@ function LandingPage() {
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#how-it-works" className="hover:text-foreground">How it works</a>
             <a href="#security-checks" className="hover:text-foreground">Security checks</a>
+            <Link to="/checkup" className="hover:text-foreground">Security Checkup</Link>
             <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
