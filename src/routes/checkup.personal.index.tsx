@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { CheckupShell } from "@/components/CheckupShell";
 
-const TITLE = "Personal Security Checkup | SecureCheck";
-const DESC = "Review the security of your phone, computer, online accounts, and everyday browsing.";
+const TITLE = "Personal Security | SecureCheck";
+const DESC = "Review the security of your phone, computer, online accounts, web activity, and everyday digital habits.";
 
 export const Route = createFileRoute("/checkup/personal/")({
   head: () => ({
@@ -40,11 +40,12 @@ const CARDS = [
 function PersonalCheckup() {
   return (
     <CheckupShell back>
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Personal Security Checkup</h1>
+      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Personal Security</h1>
       <p className="mt-3 text-muted-foreground">{DESC}</p>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        Each area has a <span className="font-medium text-foreground">Quick Check</span> (about 5 minutes, the most important settings and habits) and a{" "}
+      <h2 className="mt-10 text-xl font-semibold tracking-tight">Choose a security area</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Each security area below has its own <span className="font-medium text-foreground">Quick Check</span> (about 5 minutes, the most important settings and habits) and{" "}
         <span className="font-medium text-foreground">Deep Check</span> (about 15–20 minutes, additional security and privacy settings).
       </p>
 

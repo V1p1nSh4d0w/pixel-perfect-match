@@ -18,7 +18,7 @@ export function CheckupShell({ children, back, personal }: { children: ReactNode
       <main className="mx-auto max-w-5xl px-5 py-16 md:py-20">
         {personal ? (
           <Link to="/checkup/personal" className="-mt-8 mb-8 inline-flex min-h-11 items-center rounded-button border border-border bg-card px-4 text-sm font-medium hover:border-primary md:-mt-10">
-            ← Personal Security Checkup
+            ← Personal Security
           </Link>
         ) : null}
         {children}
