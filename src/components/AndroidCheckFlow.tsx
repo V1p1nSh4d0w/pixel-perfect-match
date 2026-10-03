@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useCheckupPersistence } from "@/hooks/useCheckupPersistence";
+import type { CheckupItem } from "@/lib/checkup-results";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
@@ -17,6 +19,11 @@ export function AndroidCheckFlow({ checks, mode }: { checks: AndroidCheck[]; mod
   const [reviewing, setReviewing] = useState(false);
   const total = checks.length;
   const keyOf = (id: string): ResultKey => answers[id] ?? "skipped";
+  const items = useMemo<CheckupItem[]>(() => checks.map((c) => ({
+    id: c.id, title: c.title, category: c.category, status: answers[c.id] ?? "skipped",
+    answer: OPTIONS.find(([v]) => v === answers[c.id])?.[1], review: c.review, where: c.where,
+  })), [checks, answers]);
+  const { path } = useCheckupPersistence({ done, answers, items, name: `Android Phone Security · ${mode} Check`, restore: (a) => { setAnswers(a); setDone(true); } });
 
   if (done) {
     const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
@@ -25,6 +32,7 @@ export function AndroidCheckFlow({ checks, mode }: { checks: AndroidCheck[]; mod
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Your Android check results</h1>
         <ResultsSummary counts={counts} />
+        <div className="mt-4"><Link to="/app/findings" search={{ from: path }}><Button>View Findings</Button></Link></div>
         <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your phone.
         </p>

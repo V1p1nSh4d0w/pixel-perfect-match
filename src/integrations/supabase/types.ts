@@ -127,6 +127,39 @@ export type Database = {
         }
         Relationships: []
       }
+      checkup_results: {
+        Row: {
+          answers: Json
+          checkup_name: string
+          checkup_path: string
+          created_at: string
+          id: string
+          items: Json
+          scope: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          checkup_name: string
+          checkup_path: string
+          created_at?: string
+          id?: string
+          items?: Json
+          scope: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          checkup_name?: string
+          checkup_path?: string
+          created_at?: string
+          id?: string
+          items?: Json
+          scope?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       control_references: {
         Row: {
           control_id: string

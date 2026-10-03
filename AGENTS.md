@@ -24,3 +24,4 @@
 - Shared support contact copy lives in `src/lib/config.ts` — one place to edit it.
 - Demand events go to the `events` table via `trackEvent()` (own-row inserts, admin-only reads); templates are rows in `templates` linked by finding key — one source for analytics and template mapping.
 - Finding definitions live in `src/lib/finding-definitions.ts`, keyed by an internal `finding_key` (never shown to users); playbooks/templates are referenced, not duplicated — titles can change without breaking links.
+- New Personal/Business checkup results are saved per run in `checkup_results` (own rows only) via `src/lib/checkup-results.ts`; `/app/findings` shows them (Needs attention/Worth reviewing/Looks good/Not checked) and falls back to legacy assessment findings only when none exist — the two are never mixed.
