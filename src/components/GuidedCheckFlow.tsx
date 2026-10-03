@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/Button";
+import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
 
 export type GuidedAnswer = "good" | "found" | "unsure";
 
@@ -21,32 +22,33 @@ const OPTIONS: [GuidedAnswer, string][] = [
   ["unsure", "I'm not sure"],
 ];
 
-const GROUPS = [
-  { key: "found" as const, label: "🔴 Needs attention" },
-  { key: "unsure" as const, label: "🟡 Worth reviewing" },
-  { key: "good" as const, label: "🟢 Looks good" },
-];
-
 export function GuidedCheckFlow({
   checks, flowName, intro, resultsTitle, deviceNoun, sectionLabel, whatLabel, whereLabel,
 }: { checks: GuidedCheck[]; flowName: string; intro: string; resultsTitle: string; deviceNoun: string; sectionLabel?: string; whatLabel?: string; whereLabel?: string }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, GuidedAnswer>>({});
   const [done, setDone] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
   const total = checks.length;
+  const keyOf = (id: string): ResultKey => answers[id] ?? "skipped";
 
   if (done) {
+    const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
+    checks.forEach((c) => counts[keyOf(c.id)]++);
     return (
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">{resultsTitle}</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <ResultsSummary counts={counts} />
+        <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}.
         </p>
-        {GROUPS.map((g) => {
-          const items = checks.filter((c) => answers[c.id] === g.key);
+        {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
+          const items = checks.filter((c) => keyOf(c.id) === g.key);
           return (
-            <section key={g.key} className="mt-8">
-              <h2 className="text-lg font-semibold">{g.label} ({items.length})</h2>
+            <ResultSection key={g.key} anchor={g.anchor} title={`${g.label} (${items.length})`}>
+              {g.key === "skipped" ? (
+                <p className="mt-2 text-sm text-muted-foreground">You skipped these, so we haven't assumed anything. You can go back and answer them any time.</p>
+              ) : null}
               {items.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">Nothing here.</p>
               ) : (
@@ -60,16 +62,21 @@ export function GuidedCheckFlow({
                           You weren't sure, so we haven't assumed anything. {c.why} When you have a moment, look here: {c.where}
                         </p>
                       ) : null}
-                      {g.key !== "good" ? <p className="mt-2 text-sm">{c.review}</p> : null}
+                      {g.key === "found" || g.key === "unsure" ? <p className="mt-2 text-sm">{c.review}</p> : null}
+                      {g.key === "skipped" ? (
+                        <button className="mt-2 text-sm font-medium text-primary hover:underline" onClick={() => { setDone(false); setReviewing(true); setI(checks.indexOf(c)); }}>
+                          Answer this check
+                        </button>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
               )}
-            </section>
+            </ResultSection>
           );
         })}
         <div className="mt-10 flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={() => { setDone(false); setI(0); }}>Review my answers</Button>
+          <Button variant="secondary" onClick={() => { setDone(false); setReviewing(true); setI(0); }}>Review my answers</Button>
           <Link to="/checkup/personal"><Button variant="ghost">Back to Personal Checkup</Button></Link>
         </div>
       </div>
@@ -78,10 +85,14 @@ export function GuidedCheckFlow({
 
   const c = checks[i]!;
   const answer = answers[c.id];
+  const next = () => (i + 1 < total ? setI(i + 1) : setDone(true));
   return (
     <div>
+      {reviewing ? (
+        <button className="mb-4 text-sm font-medium text-primary hover:underline" onClick={() => setDone(true)}>← Back to Results</button>
+      ) : null}
       <p className="text-sm text-muted-foreground">{flowName}</p>
-      {i === 0 ? (
+      {i === 0 && !reviewing ? (
         <p className="mt-3 max-w-2xl rounded-card border border-border bg-card p-4 text-sm text-muted-foreground">{intro}</p>
       ) : null}
       <div className="mt-6 flex items-center justify-between gap-3 text-sm">
@@ -123,12 +134,18 @@ export function GuidedCheckFlow({
         ) : null}
       </div>
 
-      <div className="mt-6 flex justify-between gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <Button variant="secondary" disabled={i === 0} onClick={() => setI(i - 1)}>Back</Button>
-        <Button disabled={!answer} onClick={() => (i + 1 < total ? setI(i + 1) : setDone(true))}>
-          {i + 1 < total ? "Next" : "See results"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          {!answer ? <Button variant="ghost" onClick={next}>Skip for now</Button> : null}
+          <Button disabled={!answer} onClick={next}>{i + 1 < total ? "Next" : "See results"}</Button>
+        </div>
       </div>
+      {reviewing ? (
+        <div className="mt-4 flex justify-end">
+          <Button variant="ghost" onClick={() => setDone(true)}>Done Reviewing</Button>
+        </div>
+      ) : null}
     </div>
   );
 }
