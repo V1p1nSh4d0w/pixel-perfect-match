@@ -75,13 +75,13 @@ export function GuidedCheckFlow({
   title: c.title,
   category: c.category,
   status: groupFor(c, answers[c.id]),
-  findingKey: c.findingKey,
+  ...(c.findingKey ? { findingKey: c.findingKey } : {}),
   why: c.why,
   answer: answers[c.id] ? answerLabelFor(c.style, answers[c.id]!) : undefined,
   review: c.review,
   where: c.where,
   })), [checks, answers]);
-  const { path } = useCheckupPersistence({ done, answers, items, name: flowName, restore: (a) => { setAnswers(a); setDone(true); } });
+  const { path, resultId } = useCheckupPersistence({ done, answers, items, name: flowName, restore: (a) => { setAnswers(a); setDone(true); } });
 
   if (done) {
     const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
@@ -90,7 +90,7 @@ export function GuidedCheckFlow({
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">{resultsTitle}</h1>
         <ResultsSummary counts={counts} />
-        <div className="mt-4"><Link to="/app/findings" search={{ from: path }}><Button>View Findings</Button></Link></div>
+        <div className="mt-4"><Link to="/app/findings" search={{ from: path, ...(resultId ? { resultId } : {}) }}><Button>View Findings</Button></Link></div>
         <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}. None of these results mean you've been hacked — they're settings, habits and tips worth a look.
         </p>
