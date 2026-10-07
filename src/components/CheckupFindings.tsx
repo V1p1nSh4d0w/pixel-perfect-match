@@ -53,15 +53,17 @@ function fallbackDefinition(item: SavedCheckupResult["items"][number]): FindingV
   };
 }
 
-export function CheckupFindings({ results, from }: { results: SavedCheckupResult[]; from?: string }) {
+export function CheckupFindings({ results, from, resultId }: { results: SavedCheckupResult[]; from?: string; resultId?: string }) {
   const scopes = (["personal", "business"] as const).filter((s) => results.some((r) => r.scope === s));
-  const initial = from ? scopeForPath(from) : scopes[0]!;
+  const requestedRun = resultId ? results.find((r) => r.id === resultId && (!from || r.checkup_path === from)) : undefined;
+  const initial = requestedRun?.scope ?? (from ? scopeForPath(from) : scopes[0]!);
   const [scope, setScope] = useState<"personal" | "business">(scopes.includes(initial) ? initial : scopes[0]!);
   const runs = results.filter((r) => r.scope === scope)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || b.id.localeCompare(a.id))
     .slice(0, 4);
-  const latest = runs[0];
-  const history = runs.slice(1);
+  const requestedRunInScope = requestedRun?.scope === scope ? requestedRun : undefined;
+  const latest = resultId ? requestedRunInScope : runs[0];
+  const history = resultId ? (requestedRunInScope ? runs.filter((run) => run.id !== requestedRunInScope.id) : []) : runs.slice(1);
   const latestItems = (latest?.items ?? []).map((it) => ({ ...it, checkup: latest!.checkup_name, path: latest!.checkup_path }));
 
   const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
