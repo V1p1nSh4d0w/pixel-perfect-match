@@ -76,6 +76,7 @@ export function GuidedCheckFlow({
   category: c.category,
   status: groupFor(c, answers[c.id]),
   findingKey: c.findingKey,
+  why: c.why,
   answer: answers[c.id] ? answerLabelFor(c.style, answers[c.id]!) : undefined,
   review: c.review,
   where: c.where,
