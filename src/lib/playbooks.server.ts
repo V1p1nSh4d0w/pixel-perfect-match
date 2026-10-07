@@ -1,3 +1,5 @@
+import { sectionForPlaybookText, type PlaybookSection } from "@/lib/playbook-content";
+
 /** Central remediation playbooks, keyed by finding title. */
 const STEP_TEXT: Record<string, string[]> = {
   "No written security policy": [
@@ -139,12 +141,16 @@ const STEP_META: Record<string, [string, string][]> = {
   "Domain registrar account lacks MFA": [["~10 min", "WHERE TO FIND IT — Registrar account → Security/Sign-in settings and account recovery details"], ["~10 min", "Registrar account security and domain management settings"], ["~5 min", "New sign-in and domain lock/renewal status"], ["~5 min", "Renewal date and account recovery reminder"]],
 };
 
-export interface PlaybookStep { text: string; time: string; tool: string }
+export interface PlaybookStep { text: string; time: string; tool: string; section?: PlaybookSection }
 
 export const PLAYBOOKS: Record<string, PlaybookStep[]> = Object.fromEntries(
   Object.entries(STEP_TEXT).map(([title, steps]) => [
     title,
-    steps.map((text, i) => ({ text, time: STEP_META[title]?.[i]?.[0] ?? "~15 min", tool: STEP_META[title]?.[i]?.[1] ?? "" })),
+    steps.map((text, i) => ({
+      text,
+      time: STEP_META[title]?.[i]?.[0] ?? "~15 min",
+      tool: STEP_META[title]?.[i]?.[1] ?? "",
+      ...(sectionForPlaybookText(text) ? { section: sectionForPlaybookText(text)! } : {}),
+    })),
   ]),
 );
-
