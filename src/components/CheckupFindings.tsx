@@ -34,18 +34,6 @@ function loadProgress(path: string, checkId: string): number[] {
 }
 
 
-function bestPlaybookTitle(title: string, playbooks: Record<string, unknown>): string | undefined {
-  const stop = new Set(["the","and","for","with","your","business","important","review","access","need","needs","not"]);
-  const words = title.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !stop.has(w));
-  let best: { key: string; score: number } | undefined;
-  for (const key of Object.keys(playbooks)) {
-    const keyWords = new Set(key.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !stop.has(w)));
-    const score = words.filter((w) => keyWords.has(w)).length;
-    if (score >= 2 && (!best || score > best.score)) best = { key, score };
-  }
-  return best?.key;
-}
-
 function fallbackDefinition(item: SavedCheckupResult["items"][number]): FindingView {
   return {
     finding_key: item.findingKey ?? `check:${item.id}`,
@@ -212,8 +200,32 @@ function CheckupFindingCard({
     ? { ...centralDef, source: "definition" as const }
     : fallbackDefinition(item);
 
-  const playbookTitle = def.playbook_title ?? bestPlaybookTitle(def.title, playbooks);
-  const playbook = playbookTitle ? playbooks[playbookTitle] : undefined;
+  const status = item.status;
+  const isFinding = status === "found" || status === "unsure";
+  const curatedPlaybook = def.playbook_title ? playbooks[def.playbook_title] : undefined;
+  const playbook = isFinding
+    ? curatedPlaybook?.length
+      ? curatedPlaybook
+      : [
+          {
+            text: status === "unsure"
+              ? `Check whether this setting or practice needs attention. ${item.where ? `Start here: ${item.where}` : "Use the checkup question as your guide."}`
+              : `Open the relevant setting or account and confirm what needs attention. ${item.where ? `Start here: ${item.where}` : "Use the checkup question as your guide."}`,
+            time: "~5 min",
+            tool: item.where ?? item.category,
+          },
+          {
+            text: def.recommended_action,
+            time: "Varies",
+            tool: "Recommended fix above",
+          },
+          {
+            text: "Return to this check and confirm the change is in place. If you still can't verify it, keep this result as Worth reviewing.",
+            time: "~2 min",
+            tool: "This checkup",
+          },
+        ]
+    : undefined;
   const template = def.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
     : undefined;
@@ -229,9 +241,6 @@ function CheckupFindingCard({
   }, [done, item.path, item.id]);
 
   const doneCount = useMemo(() => done.length, [done]);
-  const status = item.status;
-  const isFinding = status === "found" || status === "unsure";
-
   return (
     <article className="rounded-card border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
