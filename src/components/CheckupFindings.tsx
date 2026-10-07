@@ -1,15 +1,50 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
-import { getFindingDefinitionForCheck } from "@/lib/finding-definitions";
-import { getFindingDefinition } from "@/lib/finding-definitions";
+import { getFindingDefinitionForCheck, type FindingDefinition } from "@/lib/finding-definitions";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
 import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
+
+type FindingView = FindingDefinition & { source: "definition" | "checkup" };
+
+const STATUS_LABELS: Record<ResultKey, string> = {
+  found: "Needs attention",
+  unsure: "Worth reviewing",
+  good: "Looks good",
+  skipped: "Not checked",
+};
+
+function progressKey(path: string, checkId: string) {
+  return `securecheck-playbook:${path}:${checkId}`;
+}
+
+function loadProgress(path: string, checkId: string): number[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(progressKey(path, checkId));
+    return raw ? JSON.parse(raw) as number[] : [];
+  } catch {
+    return [];
+  }
+}
+
+function fallbackDefinition(item: SavedCheckupResult["items"][number]): FindingView {
+  return {
+    finding_key: item.findingKey ?? `check:${item.id}`,
+    category: item.category,
+    title: item.title,
+    severity: "Medium",
+    why_it_matters: item.why ?? "This is a self-assessment result worth reviewing based on what you told us.",
+    recommended_action: item.review ?? "Review this check and decide whether any improvement is needed.",
+    effort: "Low",
+    source: "checkup",
+  };
+}
 
 export function CheckupFindings({ results, from }: { results: SavedCheckupResult[]; from?: string }) {
   const scopes = (["personal", "business"] as const).filter((s) => results.some((r) => r.scope === s));
@@ -46,7 +81,7 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
 
       <PageHeader
         title="Findings"
-        description="From your latest Personal and Business checkups — based on what you told us, not a scan of your devices or accounts."
+        description="Your checkup findings in one place. These are based on what you told us, not a technical scan of your devices or accounts."
       />
 
       {scopes.length > 1 ? (
@@ -73,7 +108,6 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
 
       {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
         const items = all.filter((it) => it.status === g.key);
-
         return (
           <ResultSection key={g.key} anchor={g.anchor} title={`${g.label} (${items.length})`}>
             {items.length === 0 ? (
@@ -106,41 +140,40 @@ function CheckupFindingCard({
   playbooks: Record<string, { text: string; time: string; tool: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
 }) {
-  const def = getFindingDefinitionForCheck(item.findingKey, item.id);
-  const playbook = def?.playbook_title ? playbooks[def.playbook_title] : undefined;
-  const template = def?.template_key
+  const centralDef = getFindingDefinitionForCheck(item.findingKey, item.id);
+  const def = centralDef
+    ? { ...centralDef, source: "definition" as const }
+    : fallbackDefinition(item);
+
+  const playbook = def.playbook_title ? playbooks[def.playbook_title] : undefined;
+  const template = def.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
     : undefined;
 
-  const [done, setDone] = useState<number[]>([]);
+  const [done, setDone] = useState<number[]>(() => loadProgress(item.path, item.id));
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(progressKey(item.path, item.id), JSON.stringify(done));
+    } catch {
+      // Local persistence is best-effort.
+    }
+  }, [done, item.path, item.id]);
 
   const doneCount = useMemo(() => done.length, [done]);
-  const isFinding = item.status === "found" || item.status === "unsure";
-
-  if (!def || !isFinding) {
-    return (
-      <div className="rounded-card border border-border bg-card p-5">
-        <p className="text-xs text-muted-foreground">{item.checkup} · {item.category}</p>
-        <h3 className="mt-1 font-medium">{item.title}</h3>
-        {item.answer ? (
-          <p className="mt-2 text-xs text-muted-foreground">Your answer: {item.answer} (self-assessment)</p>
-        ) : null}
-        {item.status === "skipped" ? (
-          <a href={`${item.path}?results=1`} className="mt-2 inline-block text-sm font-medium text-primary hover:underline">
-            Open this checkup
-          </a>
-        ) : null}
-      </div>
-    );
-  }
+  const status = item.status;
+  const isFinding = status === "found" || status === "unsure";
 
   return (
     <article className="rounded-card border border-border bg-card p-5">
-      <div className="space-y-2">
-        <p className="text-xs text-muted-foreground">
-          {item.checkup} · {item.category}
-        </p>
-        <h3 className="text-lg font-semibold">{def.title}</h3>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs text-muted-foreground">{item.checkup} · {item.category}</p>
+          <h3 className="mt-1 text-lg font-semibold">{def.title}</h3>
+        </div>
+        <span className="rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium">
+          {STATUS_LABELS[status]}
+        </span>
       </div>
 
       <section className="mt-5">
@@ -152,21 +185,21 @@ function CheckupFindingCard({
 
       <section className="mt-5 rounded-card border border-border bg-surface p-4">
         <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          Evidence · Based on your checkup
+          Evidence · Self-assessment
         </h4>
         <p className="mt-2 font-medium">You answered: “{item.answer ?? "Not answered"}”</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Checkup question: “{item.title}”
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">Source: Self-assessment</p>
+        <p className="mt-1 text-xs text-muted-foreground">Checkup question: “{item.title}”</p>
+        <p className="mt-1 text-xs text-muted-foreground">We did not technically inspect your device, account or service.</p>
       </section>
 
-      <section className="mt-5">
-        <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          Recommended fix
-        </h4>
-        <p className="mt-1.5 text-sm leading-relaxed">{def.recommended_action}</p>
-      </section>
+      {isFinding ? (
+        <section className="mt-5">
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            Recommended fix
+          </h4>
+          <p className="mt-1.5 text-sm leading-relaxed">{def.recommended_action}</p>
+        </section>
+      ) : null}
 
       {playbook?.length ? (
         <section className="mt-5">
@@ -174,35 +207,24 @@ function CheckupFindingCard({
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Remediation Playbook
             </h4>
-            <span className="text-xs text-muted-foreground">
-              {doneCount} of {playbook.length} steps done
-            </span>
+            <span className="text-xs text-muted-foreground">{doneCount} of {playbook.length} steps done</span>
           </div>
-
           <div className="space-y-3">
             {playbook.map((step, index) => {
               const checked = done.includes(index);
-
               return (
                 <label key={index} className="flex cursor-pointer gap-3">
                   <input
                     type="checkbox"
                     checked={checked}
-                    onChange={() =>
-                      setDone((current) =>
-                        checked
-                          ? current.filter((x) => x !== index)
-                          : [...current, index],
-                      )
-                    }
+                    onChange={() => setDone((current) =>
+                      checked ? current.filter((x) => x !== index) : [...current, index],
+                    )}
                     className="mt-1 h-4 w-4"
                   />
                   <span className={checked ? "text-sm text-muted-foreground line-through" : "text-sm"}>
-                    <span className="font-medium">Step {index + 1}: </span>
-                    {step.text}
-                    <span className="block text-xs text-muted-foreground">
-                      {step.time} · Use: {step.tool}
-                    </span>
+                    <span className="font-medium">Step {index + 1}: </span>{step.text}
+                    <span className="block text-xs text-muted-foreground">{step.time} · Use: {step.tool}</span>
                   </span>
                 </label>
               );
@@ -213,8 +235,14 @@ function CheckupFindingCard({
 
       {template ? (
         <div className="mt-5">
-          <TemplateButton templateId={template.id} findingId={item.findingKey ?? ""} />
+          <TemplateButton templateId={template.id} findingId={item.findingKey ?? def.finding_key} />
         </div>
+      ) : null}
+
+      {status === "skipped" ? (
+        <a href={`${item.path}?results=1`} className="mt-5 inline-block text-sm font-medium text-primary hover:underline">
+          Open this checkup to answer this item
+        </a>
       ) : null}
     </article>
   );
