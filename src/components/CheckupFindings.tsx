@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
-import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/components/CheckupResults";
+import { RESULT_GROUPS, ResultSection, type ResultKey } from "@/components/CheckupResults";
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
 import { getFindingDefinitionForCheck, type FindingDefinition } from "@/lib/finding-definitions";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
@@ -56,6 +56,7 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
   const latest = runs[0];
   const history = runs.slice(1);
   const latestItems = (latest?.items ?? []).map((it) => ({ ...it, checkup: latest!.checkup_name, path: latest!.checkup_path }));
+  const [statusFilter, setStatusFilter] = useState<ResultKey | "all">("all");
 
   const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
   latestItems.forEach((it) => { counts[it.status]++; });
@@ -111,13 +112,38 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
             <span className="font-medium">{latest.checkup_name}</span>
             <span className="text-sm text-muted-foreground">· {formatRunDate(latest.created_at)}</span>
           </div>
-          <ResultsSummary counts={counts} />
+          <div role="group" aria-label="Filter findings by status" className="mt-4 -mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+            {([
+              { key: "all" as const, label: "All", count: latestItems.length },
+              { key: "found" as const, label: "Needs attention", count: counts.found },
+              { key: "unsure" as const, label: "Worth reviewing", count: counts.unsure },
+              { key: "good" as const, label: "Looks good", count: counts.good },
+            ]).map((filter) => {
+              const selected = statusFilter === filter.key;
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setStatusFilter(filter.key)}
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
+                    selected
+                      ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary/30"
+                      : "border-border bg-card text-muted-foreground hover:bg-surface-raised hover:text-foreground"
+                  }`}
+                >
+                  {filter.label} <span className="ml-1 tabular-nums">{filter.count}</span>
+                </button>
+              );
+            })}
+          </div>
           <RunSections
             run={latest}
-            items={latestItems}
+            items={statusFilter === "all" ? latestItems : latestItems.filter((item) => item.status === statusFilter)}
             playbooks={playbooksQuery.data?.playbooks ?? {}}
             templates={templatesQuery.data ?? []}
             latest
+            statusFilter={statusFilter}
           />
           {history.length > 0 ? (
             <details className="mt-10 rounded-card border border-border bg-card p-4">
@@ -151,18 +177,19 @@ function formatRunDate(value: string) {
 }
 
 function RunSections({
-  run, items, playbooks, templates, latest = false,
+  run, items, playbooks, templates, latest = false, statusFilter = "all",
 }: {
   run: SavedCheckupResult;
   items: (SavedCheckupResult["items"][number] & { checkup: string; path: string })[];
   playbooks: Record<string, { text: string; time: string; tool: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
   latest?: boolean;
+  statusFilter?: ResultKey | "all";
 }) {
   const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
   items.forEach((it) => { counts[it.status]++; });
   return <>
-    {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
+    {RESULT_GROUPS.filter((g) => (g.key !== "skipped" || counts.skipped > 0) && (statusFilter === "all" || g.key === statusFilter)).map((g) => {
       const groupItems = items.filter((it) => it.status === g.key);
       return (
         <ResultSection key={`${run.id}-${g.key}`} anchor={latest ? g.anchor : `${run.id}-${g.anchor}`} title={`${g.label} (${groupItems.length})`}>

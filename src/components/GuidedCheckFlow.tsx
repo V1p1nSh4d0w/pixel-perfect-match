@@ -90,7 +90,10 @@ export function GuidedCheckFlow({
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">{resultsTitle}</h1>
         <ResultsSummary counts={counts} />
-        <div className="mt-4"><Link to="/app/findings" search={{ from: path }}><Button>View Findings</Button></Link></div>
+        <div className="mt-4 flex flex-col items-center">
+          <Link to="/app/findings" search={{ from: path }}><Button>View my findings →</Button></Link>
+          <p className="mt-2 text-center text-xs text-muted-foreground">See what's worth fixing and get step-by-step guidance.</p>
+        </div>
         <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your {deviceNoun}. None of these results mean you've been hacked — they're settings, habits and tips worth a look.
         </p>

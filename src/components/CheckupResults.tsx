@@ -9,26 +9,28 @@ export const RESULT_GROUPS: { key: ResultKey; label: string; anchor: string }[] 
   { key: "skipped", label: "⚪ Not checked", anchor: "not-checked" },
 ];
 
-/** Clickable counts shown at the very top of a checkup results page. */
+const RESULT_TONES: Record<ResultKey, string> = {
+  found: "text-danger",
+  unsure: "text-warning",
+  good: "text-success",
+  skipped: "text-muted-foreground",
+};
+
+/** Compact, non-interactive counts shown at the top of a checkup results page. */
 export function ResultsSummary({ counts }: { counts: Record<ResultKey, number> }) {
   const groups = RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0);
   return (
-    <nav aria-label="Results summary" className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <div role="group" aria-label="Results summary" className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-card border border-border/70 bg-card px-3 py-2.5 sm:gap-x-7 sm:px-4">
       {groups.map((g) => (
-        <a
+        <div
           key={g.key}
-          href={`#${g.anchor}`}
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById(g.anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          className="rounded-card border border-border bg-card px-3 py-3 text-sm transition-colors hover:border-primary"
+          className="flex items-center gap-1.5 text-xs sm:text-sm"
         >
-          <span className="block text-muted-foreground">{g.label}</span>
-          <span className="mt-1 block text-2xl font-semibold">{counts[g.key]}</span>
-        </a>
+          <span className="text-muted-foreground">{g.label}</span>
+          <span className={`font-semibold tabular-nums ${RESULT_TONES[g.key]}`}>{counts[g.key]}</span>
+        </div>
       ))}
-    </nav>
+    </div>
   );
 }
 
