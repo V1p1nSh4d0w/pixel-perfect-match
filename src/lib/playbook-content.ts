@@ -387,6 +387,120 @@ const REMEDIATION_CONTENT: Record<string, RemediationContent> = {
   },
 };
 
+/** Finding-specific verification for checkup items without a curated override. */
+const VERIFICATION_CONTENT: Record<string, string> = {
+  "personal_data:has-backup": "Open the backup history and confirm the latest run succeeded; restore one small file to a safe location and open it.",
+  "personal_data:can-restore": "Restore a sample file to a separate location and confirm it opens with the expected contents.",
+  "personal_data:coverage": "Compare your important-data list with the backup contents and confirm every listed item has a recoverable copy.",
+  "personal_data:frequency": "Check the last successful backup date against how much recent work you could afford to lose.",
+  "personal_data:separated": "Confirm at least one current backup is stored on a different device or account and is not continuously writable from the original.",
+  "personal_data:ransomware": "Confirm a backup copy or version history is protected from everyday deletion, then check that a sample can be restored.",
+  "personal_data:exposed": "Reopen sharing settings and confirm each sensitive file is limited to people who still need it.",
+  "personal_data:cloud-permissions": "Review the cloud folder's access list and confirm only intended people and groups are allowed.",
+  "personal_data:public-links": "Open the shared-link list and confirm no file is available to anyone with the link unless you deliberately intended that.",
+  "personal_data:recovery-options": "Recheck the account recovery page and confirm each listed email and phone is current and controlled by you.",
+  "personal_data:file-access": "Ask the person responsible for recovery to locate the saved instructions and confirm they can access the needed backup.",
+  "personal_data:encryption": "Reopen the device's encryption settings and confirm encryption is shown as On or enabled.",
+  "personal_data:sensitive-on-device": "Review the device's sensitive-file locations and confirm only files you still need remain there.",
+  "personal_data:old-copies": "Search the locations you reviewed and confirm unneeded copies were removed from trash and shared folders too.",
+  "personal_data:external-drives": "Check the backup log for a successful run to the external drive, then safely eject and disconnect it.",
+  "personal_data:minimization": "Review the cleaned folder or account and confirm only information still needed for work is retained.",
+  "personal_online:reuse": "Recheck saved logins in your password manager and confirm changed accounts now have different passwords.",
+  "personal_online:pw-manager": "Lock and reopen the password manager, then confirm the important accounts are saved there and its own sign-in is protected.",
+  "personal_online:recovery": "Reopen account recovery settings and confirm the email and phone belong to you and are still reachable.",
+  "personal_online:sessions": "Refresh the active-session list and confirm sessions you signed out of no longer appear.",
+  "personal_online:devices": "Reopen the account's signed-in devices page and confirm every remaining device is yours.",
+  "personal_online:third-party": "Reopen connected-app settings and confirm removed apps are gone and remaining apps are recognised.",
+  "personal_online:oauth": "Review each connected app's permission details and confirm only access you intended remains granted.",
+  "personal_online:app-passwords": "Reopen app-password or access-token settings and confirm unused credentials have been revoked.",
+  "personal_online:alerts": "Reopen security-notification settings and confirm sign-in and recovery alerts are enabled for an address you check.",
+  "personal_online:activity": "Review recent account activity again and confirm each remaining sign-in or change is familiar.",
+  "personal_online:web-popups": "Reopen the browser's pop-up settings and confirm blocking is enabled for sites that should not open pop-ups.",
+  "personal_online:web-redirects": "Reopen the site or browser setting you changed and confirm unexpected redirects are blocked or the unknown rule is removed.",
+  "personal_online:web-downloads": "Reopen download settings and confirm files are not opened automatically and the save location is one you recognise.",
+  "personal_online:web-security": "Reopen the browser security or safe-browsing page and confirm the protection level you chose is still enabled.",
+  "personal_online:web-search": "Reopen search settings and confirm the default provider is the one you intentionally selected.",
+  "personal_online:web-autofill": "Reopen password and autofill settings and confirm unwanted saved entries are removed and saving is limited as intended.",
+  "personal_online:cookies": "Reopen privacy settings and confirm the third-party-cookie choice matches the protection you selected.",
+  "personal_online:cross-site": "Reopen tracking-protection settings and confirm cross-site tracking protection is enabled for the sites you reviewed.",
+  "personal_online:tracking-prot": "Reopen the browser privacy page and confirm tracking protection is enabled at the level you intended.",
+  "personal_online:priv-location": "Reopen site permissions and confirm only sites you trust can access your location.",
+  "personal_online:priv-notif": "Reopen site notification permissions and confirm unfamiliar sites are blocked or removed from Allowed.",
+  "personal_online:fingerprint": "Reopen the browser privacy settings and confirm the anti-tracking protection you selected is enabled; this does not make browsing anonymous.",
+  "personal_online:url-params": "Inspect the final link before opening or sharing it and confirm its website address is the intended one.",
+  "personal_online:incognito": "Confirm the activity was not saved in browser history, and remember private browsing does not hide activity from websites or network providers.",
+  "personal_online:dns": "Reopen network or browser DNS settings and confirm the provider is Automatic or the provider you intentionally chose.",
+  "personal_online:vpn-limits": "Reopen VPN settings and confirm only a VPN you recognise is configured; do not treat a VPN as proof of anonymity.",
+  "personal_online:domain": "Compare the complete website address with the address published by the organisation through a trusted channel.",
+  "personal_online:https": "Reload the official HTTPS address and confirm the browser shows no certificate warning before you enter information.",
+  "personal_online:lookalike": "Compare the domain's spelling character by character with the organisation's known official domain.",
+  "personal_online:redirects": "Check the final address after navigation and stop if it differs from the official destination you expected.",
+  "personal_online:shorteners": "Use the sender's trusted channel to confirm the expanded destination before opening a shortened link.",
+  "personal_online:params": "Check the host name separately from the query string and confirm the host is the official site before signing in.",
+  "personal_online:login-domain": "Before entering a password, check the address bar and confirm the full domain matches the service's official domain.",
+  "personal_online:download-domain": "Check the download page's full domain and the file publisher against the software maker's official source.",
+  "personal_online:fake-infected": "Close the warning without using its buttons, then check your installed security app's own scan report for any alert.",
+  "personal_online:fake-update": "Open the browser's built-in About or Update page and confirm updates there instead of trusting the pop-up.",
+  "personal_online:fake-notif": "Reopen notification permissions and confirm the site that showed the fake alert is no longer Allowed.",
+  "personal_online:fake-redirect": "Reopen the browser's extension and site-permission lists and confirm the unwanted redirect source is disabled or removed.",
+  "personal_online:malvertising": "Close the advert and reopen the intended site from its known address; do not use the advert's download or contact controls.",
+  "personal_online:fake-download": "Check the browser download list and confirm no unexpected file remains; if one downloaded, do not open it and scan it with your installed security app.",
+  "personal_online:fake-buttons": "Open the service by typing its known official address and confirm the action is available there, not only on the suspicious page.",
+  "personal_scam:domains": "Compare the sender's complete domain with the organisation's official domain from a trusted source.",
+  "personal_scam:logins": "Open the service from a saved bookmark or typed official address and confirm it does not ask for credentials through the unexpected message.",
+  "personal_scam:urgency": "Pause and verify the deadline or threat using a separate, trusted contact method before taking action.",
+  "personal_scam:payments": "Call the recipient using a previously verified number and confirm the payment request and account details independently.",
+  "personal_scam:support": "Contact support through the number or help page on the organisation's official site and confirm the message is genuine.",
+  "personal_scam:downloads": "Check the browser download list and confirm no unexpected file was opened; scan any file you deliberately kept with installed security software.",
+  "personal_scam:qr": "Preview the destination before opening and confirm its full domain is the organisation's official address.",
+  "personal_scam:shorteners": "Confirm the expanded destination through the sender's trusted channel and do not open it if the destination is unclear.",
+  "personal_scam:redirects": "Check the final address and confirm it is the official destination before entering information.",
+  "personal_scam:fake-login": "Close the page and open the service from its known official address; confirm that page is the only sign-in route you use.",
+  "personal_scam:fake-warnings": "Close the warning and check for alerts only in the device's installed security app or operating-system settings.",
+  "personal_scam:ads": "Reopen the intended service from its known address and confirm no download or payment was started from the advert.",
+  "personal_scam:notif-traps": "Reopen browser notification permissions and confirm the site that sent the trap is removed or set to Block.",
+  "personal_scam:file-prompts": "Check the browser's download list and confirm no unexpected file was opened; delete an unwanted download without running it.",
+  "business_access:shared": "Review the service's user list and confirm each person has an individual sign-in; rotate any shared password that was previously used.",
+  "business_access:individual": "Compare the account list with current staff and confirm each person has their own named login.",
+  "business_access:least": "Reopen each role list and confirm each person has only the permissions needed for their current work.",
+  "business_access:separate-admin": "Sign into the everyday account and confirm it is standard; confirm the separate administrator account is used only for management.",
+  "business_access:pw-manager": "Review the shared vault's membership and confirm only authorised people can open it and the owner account uses MFA.",
+  "business_access:sessions": "Reopen active sessions and confirm sessions for departed staff or unrecognised devices have been revoked.",
+  "business_access:oauth": "Reopen connected-app permissions and confirm unused integrations are removed and remaining scopes are understood.",
+  "business_access:api-keys": "Reopen API-key and app-password settings and confirm revoked credentials are absent or shown as inactive.",
+  "business_access:onboarding": "Review a recent new-user account and confirm its access matches the role and MFA requirements.",
+  "business_access:offboarding": "Reopen the departure checklist and confirm the person's account is disabled, sessions revoked, and shared credentials rotated.",
+  "business_access:review": "Record the date and owner of the access review and confirm unexplained users or roles have a named follow-up.",
+  "business_data:important-data": "Ask the responsible person to use the written data list and confirm it names critical information and where each item lives.",
+  "business_data:restore": "Follow the documented restore steps with a sample file and confirm the named owner can open the recovered copy.",
+  "business_data:sharing": "Reopen the sensitive-folder access list and confirm each person still needs the access shown.",
+  "business_data:sensitive": "Review the sensitive-data inventory and confirm each listed location has an owner and an appropriate access list.",
+  "business_data:frequency": "Check backup history and confirm successful runs occur often enough for the agreed recovery point.",
+  "business_data:locations": "Confirm current copies exist in the documented separate locations and that each location has a recent successful backup.",
+  "business_data:backup-access": "Review backup users and MFA settings; confirm everyday accounts cannot remove every protected backup copy.",
+  "business_data:old-copies": "Recheck the retention or deletion log and confirm unneeded copies were removed according to the business retention rules.",
+  "business_data:priorities": "Ask the recovery owner to identify the first systems and data to restore and confirm the order is recorded.",
+  "business_devices:updates": "Reopen update status on each device and confirm security updates are current and the operating system remains supported.",
+  "business_devices:secure-boot": "Check the device's firmware or system-information page and confirm Secure Boot and TPM are enabled where supported.",
+  "business_devices:management": "Set up one new or reset device from the documented baseline and confirm its required protections are present.",
+  "business_devices:inventory": "Compare the software list with the devices in use and confirm each important app has an owner and support status.",
+  "business_devices:remote-tools": "Reopen the approved remote-support tool and user list and confirm only named, authorised support people remain.",
+  "business_devices:personal-vs-business": "Check an approved device and confirm work data is separated as documented and can be removed within the stated boundary.",
+  "business_online:email-mfa": "Confirm each important mailbox user is enrolled, then check a fresh sign-in requires the second factor.",
+  "business_online:email-recovery": "Reopen mailbox recovery settings and confirm every address and number is current and controlled by the business.",
+  "business_online:domain-mfa": "Check the registrar account's MFA status and confirm the domain lock is active where the registrar supports it.",
+  "business_online:hosting": "Reopen hosting and CMS user lists and confirm every administrator is expected and MFA is enabled where available.",
+  "business_online:social": "Review each business social account's people and roles and confirm former or unknown users are removed.",
+  "business_online:unknown-access": "Compare provider and contractor access lists with current agreements and confirm only current, approved people remain.",
+  "business_online:unknown-access-solo": "Review outside-provider access and confirm each remaining account has a current owner, purpose, and end date.",
+  "business_online:domain-ownership": "Check the registrar account and renewal record and confirm the business controls the recovery email and domain.",
+  "business_online:dns": "Review DNS-provider users and confirm only authorised people can change records for the business domain.",
+  "business_online:email-auth": "Check the mail provider's domain-authentication status and confirm SPF, DKIM, and DMARC are reported as configured for the sending domain.",
+  "business_online:individual-admins": "Reopen website user roles and confirm each administrator is an individual account with only required privileges.",
+  "business_online:integrations": "Reopen the integration list and confirm removed services are gone and each remaining integration has an owner and purpose.",
+  "business_online:lockout-plan": "Ask the account owner to locate the lockout plan and confirm the alternate contact and recovery route are current."
+};
+
 function cleanInstruction(value: string) {
   return value.replace(/^(Recommended improvement:|Access should be reviewed:|Potential warning sign\.|Verify before continuing\.|Unexpected request\.)\s*/i, "").trim();
 }
@@ -400,14 +514,17 @@ export function getCheckupPlaybookContent(item: CheckupItemContent, findingTitle
         : item.category === "Devices & Software" ? "business_devices"
           : item.category === "Data & Backups" ? "business_data"
             : item.category === "Email, Website & Online Presence" ? "business_online"
-              : item.category === "Core warning signs" || item.category === "Links, pages & pop-ups" ? "personal_scam"
-                : undefined;
+              : ["Backups & recovery", "Sharing & exposure", "Devices & storage"].includes(item.category) ? "personal_data"
+                : ["Account security", "Web & browsing security", "Privacy & tracking", "URL & website safety", "Popups, redirects & fake warnings"].includes(item.category) ? "personal_online"
+                  : item.category === "Core warning signs" || item.category === "Links, pages & pop-ups" ? "personal_scam"
+                    : undefined;
   const curated = REMEDIATION_CONTENT[`${item.category}:${item.id}`]
     || (family ? REMEDIATION_CONTENT[`${family}:${item.id}`] : undefined)
     || (findingTitle && REMEDIATION_CONTENT[findingTitle])
     || REMEDIATION_CONTENT[item.title];
   const where = curated?.where ?? item.where?.trim();
   const action = curated?.action ?? (item.review ? cleanInstruction(item.review) : undefined);
+  const verify = curated?.verify ?? (family ? VERIFICATION_CONTENT[`${family}:${item.id}`] : undefined);
   const steps: CheckupPlaybookStep[] = [];
 
   if (where) {
@@ -416,8 +533,8 @@ export function getCheckupPlaybookContent(item: CheckupItemContent, findingTitle
   if (action) {
     steps.push({ section: "WHAT TO CHANGE", text: action, time: "Varies", tool: "Recommended action" });
   }
-  if (curated?.verify) {
-    steps.push({ section: "VERIFY", text: curated.verify, time: "~2 min", tool: "Check the setting or result" });
+  if (verify) {
+    steps.push({ section: "VERIFY", text: verify, time: "~2 min", tool: "Check the setting or result" });
   }
 
   const recommendation = curated?.recommendation;
