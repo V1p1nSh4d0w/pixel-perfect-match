@@ -100,16 +100,10 @@ type NavGroup = {
 };
 
 export const NAV_GROUPS: NavGroup[] = [
-  { label: "Main", items: [{ label: "Security", to: "/app", icon: "security" }, { label: "Dashboard", to: "/app/dashboard", icon: "dashboard" }] },
-  {
-    label: "Assessment",
-    items: [
-      { label: "Assessment", to: "/app/assessment", icon: "assessment" },
-      { label: "Findings", to: "/app/findings", icon: "findings" },
-      { label: "Action Plan", to: "/app/action-plan", icon: "action-plan" },
-      { label: "Reports", to: "/app/reports", icon: "reports" },
-    ],
-  },
+  { label: "Main", items: [
+    { label: "Security", to: "/app", icon: "security" },
+    { label: "Findings", to: "/app/findings", icon: "findings" },
+  ] },
   {
     label: "Account",
     items: [
