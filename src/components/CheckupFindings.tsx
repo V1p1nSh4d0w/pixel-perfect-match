@@ -5,7 +5,12 @@ import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
 import { getFindingDefinitionForCheck, type FindingDefinition } from "@/lib/finding-definitions";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
-import { getCheckupPlaybookContent, type CheckupPlaybookStep, textWithoutPlaybookPrefix, sectionForPlaybookText } from "@/lib/playbook-content";
+import {
+  getCheckupPlaybookContent,
+  sectionForPlaybookText,
+  textWithoutPlaybookPrefix,
+  type CheckupPlaybookStep,
+} from "@/lib/playbook-content";
 import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
 import { useServerFn } from "@tanstack/react-start";
@@ -276,6 +281,8 @@ function CheckupFindingCard({
           <div className="space-y-3">
             {playbook.map((step, index) => {
               const checked = done.includes(index);
+              const section = ("section" in step && step.section) || sectionForPlaybookText(step.text);
+              const text = sectionForPlaybookText(step.text) ? textWithoutPlaybookPrefix(step.text) : step.text;
               return (
                 <label key={index} className="flex cursor-pointer gap-3">
                   <input
@@ -286,15 +293,15 @@ function CheckupFindingCard({
                     )}
                     className="mt-1 h-4 w-4"
                   />
-                    <span className={checked ? "text-sm text-muted-foreground line-through" : "text-sm"}>
-                      <span className="font-medium">{("section" in step && step.section) || sectionForPlaybookText(step.text) || `Step ${index + 1}`}: </span>{"section" in step && sectionForPlaybookText(step.text) ? textWithoutPlaybookPrefix(step.text) : step.text}
-                      {index === 0 && curatedPlaybook?.length && item.where ? (
-                        <span className="mt-2 block text-xs text-muted-foreground">
-                          <span className="font-semibold uppercase tracking-[0.06em]">Where to find it</span>
-                          <span className="block">{item.where}</span>
-                        </span>
-                      ) : null}
-                      <span className="block text-xs text-muted-foreground">{step.time} · Use: {step.tool}</span>
+                  <span className={checked ? "text-sm text-muted-foreground line-through" : "text-sm"}>
+                    <span className="font-medium">{section ?? `Step ${index + 1}`}: </span>{text}
+                    {index === 0 && curatedPlaybook?.length && item.where ? (
+                      <span className="mt-2 block text-xs text-muted-foreground">
+                        <span className="font-semibold uppercase tracking-[0.06em]">Where to find it</span>
+                        <span className="block">{item.where}</span>
+                      </span>
+                    ) : null}
+                    <span className="block text-xs text-muted-foreground">{step.time} · Use: {step.tool}</span>
                   </span>
                 </label>
               );
