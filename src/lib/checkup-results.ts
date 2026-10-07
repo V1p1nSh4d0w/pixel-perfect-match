@@ -76,18 +76,17 @@ export async function fetchLatestAnswersFor(path: string): Promise<Record<string
   return (data?.answers as Record<string, string> | undefined) ?? null;
 }
 
-/** The latest saved result of each checkup the user has completed (newest first). */
+/** Saved checkup runs (newest first), retaining each run so Findings can show history. */
 export async function fetchLatestCheckupResults(): Promise<SavedCheckupResult[]> {
-  const { data, error } = await supabase.from("checkup_results")
-    .select("id, scope, checkup_path, checkup_name, answers, items, created_at")
-    .order("created_at", { ascending: false }).limit(200);
-  if (error) { console.error("Loading checkup results failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); throw error; }
-  const seen = new Set<string>();
-  const out: SavedCheckupResult[] = [];
-  for (const r of data ?? []) {
-    if (seen.has(r.checkup_path)) continue;
-    seen.add(r.checkup_path);
-    out.push(r as unknown as SavedCheckupResult);
+  const pageSize = 500;
+  const results: SavedCheckupResult[] = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase.from("checkup_results")
+      .select("id, scope, checkup_path, checkup_name, answers, items, created_at")
+      .order("created_at", { ascending: false }).range(offset, offset + pageSize - 1);
+    if (error) { console.error("Loading checkup results failed", { code: error.code, message: error.message, details: error.details, hint: error.hint }); throw error; }
+    results.push(...((data ?? []) as unknown as SavedCheckupResult[]));
+    if (!data || data.length < pageSize) break;
   }
-  return out;
+  return results;
 }
