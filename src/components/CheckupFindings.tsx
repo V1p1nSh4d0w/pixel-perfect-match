@@ -63,15 +63,14 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
   const scopes = (["personal", "business"] as const).filter((s) => results.some((r) => r.scope === s));
   const initial = from ? scopeForPath(from) : scopes[0]!;
   const [scope, setScope] = useState<"personal" | "business">(scopes.includes(initial) ? initial : scopes[0]!);
-  const shown = results.filter((r) => r.scope === scope);
-  const all = shown.flatMap((r) => r.items.map((it) => ({
-    ...it,
-    checkup: r.checkup_name,
-    path: r.checkup_path,
-  })));
+  const runs = results.filter((r) => r.scope === scope)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const latest = runs[0];
+  const history = runs.slice(1);
+  const latestItems = (latest?.items ?? []).map((it) => ({ ...it, checkup: latest!.checkup_name, path: latest!.checkup_path }));
 
   const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
-  all.forEach((it) => { counts[it.status]++; });
+  latestItems.forEach((it) => { counts[it.status]++; });
 
   const fetchPlaybooks = useServerFn(getRemediationPlaybooks);
   const playbooksQuery = useQuery({
@@ -117,31 +116,86 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
         </div>
       ) : null}
 
-      <ResultsSummary counts={counts} />
-
-      {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
-        const items = all.filter((it) => it.status === g.key);
-        return (
-          <ResultSection key={g.key} anchor={g.anchor} title={`${g.label} (${items.length})`}>
-            {items.length === 0 ? (
-              <p className="mt-2 text-sm text-muted-foreground">Nothing here.</p>
-            ) : (
-              <div className="mt-4 space-y-5">
-                {items.map((it) => (
-                  <CheckupFindingCard
-                    key={`${it.path}-${it.id}`}
-                    item={it}
-                    playbooks={playbooksQuery.data?.playbooks ?? {}}
-                    templates={templatesQuery.data ?? []}
-                  />
+      {latest ? (
+        <>
+          <div className="mt-5 flex flex-wrap items-center gap-2 rounded-card border border-primary/30 bg-primary/5 px-4 py-3">
+            <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">Latest</span>
+            <span className="font-medium">{latest.checkup_name}</span>
+            <span className="text-sm text-muted-foreground">· {formatRunDate(latest.created_at)}</span>
+          </div>
+          <ResultsSummary counts={counts} />
+          <RunSections
+            run={latest}
+            items={latestItems}
+            playbooks={playbooksQuery.data?.playbooks ?? {}}
+            templates={templatesQuery.data ?? []}
+            latest
+          />
+          {history.length > 0 ? (
+            <details className="mt-10 rounded-card border border-border bg-card p-4">
+              <summary className="cursor-pointer list-inside font-semibold">History <span className="font-normal text-muted-foreground">({history.length} previous checkups)</span></summary>
+              <div className="mt-5 space-y-8">
+                {history.map((run) => (
+                  <section key={run.id} className="border-t border-border pt-5">
+                    <div className="mb-4 flex flex-wrap items-center gap-2">
+                      <h2 className="font-semibold">{run.checkup_name}</h2>
+                      <span className="text-sm text-muted-foreground">· {formatRunDate(run.created_at)}</span>
+                    </div>
+                    <RunSections
+                      run={run}
+                      items={run.items.map((it) => ({ ...it, checkup: run.checkup_name, path: run.checkup_path }))}
+                      playbooks={playbooksQuery.data?.playbooks ?? {}}
+                      templates={templatesQuery.data ?? []}
+                    />
+                  </section>
                 ))}
               </div>
-            )}
-          </ResultSection>
-        );
-      })}
+            </details>
+          ) : null}
+        </>
+      ) : <p className="mt-5 text-sm text-muted-foreground">No saved checkups for this area yet.</p>}
     </div>
   );
+}
+
+function formatRunDate(value: string) {
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function RunSections({
+  run, items, playbooks, templates, latest = false,
+}: {
+  run: SavedCheckupResult;
+  items: (SavedCheckupResult["items"][number] & { checkup: string; path: string })[];
+  playbooks: Record<string, { text: string; time: string; tool: string }[]>;
+  templates: { id: string; linked_finding_key: string | null }[];
+  latest?: boolean;
+}) {
+  const counts = { found: 0, unsure: 0, good: 0, skipped: 0 } as Record<ResultKey, number>;
+  items.forEach((it) => { counts[it.status]++; });
+  return <>
+    {RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0).map((g) => {
+      const groupItems = items.filter((it) => it.status === g.key);
+      return (
+        <ResultSection key={`${run.id}-${g.key}`} anchor={latest ? g.anchor : `${run.id}-${g.anchor}`} title={`${g.label} (${groupItems.length})`}>
+          {groupItems.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">Nothing here.</p>
+          ) : (
+            <div className="mt-4 space-y-5">
+              {groupItems.map((it) => (
+                <CheckupFindingCard
+                  key={`${it.path}-${run.id}-${it.id}`}
+                  item={it}
+                  playbooks={playbooks}
+                  templates={templates}
+                />
+              ))}
+            </div>
+          )}
+        </ResultSection>
+      );
+    })}
+  </>;
 }
 
 function CheckupFindingCard({
@@ -153,7 +207,7 @@ function CheckupFindingCard({
   playbooks: Record<string, { text: string; time: string; tool: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
 }) {
-  const centralDef = getFindingDefinitionForCheck(item.findingKey, item.id);
+  const centralDef = getFindingDefinitionForCheck(item.findingKey, item.id, item.category);
   const def = centralDef
     ? { ...centralDef, source: "definition" as const }
     : fallbackDefinition(item);
