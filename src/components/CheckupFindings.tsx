@@ -5,6 +5,7 @@ import { RESULT_GROUPS, ResultSection, ResultsSummary, type ResultKey } from "@/
 import { scopeForPath, type SavedCheckupResult } from "@/lib/checkup-results";
 import { getFindingDefinitionForCheck, type FindingDefinition } from "@/lib/finding-definitions";
 import { getRemediationPlaybooks } from "@/lib/playbooks.functions";
+import { getCheckupPlaybookContent, type CheckupPlaybookStep, textWithoutPlaybookPrefix, sectionForPlaybookText } from "@/lib/playbook-content";
 import { fetchPublishedTemplates } from "@/lib/supabase";
 import { TemplateButton } from "@/components/TemplateButton";
 import { useServerFn } from "@tanstack/react-start";
@@ -52,8 +53,7 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
   const initial = from ? scopeForPath(from) : scopes[0]!;
   const [scope, setScope] = useState<"personal" | "business">(scopes.includes(initial) ? initial : scopes[0]!);
   const runs = results.filter((r) => r.scope === scope)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || b.id.localeCompare(a.id))
-    .slice(0, 4);
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   const latest = runs[0];
   const history = runs.slice(1);
   const latestItems = (latest?.items ?? []).map((it) => ({ ...it, checkup: latest!.checkup_name, path: latest!.checkup_path }));
@@ -156,7 +156,7 @@ function RunSections({
 }: {
   run: SavedCheckupResult;
   items: (SavedCheckupResult["items"][number] & { checkup: string; path: string })[];
-  playbooks: Record<string, { text: string; time: string; tool: string }[]>;
+  playbooks: Record<string, { text: string; time: string; tool: string; section?: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
   latest?: boolean;
 }) {
@@ -193,7 +193,7 @@ function CheckupFindingCard({
   templates,
 }: {
   item: SavedCheckupResult["items"][number] & { checkup: string; path: string };
-  playbooks: Record<string, { text: string; time: string; tool: string }[]>;
+  playbooks: Record<string, { text: string; time: string; tool: string; section?: string }[]>;
   templates: { id: string; linked_finding_key: string | null }[];
 }) {
   const centralDef = getFindingDefinitionForCheck(item.findingKey, item.id, item.category);
@@ -204,29 +204,14 @@ function CheckupFindingCard({
   const status = item.status;
   const isFinding = status === "found" || status === "unsure";
   const curatedPlaybook = def.playbook_title ? playbooks[def.playbook_title] : undefined;
-  const playbook = isFinding
-    ? curatedPlaybook?.length
-      ? curatedPlaybook
-      : [
-          {
-            text: status === "unsure"
-              ? `Check whether this setting or practice needs attention. ${item.where ? `Start here: ${item.where}` : "Use the checkup question as your guide."}`
-              : `Open the relevant setting or account and confirm what needs attention. ${item.where ? `Start here: ${item.where}` : "Use the checkup question as your guide."}`,
-            time: "~5 min",
-            tool: item.where ?? item.category,
-          },
-          {
-            text: def.recommended_action,
-            time: "Varies",
-            tool: "Recommended fix above",
-          },
-          {
-            text: "Return to this check and confirm the change is in place. If you still can't verify it, keep this result as Worth reviewing.",
-            time: "~2 min",
-            tool: "This checkup",
-          },
-        ]
-    : undefined;
+  const checkupContent = getCheckupPlaybookContent(item, def.title);
+  const playbook: (CheckupPlaybookStep | { text: string; time: string; tool: string; section?: string })[] = isFinding
+    ? curatedPlaybook?.length ? curatedPlaybook : checkupContent.steps
+    : [];
+  const recommendedAction = checkupContent.recommendation
+    ?? (def.recommended_action === item.review
+      ? `Improve ${def.title.toLowerCase()} by applying the specific change below.`
+      : def.recommended_action);
   const template = def.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
     : undefined;
@@ -275,11 +260,11 @@ function CheckupFindingCard({
           <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Recommended fix
           </h4>
-          <p className="mt-1.5 text-sm leading-relaxed">{def.recommended_action}</p>
+          <p className="mt-1.5 text-sm leading-relaxed">{recommendedAction}</p>
         </section>
       ) : null}
 
-      {playbook?.length ? (
+      {playbook.length ? (
         <section className="mt-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -300,9 +285,15 @@ function CheckupFindingCard({
                     )}
                     className="mt-1 h-4 w-4"
                   />
-                  <span className={checked ? "text-sm text-muted-foreground line-through" : "text-sm"}>
-                    <span className="font-medium">Step {index + 1}: </span>{step.text}
-                    <span className="block text-xs text-muted-foreground">{step.time} · Use: {step.tool}</span>
+                    <span className={checked ? "text-sm text-muted-foreground line-through" : "text-sm"}>
+                      <span className="font-medium">{("section" in step && step.section) || sectionForPlaybookText(step.text) || `Step ${index + 1}`}: </span>{"section" in step && sectionForPlaybookText(step.text) ? textWithoutPlaybookPrefix(step.text) : step.text}
+                      {index === 0 && curatedPlaybook?.length && item.where ? (
+                        <span className="mt-2 block text-xs text-muted-foreground">
+                          <span className="font-semibold uppercase tracking-[0.06em]">Where to find it</span>
+                          <span className="block">{item.where}</span>
+                        </span>
+                      ) : null}
+                      <span className="block text-xs text-muted-foreground">{step.time} · Use: {step.tool}</span>
                   </span>
                 </label>
               );
