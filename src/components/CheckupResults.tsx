@@ -13,7 +13,7 @@ export const RESULT_GROUPS: { key: ResultKey; label: string; anchor: string }[] 
 export function ResultsSummary({ counts }: { counts: Record<ResultKey, number> }) {
   const groups = RESULT_GROUPS.filter((g) => g.key !== "skipped" || counts.skipped > 0);
   return (
-    <div aria-label="Results summary" className="mt-4 grid grid-cols-2 gap-2 sm:mt-5 sm:grid-cols-4">
+    <div role="group" aria-label="Results summary" className="mt-4 grid grid-cols-2 gap-2 sm:mt-5 sm:grid-cols-4">
       {groups.map((g) => (
         <div
           key={g.key}
