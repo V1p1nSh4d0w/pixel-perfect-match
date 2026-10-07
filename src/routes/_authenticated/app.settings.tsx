@@ -35,7 +35,7 @@ function SettingsPage() {
   ];
   const showBilling = premiumEnabled && tab === "billing";
   return (
-    <>
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title="Settings" />
       <div className="mb-6 flex gap-2">
         {tabs.map((t) => {
@@ -55,8 +55,12 @@ function SettingsPage() {
           );
         })}
       </div>
-      <div className="max-w-md space-y-6">{showBilling ? <BillingPanel /> : <AccountPanel />}</div>
-    </>
+      {showBilling ? (
+        <div className="max-w-md space-y-6"><BillingPanel /></div>
+      ) : (
+        <div className="space-y-6"><AccountPanel /></div>
+      )}
+    </div>
   );
 }
 
