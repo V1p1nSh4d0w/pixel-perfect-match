@@ -12,6 +12,9 @@ export interface CheckupItem {
   /** Stable internal key connecting this check to a Finding definition. */
   findingKey?: string;
 
+  /** Plain-language explanation carried from the check into the finding. */
+  why?: string;
+
   /** Answer the user picked, as displayed. */
   answer?: string | undefined;
   review?: string;
