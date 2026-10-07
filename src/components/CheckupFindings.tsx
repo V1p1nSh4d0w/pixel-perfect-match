@@ -53,7 +53,8 @@ export function CheckupFindings({ results, from }: { results: SavedCheckupResult
   const initial = from ? scopeForPath(from) : scopes[0]!;
   const [scope, setScope] = useState<"personal" | "business">(scopes.includes(initial) ? initial : scopes[0]!);
   const runs = results.filter((r) => r.scope === scope)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || b.id.localeCompare(a.id))
+    .slice(0, 4);
   const latest = runs[0];
   const history = runs.slice(1);
   const latestItems = (latest?.items ?? []).map((it) => ({ ...it, checkup: latest!.checkup_name, path: latest!.checkup_path }));
