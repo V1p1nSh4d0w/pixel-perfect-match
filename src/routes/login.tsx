@@ -4,9 +4,13 @@ import { AuthLayout } from "@/components/AuthLayout";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { signInWithEmail, supabase } from "@/lib/supabase";
+import { completeFindingsDestination, rememberFindingsDestination } from "@/lib/auth-continuation";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { returnTo?: string } => typeof search["returnTo"] === "string"
+    ? { returnTo: search["returnTo"] }
+    : {},
   head: () => ({
     meta: [
       { title: "Log in — SecureCheck" },
@@ -15,14 +19,20 @@ export const Route = createFileRoute("/login")({
       { property: "og:description", content: "Log in to your SecureCheck account." },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
+    rememberFindingsDestination(search.returnTo);
     const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/app" });
+    if (data.user) {
+      const destination = await completeFindingsDestination(search.returnTo);
+      if (destination) throw redirect({ to: "/app/findings", search: destination });
+      throw redirect({ to: "/app" });
+    }
   },
   component: LoginPage,
 });
 
 function LoginPage() {
+  const { returnTo } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +50,9 @@ function LoginPage() {
     setLoading(true);
     try {
       await signInWithEmail(email.trim(), password);
-      await navigate({ to: "/app" });
+      const destination = await completeFindingsDestination(returnTo);
+      if (destination) await navigate({ to: "/app/findings", search: destination });
+      else await navigate({ to: "/app" });
     } catch (error) {
       setErrors({ form: error instanceof Error ? error.message : "Could not log in" });
     } finally {
@@ -52,11 +64,11 @@ function LoginPage() {
     <AuthLayout
       backHome
       title="Log in"
-      subtitle="Welcome back."
+      subtitle={returnTo ? "Sign in to continue to your detailed findings." : "Welcome back."}
       footer={
         <>
           No account?{" "}
-          <Link to="/signup" className="text-primary hover:underline">
+          <Link to="/signup" search={returnTo ? { returnTo } : {}} className="text-primary hover:underline">
             Create one
           </Link>
         </>

@@ -27,7 +27,10 @@ export const Route = createFileRoute("/_authenticated/app/findings")({
     const severity = typeof search["severity"] === "string" && search["severity"] ? { severity: search["severity"] } : {};
     const finding = typeof search["finding"] === "string" && search["finding"] ? { finding: search["finding"] } : {};
     const from = typeof search["from"] === "string" && search["from"].startsWith("/checkup/") ? { from: search["from"] as string } : {};
-    return { ...severity, ...finding, ...from } as { severity?: string; finding?: string; from?: string };
+    const resultId = typeof search["resultId"] === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(search["resultId"])
+      ? { resultId: search["resultId"] }
+      : {};
+    return { ...severity, ...finding, ...from, ...resultId } as { severity?: string; finding?: string; from?: string; resultId?: string };
   },
   head: () => ({ meta: [
     { title: "Findings — SecureCheck" },
@@ -77,12 +80,12 @@ function ConfidenceBadge({ level }: { level: "Low" | "Medium" }) {
 }
 
 function FindingsPage() {
-  const { from } = Route.useSearch();
+  const { from, resultId } = Route.useSearch();
   const q = useQuery({ queryKey: ["checkup-results"], queryFn: fetchLatestCheckupResults, retry: 1 });
   const legacy = useLatestResult();
   if (q.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (q.error) return <p className="text-sm text-destructive">Couldn't load your checkup results. Please refresh the page.</p>;
-  if ((q.data ?? []).length > 0) return <CheckupFindings results={q.data!} from={from} />;
+  if ((q.data ?? []).length > 0) return <CheckupFindings results={q.data!} {...(from ? { from } : {})} {...(resultId ? { resultId } : {})} />;
   if (legacy.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (legacy.result) return <LegacyFindingsPage />;
   return <CheckupFindingsEmpty />;

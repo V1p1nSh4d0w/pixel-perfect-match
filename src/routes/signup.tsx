@@ -4,9 +4,13 @@ import { AuthLayout } from "@/components/AuthLayout";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { signUpWithEmail, supabase } from "@/lib/supabase";
+import { completeFindingsDestination, rememberFindingsDestination } from "@/lib/auth-continuation";
 
 export const Route = createFileRoute("/signup")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { returnTo?: string } => typeof search["returnTo"] === "string"
+    ? { returnTo: search["returnTo"] }
+    : {},
   head: () => ({
     meta: [
       { title: "Create your SecureCheck account" },
@@ -18,14 +22,20 @@ export const Route = createFileRoute("/signup")({
       },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
+    rememberFindingsDestination(search.returnTo);
     const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/app" });
+    if (data.user) {
+      const destination = await completeFindingsDestination(search.returnTo);
+      if (destination) throw redirect({ to: "/app/findings", search: destination });
+      throw redirect({ to: "/app" });
+    }
   },
   component: SignupPage,
 });
 
 function SignupPage() {
+  const { returnTo } = Route.useSearch();
   const navigate = useNavigate();
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +45,7 @@ function SignupPage() {
     email?: string;
     password?: string;
     form?: string;
+    notice?: string;
   }>({});
   const [loading, setLoading] = useState(false);
 
@@ -49,8 +60,14 @@ function SignupPage() {
 
     setLoading(true);
     try {
-      await signUpWithEmail(email.trim(), password, businessName.trim());
-      await navigate({ to: "/app" });
+      const result = await signUpWithEmail(email.trim(), password, businessName.trim());
+      if (!result.session) {
+        setErrors({ notice: "Check your email to confirm your account. Your checkup will be waiting when you return here." });
+        return;
+      }
+      const destination = await completeFindingsDestination(returnTo);
+      if (destination) await navigate({ to: "/app/findings", search: destination });
+      else await navigate({ to: "/app" });
     } catch (error) {
       setErrors({ form: error instanceof Error ? error.message : "Could not create your account" });
     } finally {
@@ -62,11 +79,11 @@ function SignupPage() {
     <AuthLayout
       backHome
       title="Create your account"
-      subtitle="Takes less than a minute."
+      subtitle={returnTo ? "Create your free account to view your detailed findings." : "Takes less than a minute."}
       footer={
         <>
           Already have an account?{" "}
-          <Link to="/login" className="text-primary hover:underline">
+          <Link to="/login" search={returnTo ? { returnTo } : {}} className="text-primary hover:underline">
             Log in
           </Link>
         </>
@@ -97,6 +114,7 @@ function SignupPage() {
           hint="At least 8 characters"
         />
         {errors.form ? <p className="text-xs text-danger">{errors.form}</p> : null}
+        {errors.notice ? <p className="text-xs text-muted-foreground">{errors.notice}</p> : null}
         <Button type="submit" fullWidth loading={loading}>
           Create account
         </Button>

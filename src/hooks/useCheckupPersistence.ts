@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { fetchLatestAnswersFor, loadLocalAnswers, saveCheckupResult, type CheckupItem } from "@/lib/checkup-results";
+import { fetchLatestAnswersFor, getPendingCheckupResultId, loadLocalAnswers, prepareCheckupResult, saveCheckupResult, type CheckupItem } from "@/lib/checkup-results";
 
 /**
  * Saves each completed checkup (tab always; account when signed in) and, when
@@ -18,6 +18,7 @@ export function useCheckupPersistence<A extends string>(opts: {
   const { pathname, search } = useLocation();
   const savedFor = useRef<string | null>(null);
   const restoring = useRef(false);
+  const [resultId, setResultId] = useState<string | undefined>();
   const { done, answers, items, name, restore } = opts;
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export function useCheckupPersistence<A extends string>(opts: {
     restoring.current = true;
     const local = loadLocalAnswers(pathname);
     const apply = (a: Record<string, string> | null) => {
-      if (a) { savedFor.current = JSON.stringify(a); restore(a as Record<string, A>); }
+      if (a) { savedFor.current = JSON.stringify(a); setResultId(getPendingCheckupResultId(pathname) ?? undefined); restore(a as Record<string, A>); }
       restoring.current = false;
     };
     if (local) apply(local);
@@ -38,12 +39,15 @@ export function useCheckupPersistence<A extends string>(opts: {
     const signature = JSON.stringify(answers);
     if (savedFor.current === signature) return;
     savedFor.current = signature;
-    saveCheckupResult({ path: pathname, name, answers, items }).catch((e: unknown) => {
+    const input = { path: pathname, name, answers, items };
+    const id = prepareCheckupResult(input);
+    setResultId(id);
+    saveCheckupResult(input, id).catch((e: unknown) => {
       savedFor.current = null;
       console.error("Saving checkup results failed", e);
       toast.error("Your results couldn't be saved to your account. They're still shown here.");
     });
   }, [done, answers, items, name, pathname]);
 
-  return { path: pathname };
+  return { path: pathname, resultId };
 }

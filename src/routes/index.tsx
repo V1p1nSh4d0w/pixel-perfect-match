@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/config";
 import { usePremiumEnabled } from "@/hooks/useSubscription";
+import { completeRememberedFindingsDestination } from "@/lib/auth-continuation";
 
 const TITLE = "SecureCheck — Know what needs attention. Fix what matters.";
 const DESC =
@@ -48,9 +49,16 @@ function LandingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app", replace: true });
+    let active = true;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      let destination = null;
+      try { destination = await completeRememberedFindingsDestination(); } catch { /* the account home remains available */ }
+      if (!active) return;
+      if (destination) navigate({ to: "/app/findings", search: destination, replace: true });
+      else navigate({ to: "/app", replace: true });
     });
+    return () => { active = false; };
   }, [navigate]);
 
   return (
