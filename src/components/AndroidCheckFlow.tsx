@@ -31,8 +31,9 @@ export function AndroidCheckFlow({ checks, mode }: { checks: AndroidCheck[]; mod
     return (
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Your Android check results</h1>
+        <p className="mt-2 text-sm text-muted-foreground">You finished your check. Here’s what we found from your answers.</p>
         <ResultsSummary counts={counts} />
-        <div className="mt-4"><Link to="/app/findings" search={{ from: path, ...(resultId ? { resultId } : {}) }}><Button>View Findings</Button></Link></div>
+        <div className="mt-4"><Link to="/app/findings" search={{ from: path, ...(resultId ? { resultId } : {}) }}><Button>View my findings →</Button></Link><p className="mt-2 text-sm text-muted-foreground">See what’s worth fixing and get step-by-step guidance.</p></div>
         <p className="mt-4 text-sm text-muted-foreground">
           Based on what you told us during this guided self-check. We didn't inspect your phone.
         </p>
