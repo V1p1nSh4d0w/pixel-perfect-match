@@ -215,9 +215,7 @@ function CheckupFindingCard({
     ? curatedPlaybook?.length ? curatedPlaybook : checkupContent.steps
     : [];
   const recommendedAction = checkupContent.recommendation
-    ?? (def.recommended_action === item.review
-      ? `Improve ${def.title.toLowerCase()} by applying the specific change below.`
-      : def.recommended_action);
+    ?? (def.recommended_action !== item.review ? def.recommended_action : undefined);
   const template = def.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
     : undefined;
@@ -261,7 +259,7 @@ function CheckupFindingCard({
         <p className="mt-1 text-xs text-muted-foreground">We did not technically inspect your device, account or service.</p>
       </section>
 
-      {isFinding ? (
+      {isFinding && recommendedAction ? (
         <section className="mt-5">
           <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Recommended fix
