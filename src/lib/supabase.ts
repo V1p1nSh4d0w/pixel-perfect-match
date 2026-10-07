@@ -38,6 +38,54 @@ export async function updatePassword(password: string) {
   if (error) throw error;
 }
 
+export async function signOutOtherSessions() {
+  const { error } = await supabase.auth.signOut({ scope: "others" });
+  if (error) throw error;
+}
+
+export async function exportMyAccountData() {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) throw authError ?? new Error("You need to be signed in.");
+  const user = authData.user;
+
+  const [profile, checkupResults, assessments, findings, actionItems, playbookProgress, subscription, paymentHistory, calls] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    supabase.from("checkup_results").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("assessments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("findings").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("action_items").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("playbook_progress").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase.from("audits").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    supabase.from("quarterly_calls").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+  ]);
+  const queryError = [profile.error, checkupResults.error, assessments.error, findings.error, actionItems.error, playbookProgress.error, subscription.error, paymentHistory.error, calls.error].find(Boolean);
+  if (queryError) throw queryError;
+
+  return {
+    exportedAt: new Date().toISOString(),
+    account: { id: user.id, email: user.email ?? null, createdAt: user.created_at ?? null },
+    profile: profile.data,
+    checkupResults: checkupResults.data ?? [],
+    assessments: assessments.data ?? [],
+    findings: findings.data ?? [],
+    actionItems: actionItems.data ?? [],
+    playbookProgress: playbookProgress.data ?? [],
+    subscription: subscription.data,
+    paymentHistory: paymentHistory.data ?? [],
+    quarterlyCalls: calls.data ?? [],
+  };
+}
+
+export async function deleteMyAccount() {
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) throw error;
+  // The database has removed this user and cascaded their account records.
+  // Clear this browser's local token without calling the Auth API again.
+  const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
+  if (signOutError) throw signOutError;
+}
+
 export async function signOut() {
   await supabase.auth.signOut();
 }

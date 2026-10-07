@@ -514,6 +514,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_my_account: { Args: never; Returns: undefined }
       has_feature_access: { Args: { _user_id?: string }; Returns: boolean }
       has_paid_access: { Args: { _user_id?: string }; Returns: boolean }
       has_role: {
