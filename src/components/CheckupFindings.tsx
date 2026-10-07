@@ -33,6 +33,19 @@ function loadProgress(path: string, checkId: string): number[] {
   }
 }
 
+
+function bestPlaybookTitle(title: string, playbooks: Record<string, unknown>): string | undefined {
+  const stop = new Set(["the","and","for","with","your","business","important","review","access","need","needs","not"]);
+  const words = title.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !stop.has(w));
+  let best: { key: string; score: number } | undefined;
+  for (const key of Object.keys(playbooks)) {
+    const keyWords = new Set(key.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !stop.has(w)));
+    const score = words.filter((w) => keyWords.has(w)).length;
+    if (score >= 2 && (!best || score > best.score)) best = { key, score };
+  }
+  return best?.key;
+}
+
 function fallbackDefinition(item: SavedCheckupResult["items"][number]): FindingView {
   return {
     finding_key: item.findingKey ?? `check:${item.id}`,
@@ -145,7 +158,8 @@ function CheckupFindingCard({
     ? { ...centralDef, source: "definition" as const }
     : fallbackDefinition(item);
 
-  const playbook = def.playbook_title ? playbooks[def.playbook_title] : undefined;
+  const playbookTitle = def.playbook_title ?? bestPlaybookTitle(def.title, playbooks);
+  const playbook = playbookTitle ? playbooks[playbookTitle] : undefined;
   const template = def.template_key
     ? templates.find((t) => t.linked_finding_key === def.template_key)
     : undefined;
