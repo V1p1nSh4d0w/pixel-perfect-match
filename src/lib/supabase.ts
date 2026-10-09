@@ -114,7 +114,8 @@ export async function exportMyAccountData() {
 }
 
 export async function deleteMyAccount() {
-  const { error } = await supabase.rpc("delete_my_account");
+  // delete_my_account is not in the generated types yet (database function not created).
+  const { error } = await supabase.rpc("delete_my_account" as never);
   if (error) throw error;
   // The database has removed this user and cascaded their account records.
   // Clear this browser's local token without calling the Auth API again.
