@@ -245,9 +245,11 @@ function CheckupFindingCard({
     : [];
   const recommendedAction = checkupContent.recommendation
     ?? (def.recommended_action !== item.review ? def.recommended_action : undefined);
-  const template = def.template_key
-    ? templates.find((t) => t.linked_finding_key === def.template_key)
+  const templateKey = def.template_key;
+  const template = templateKey
+    ? templates.find((t) => t.linked_finding_key === templateKey)
     : undefined;
+
 
   const [done, setDone] = useState<number[]>(() => loadProgress(item.path, item.id));
 
@@ -337,11 +339,12 @@ function CheckupFindingCard({
         </section>
       ) : null}
 
-      {template ? (
+      {template && templateKey ? (
         <div className="mt-5">
-          <TemplateButton templateId={template.id} findingKey={item.findingKey ?? def.finding_key} />
+          <TemplateButton templateId={template.id} findingKey={templateKey} />
         </div>
       ) : null}
+
 
       {status === "skipped" ? (
         <a href={`${item.path}?results=1`} className="mt-5 inline-block text-sm font-medium text-primary hover:underline">
