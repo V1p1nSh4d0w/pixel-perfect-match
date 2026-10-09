@@ -8,7 +8,7 @@ import { Input } from "@/components/Input";
 import { PageHeader } from "@/components/PageHeader";
 import { BillingPanel } from "@/components/BillingPanel";
 import { useProfile } from "@/hooks/useProfile";
-import { deleteMyAccount, exportMyAccountData, signOut, signOutOtherSessions, updateBusinessName, updatePassword } from "@/lib/supabase";
+import { changePassword, deleteMyAccount, exportMyAccountData, signOut, signOutOtherSessions, updateBusinessName } from "@/lib/supabase";
 import { usePremiumEnabled } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +71,7 @@ function AccountPanel() {
   const [businessName, setBusinessName] = useState("");
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
@@ -112,6 +113,10 @@ function AccountPanel() {
 
   async function handlePasswordChange(event: FormEvent) {
     event.preventDefault();
+    if (!currentPassword) {
+      toast.error("Enter your current password to continue.");
+      return;
+    }
     if (newPassword.length < 8) {
       toast.error("Password must be at least 8 characters.");
       return;
@@ -122,7 +127,8 @@ function AccountPanel() {
     }
     setChangingPassword(true);
     try {
-      await updatePassword(newPassword);
+      await changePassword(currentPassword, newPassword);
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       toast.success("Password updated.");
@@ -145,19 +151,20 @@ function AccountPanel() {
     }
   }
 
-  async function handleExport() {
+  async function handleExport(format: "json" | "csv") {
     setExporting(true);
     try {
       const data = await exportMyAccountData();
-      const file = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const contents = format === "json" ? JSON.stringify(data, null, 2) : exportDataAsCsv(data);
+      const file = new Blob([contents], { type: format === "json" ? "application/json;charset=utf-8" : "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(file);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `securecheck-data-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `securecheck-data-${new Date().toISOString().slice(0, 10)}.${format}`;
       document.body.append(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       toast.success("Your data export has been downloaded.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not export your data.");
@@ -202,6 +209,7 @@ function AccountPanel() {
       <Card>
         <CardTitle>Security</CardTitle>
         <form onSubmit={handlePasswordChange} className="mt-6 space-y-4">
+          <Input label="Current password" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
           <Input label="New password" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
           <Input label="Confirm new password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           <Button type="submit" loading={changingPassword}>Change password</Button>
@@ -215,7 +223,10 @@ function AccountPanel() {
       <Card>
         <CardTitle>Privacy &amp; Data</CardTitle>
         <p className="mt-3 text-sm text-muted-foreground">Download a copy of your SecureCheck account and checkup data.</p>
-        <div className="mt-4"><Button variant="secondary" onClick={handleExport} loading={exporting}>Export my data</Button></div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => handleExport("json")} loading={exporting}>Export as JSON</Button>
+          <Button variant="secondary" onClick={() => handleExport("csv")} loading={exporting}>Export as CSV</Button>
+        </div>
         <div className="mt-6 border-t border-border pt-5">
           <p className="text-sm text-muted-foreground">Deleting your account permanently removes your profile and associated SecureCheck data.</p>
           {!confirmingDeletion ? (
@@ -234,4 +245,27 @@ function AccountPanel() {
       </Card>
     </>
   );
+}
+
+function exportDataAsCsv(data: Awaited<ReturnType<typeof exportMyAccountData>>) {
+  const columns = ["record_type", "id", "created_at", "email", "business_name", "scope", "checkup_path", "checkup_name", "title", "status", "details"] as const;
+  const rows: Array<Record<(typeof columns)[number], unknown>> = [];
+  rows.push({ record_type: "account", id: data.account.id, created_at: data.account.createdAt, email: data.account.email, business_name: null, scope: null, checkup_path: null, checkup_name: null, title: null, status: null, details: null });
+  if (data.profile) rows.push({ record_type: "profile", id: data.profile.id, created_at: data.profile.created_at, email: data.profile.email, business_name: data.profile.business_name, scope: null, checkup_path: null, checkup_name: null, title: null, status: null, details: null });
+  for (const result of data.checkupResults) rows.push({
+    record_type: "checkup_result", id: result.id, created_at: result.created_at, email: null, business_name: null,
+    scope: result.scope, checkup_path: result.checkup_path, checkup_name: result.checkup_name, title: null, status: null,
+    details: JSON.stringify({ answers: result.answers, items: result.items }),
+  });
+  for (const [recordType, records] of [["assessment", data.assessments], ["finding", data.findings], ["action_item", data.actionItems], ["playbook_progress", data.playbookProgress]] as const) {
+    for (const record of records) {
+      const row = record as Record<string, unknown>;
+      rows.push({ record_type: recordType, id: row["id"] ?? row["finding_id"], created_at: row["created_at"], email: null, business_name: null, scope: null, checkup_path: null, checkup_name: null, title: row["title"], status: row["status"], details: JSON.stringify(row) });
+    }
+  }
+  const escape = (value: unknown) => {
+    const text = value == null ? "" : String(value);
+    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  return `\uFEFF${[columns.join(","), ...rows.map((row) => columns.map((key) => escape(row[key])).join(","))].join("\r\n")}`;
 }

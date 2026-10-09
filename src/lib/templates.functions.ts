@@ -9,7 +9,10 @@ export const FINDING_KEY_FOR_TITLE: Record<string, string> = {
   "Backups have not been tested": "backups_not_tested",
 };
 
-const input = z.object({ templateId: z.string().uuid(), findingId: z.string().uuid().optional() });
+const input = z.object({
+  templateId: z.string().uuid(),
+  findingKey: z.string().regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/).optional(),
+});
 
 /**
  * Issues a 60-second signed URL. Server checks: signed in, template published (RLS),
@@ -20,9 +23,10 @@ export const getTemplateDownloadUrl = createServerFn({ method: "POST" })
   .inputValidator((d) => input.parse(d))
   .handler(async ({ data, context }) => {
     const { data: tpl } = await context.supabase
-      .from("templates").select("id, title, file_path, preview_text, published")
+      .from("templates").select("id, title, file_path, preview_text, published, linked_finding_key")
       .eq("id", data.templateId).eq("published", true).maybeSingle();
     if (!tpl) throw new Error("Template not found.");
+    if (data.findingKey && data.findingKey !== tpl.linked_finding_key) throw new Error("This finding is not linked to the selected template.");
     const { data: allowed, error } = await context.supabase.rpc("has_feature_access", { _user_id: context.userId });
     if (error) throw new Error("Could not verify access.");
     if (!allowed) return { ok: false as const, title: tpl.title, preview: tpl.preview_text ?? "" };
@@ -33,7 +37,7 @@ export const getTemplateDownloadUrl = createServerFn({ method: "POST" })
     if (signError || !signed) throw new Error("Template is not available yet.");
     await context.supabase.from("events").insert({
       user_id: context.userId, event_name: "template_downloaded", object_id: tpl.id,
-      metadata: data.findingId ? { finding_id: data.findingId } : null,
+      metadata: data.findingKey ? { finding_key: data.findingKey } : null,
     });
     return { ok: true as const, url: signed.signedUrl };
   });
