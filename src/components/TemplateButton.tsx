@@ -7,7 +7,7 @@ import { PremiumRequestButton } from "@/components/PremiumRequestButton";
 import { getTemplateDownloadUrl } from "@/lib/templates.functions";
 import { trackEvent } from "@/lib/supabase";
 
-export function TemplateButton({ templateId, findingId }: { templateId: string; findingId: string }) {
+export function TemplateButton({ templateId, findingKey }: { templateId: string; findingKey?: string }) {
   const download = useServerFn(getTemplateDownloadUrl);
   const [busy, setBusy] = useState(false);
   const [locked, setLocked] = useState<{ title: string; preview: string } | null>(null);
@@ -15,8 +15,8 @@ export function TemplateButton({ templateId, findingId }: { templateId: string; 
   async function onClick() {
     setBusy(true);
     try {
-      await trackEvent("template_button_clicked", templateId, { finding_id: findingId }).catch(() => {});
-      const res = await download({ data: { templateId, findingId } });
+      await trackEvent("template_button_clicked", templateId, findingKey ? { finding_key: findingKey } : undefined).catch(() => {});
+      const res = await download({ data: { templateId, findingKey } });
       if (!res.ok) { setLocked({ title: res.title, preview: res.preview }); return; }
       window.location.assign(res.url);
     } catch (e) {

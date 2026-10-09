@@ -384,9 +384,9 @@ function FindingCard({ finding: f, inPlan, highlighted, flash }: { finding: Find
                   </li>
                 ))}
               </ol>
-              {template ? <div className="mt-4"><TemplateButton templateId={template.id} findingId={f.id} /></div> : null}
+              {template ? <div className="mt-4"><TemplateButton templateId={template.id} {...(FINDING_KEY_FOR_TITLE[f.title] ? { findingKey: FINDING_KEY_FOR_TITLE[f.title] } : {})} /></div> : null}
             </section>
-          ) : template ? <TemplateButton templateId={template.id} findingId={f.id} /> : null}
+          ) : template ? <TemplateButton templateId={template.id} {...(FINDING_KEY_FOR_TITLE[f.title] ? { findingKey: FINDING_KEY_FOR_TITLE[f.title] } : {})} /> : null}
           {refs.length > 0 && (
             <section>
               <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Reference</h3>

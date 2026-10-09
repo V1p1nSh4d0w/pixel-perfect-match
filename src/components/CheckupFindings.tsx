@@ -339,7 +339,7 @@ function CheckupFindingCard({
 
       {template ? (
         <div className="mt-5">
-          <TemplateButton templateId={template.id} findingId={item.findingKey ?? def.finding_key} />
+          <TemplateButton templateId={template.id} findingKey={item.findingKey ?? def.finding_key} />
         </div>
       ) : null}
 

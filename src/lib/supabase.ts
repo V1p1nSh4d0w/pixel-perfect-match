@@ -1,4 +1,6 @@
+import { createClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { SELF_REPORTED_SCORE_CAP, controlForFinding, enrichFindings, riskLevelFor, scoreAssessment } from "@/lib/scoring";
 import type { Profile } from "@/types/profile";
 import type { AssessmentAnswers, AssessmentResult, Finding, RiskLevel, Severity } from "@/types/assessment";
@@ -33,6 +35,40 @@ export async function sendPasswordReset(email: string) {
   if (error) throw error;
 }
 
+export async function changePassword(currentPassword: string, password: string) {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user?.email) throw authError ?? new Error("Your session has expired. Sign in again and retry.");
+
+  const url = import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
+  const key = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key) throw new Error("Password verification is unavailable. Please try again later.");
+
+  // Verify in a non-persistent client so the active browser session is never replaced.
+  const verificationClient = createClient<Database>(url, key, {
+    global: {
+      fetch: (input, init) => {
+        const headers = new Headers(typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined);
+        if (init?.headers) new Headers(init.headers).forEach((value, name) => headers.set(name, value));
+        if ((key.startsWith("sb_publishable_") || key.startsWith("sb_secret_")) && headers.get("Authorization") === `Bearer ${key}`) headers.delete("Authorization");
+        headers.set("apikey", key);
+        return fetch(input, { ...init, headers });
+      },
+    },
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { error: verificationError } = await verificationClient.auth.signInWithPassword({ email: authData.user.email, password: currentPassword });
+  if (verificationError) {
+    if (verificationError.message.toLowerCase().includes("invalid") || verificationError.status === 400 || verificationError.status === 401) {
+      throw new Error("Your current password is incorrect.");
+    }
+    throw new Error("We couldn't verify your current password. Please try again.");
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
+/** Used by password-reset flow after its recovery link has authenticated the user. */
 export async function updatePassword(password: string) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) throw error;
